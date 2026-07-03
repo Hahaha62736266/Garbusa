@@ -75,3 +75,34 @@ The application manages data workflows across three tightly related record types
     - `email`: bob.b@example.com
     - `phone_number`: 555-5678
     - `registration_date`: 2023-02-20T11:30:00Z
+ 
+    - # Order Records
+
+## Fields:
+- `order_id` (Unique identifier)
+- `customer_id` (Foreign key referencing `customers.md`)
+- `order_date` (Date/Timestamp)
+- `total_amount` (Decimal/Float)
+- `status` (String, e.g., 'Pending', 'Shipped', 'Delivered')
+- `items` (Array of order items, each referencing `products.md`)
+
+## Example Records:
+- **Order 1:**
+    - `order_id`: 5001
+    - `customer_id`: 1001 (Alice Wonderland)
+    - `order_date`: 2024-07-03T14:05:00Z
+    - `total_amount`: 75.50
+    - `status`: 'Shipped'
+    - `items`: [
+        { `product_id`: 201, `quantity`: 1, `price_at_purchase`: 50.00 },
+        { `product_id`: 205, `quantity`: 2, `price_at_purchase`: 12.75 }
+      ]
+- **Order 2:**
+    - `order_id`: 5002
+    - `customer_id`: 1002 (Bob The Builder)
+    - `order_date`: 2024-07-03T14:10:00Z
+    - `total_amount`: 120.00
+    - `status`: 'Pending'
+    - `items`: [
+        { `product_id`: 210, `quantity`: 1, `price_at_purchase`: 120.00 }
+      ]
