@@ -1,4 +1,4 @@
-# Garbusa
+hi# Garbusa
 # Aquaflow Tracker - Water Refilling Station Management System
 
 A lightweight, CRUD-shaped web application designed to digitalize daily sales, deliveries, and container balances for local water refilling stations.
@@ -52,80 +52,16 @@ The application manages data workflows across three tightly related record types
 
    # Customer Records
 
-## Fields:
-- `customer_id` (Unique identifier, e.g., integer or UUID)
-- `first_name` (String)
-- `last_name` (String)
-- `email` (String, unique)
-- `phone_number` (String)
-- `registration_date` (Date/Timestamp)
+# Products
+- product_id (PK, unique)
+- product_name
+- price_per_unit (PHP)
+- description
+- stock_available
 
-## Example Records:
-- **Customer 1:**
-    - `customer_id`: 1001
-    - `first_name`: carl
-    - `last_name`: Zamora
-    - `email`: carl.zamora@example.com
-    - `phone_number`: 555-1234
-    - `registration_date`: 2023-01-15T10:00:00Z
-- **Customer 2:**
-    - `customer_id`: 1002
-    - `first_name`: Dave
-    - `last_name`: Colipano
-    - `email`: Dave.Colipano@example.com
-    - `phone_number`: 555-5678
-    - `registration_date`: 2023-02-20T11:30:00Z
- 
-    - # Order Records
-
-## Fields:
-- `order_id` (Unique identifier)
-- `customer_id` (Foreign key referencing `customers.md`)
-- `order_date` (Date/Timestamp)
-- `total_amount` (Decimal/Float)
-- `status` (String, e.g., 'Pending', 'Shipped', 'Delivered')
-- `items` (Array of order items, each referencing `products.md`)
-
-## Example Records:
-- **Order 1:**
-    - `order_id`: 5001
-    - `customer_id`: 1001 (Alice Wonderland)
-    - `order_date`: 2024-07-03T14:05:00Z
-    - `total_amount`: 75.50
-    - `status`: 'Shipped'
-    - `items`: [
-        { `product_id`: 201, `quantity`: 1, `price_at_purchase`: 50.00 },
-        { `product_id`: 205, `quantity`: 2, `price_at_purchase`: 12.75 }
-      ]
-- **Order 2:**
-    - `order_id`: 5002
-    - `customer_id`: 1002 (Bob The Builder)
-    - `order_date`: 2024-07-03T14:10:00Z
-    - `total_amount`: 120.00
-    - `status`: 'Pending'
-    - `items`: [
-        { `product_id`: 210, `quantity`: 1, `price_at_purchase`: 120.00 }
-      ]
-
-      # Product Records
-
-## Fields:
-- `product_id` (Unique identifier)
-- `name` (String)
-- `description` (String)
-- `price` (Decimal/Float)
-- `stock_quantity` (Integer)
-
-## Example Records:
-- **Product 1:**
-    - `product_id`: 201
-    - `name`: "Magic Wand"
-    - `description`: "A wand that grants wishes."
-    - `price`: 50.00
-    - `stock_quantity`: 100
-- **Product 2:**
-    - `product_id`: 205
-    - `name`: "Sparkling Potion"
-    - `description`: "A potion that makes you glow."
-    - `price`: 12.75
-    - `stock_quantity`: 250
+## Sample Records
+| product_id | product_name       | price | description          | stock_available |
+|---|---|---|---|---|
+| P001       | 5-Gal Purified     | 35.00 | Refill only          | 120 |
+| P002       | 5-Gal Distilled    | 45.00 | Best for drinking    | 85 |
+| P003       | New 5-Gal Jug      | 180.00 | Empty plastic jug   | 40 |
