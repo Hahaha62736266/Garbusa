@@ -106,3 +106,26 @@ The application manages data workflows across three tightly related record types
     - `items`: [
         { `product_id`: 210, `quantity`: 1, `price_at_purchase`: 120.00 }
       ]
+
+      # Product Records
+
+## Fields:
+- `product_id` (Unique identifier)
+- `name` (String)
+- `description` (String)
+- `price` (Decimal/Float)
+- `stock_quantity` (Integer)
+
+## Example Records:
+- **Product 1:**
+    - `product_id`: 201
+    - `name`: "Magic Wand"
+    - `description`: "A wand that grants wishes."
+    - `price`: 50.00
+    - `stock_quantity`: 100
+- **Product 2:**
+    - `product_id`: 205
+    - `name`: "Sparkling Potion"
+    - `description`: "A potion that makes you glow."
+    - `price`: 12.75
+    - `stock_quantity`: 250
