@@ -49,3 +49,29 @@ The application manages data workflows across three tightly related record types
    ```bash
    git clone <your-repository-url>
    cd <repository-folder-name>
+
+   # Customer Records
+
+## Fields:
+- `customer_id` (Unique identifier, e.g., integer or UUID)
+- `first_name` (String)
+- `last_name` (String)
+- `email` (String, unique)
+- `phone_number` (String)
+- `registration_date` (Date/Timestamp)
+
+## Example Records:
+- **Customer 1:**
+    - `customer_id`: 1001
+    - `first_name`: Alice
+    - `last_name`: Wonderland
+    - `email`: alice.w@example.com
+    - `phone_number`: 555-1234
+    - `registration_date`: 2023-01-15T10:00:00Z
+- **Customer 2:**
+    - `customer_id`: 1002
+    - `first_name`: Bob
+    - `last_name`: The Builder
+    - `email`: bob.b@example.com
+    - `phone_number`: 555-5678
+    - `registration_date`: 2023-02-20T11:30:00Z
