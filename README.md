@@ -79,6 +79,17 @@ The application manages data workflows across three tightly related record types
 | P002       | 5-Gal Distilled    | 45.00 | Best for drinking    | 85 |
 | P003       | New 5-Gal Jug      | 180.00 | Empty plastic jug   | 40 |
 
+# Orders
+- order_id (PK, unique)
+- customer_id (FK → Customers)
+- product_id (FK → Products)
+- quantity
+- total_amount
+- order_date
+- status
 
-
-
+## Sample Records
+| order_id | customer_id | product_id | quantity | total | order_date | status |
+|---|---|---|---|---|---|---|
+| O001     | C001        | P002       | 2        | 90.00 | 2026-07-03 | Delivered |
+| O002     | C002        | P001       | 3        | 105.00 | 2026-07-03 | Pending |
