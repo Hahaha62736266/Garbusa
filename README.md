@@ -1,6 +1,5 @@
 hi# Garbusa
 # Aquaflow Tracker - Water Refilling Station Management System
-
 A lightweight, CRUD-shaped web application designed to digitalize daily sales, deliveries, and container balances for local water refilling stations.
 
 ---
@@ -52,6 +51,20 @@ The application manages data workflows across three tightly related record types
 
    # Customer Records
 
+# Customers
+- customer_id (PK, unique)
+- full_name
+- contact_number
+- address
+- container_owned (empty 5gal jugs)
+- registration_date
+
+## Sample Records
+| customer_id | full_name       | contact      | address                  | container_owned | registration_date |
+|---|---|---|---|---|---|
+| C001        | Maria Santos    | 0917-123-4567 | Brgy. 25, CdeO           | 2               | 2026-01-10 |
+| C002        | Juan Dela Cruz  | 0918-987-6543 | Brgy. Lapasan, CdeO      | 3               | 2026-02-15 |
+
 # Products
 - product_id (PK, unique)
 - product_name
@@ -65,3 +78,7 @@ The application manages data workflows across three tightly related record types
 | P001       | 5-Gal Purified     | 35.00 | Refill only          | 120 |
 | P002       | 5-Gal Distilled    | 45.00 | Best for drinking    | 85 |
 | P003       | New 5-Gal Jug      | 180.00 | Empty plastic jug   | 40 |
+
+
+
+
