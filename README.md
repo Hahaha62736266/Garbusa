@@ -109,4 +109,18 @@ The application manages data workflows across three tightly related record types
 | collection_id | customer_id | order_id | empty_jugs_returned | filled_jugs_released | container_balance | collection_date | collected_by |
 |---------------|-------------|----------|---------------------|----------------------|-------------------|-----------------|--------------|
 | CL001         | C001        | O001     | 2                   | 2                    | 2                 | 2026-07-03      | Staff A      |
-| CL002         | C002        | O002     | 3                   | 0                    | 3                 | 2026-07-03      | Staff B      |
+| CL002         | C002        | O002     | 3                   | 0                    | 3                 | 2026-07-03      | Staff B      
+# Products
+- product_id (PK, unique)
+- product_name
+- price_per_unit (PHP)
+- description
+- stock_available
+
+## Sample Records
+| product_id | product_name       | price | description          | stock_available |
+|---|---|---|---|---|
+| P001       | 5-Gal Purified     | 35.00 | Refill only          | 120 |
+| P002       | 5-Gal Distilled    | 45.00 | Best for drinking    | 85 |
+| P003       | New 5-Gal Jug      | 180.00 | Empty plastic jug   | 40 |
+
