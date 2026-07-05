@@ -123,4 +123,50 @@ The application manages data workflows across three tightly related record types
 | P001       | 5-Gal Purified     | 35.00 | Refill only          | 120 |
 | P002       | 5-Gal Distilled    | 45.00 | Best for drinking    | 85 |
 | P003       | New 5-Gal Jug      | 180.00 | Empty plastic jug   | 40 |
+import streamlit as st
+import datetime
+import pandas as pd
 
+# Mock database connections
+if "orders_db" not in st.session_state:
+    st.session_state.orders_db = []
+
+st.title("💧 Aquaflow Tracker - Create Order")
+
+with st.form("add_order_form", clear_on_submit=True):
+    st.subheader("New Order Information")
+    
+    # Form Input Controls
+    customer_id = st.selectbox("Select Customer ID", ["C001 (Maria Santos)", "C002 (Juan Dela Cruz)"])
+    product_id = st.selectbox("Select Product", ["P001 - 5-Gal Purified (₱35)", "P002 - 5-Gal Distilled (₱45)", "P003 - New 5-Gal Jug (₱180)"])
+    quantity = st.number_input("Quantity", min_value=1, value=1, step=1)
+    
+    # Simple pricing calculator matrix
+    price_map = {"P001": 35.00, "P002": 45.00, "P003": 180.00}
+    selected_prod_code = product_id.split(" ")[0]
+    total_amount = price_map[selected_prod_code] * quantity
+    
+    st.info(f"Estimated Total: ₱{total_amount:.2f}")
+    
+    # Form submission action
+    submitted = st.form_submit_button("Log Order")
+    if submitted:
+        new_order_id = f"O{len(st.session_state.orders_db) + 1:03d}"
+        order_payload = {
+            "order_id": new_order_id,
+            "customer_id": customer_id.split(" ")[0],
+            "product_id": selected_prod_code,
+            "quantity": quantity,
+            "total": total_amount,
+            "order_date": str(datetime.date.today()),
+            "status": "Pending"
+        }
+        st.session_state.orders_db.append(order_payload)
+        st.success(f"Order {new_order_id} added successfully to the active queue!")
+
+# Display current workflow orders queue
+st.write("### Active Orders Log View")
+if st.session_state.orders_db:
+    st.dataframe(pd.DataFrame(st.session_state.orders_db))
+else:
+    st.info("No orders captured today yet.")
