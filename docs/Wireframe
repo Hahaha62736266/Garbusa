@@ -9,15 +9,3 @@ customer-create-error.png	Screen: Add New Customer — ErrorStories: Customer Cr
 customer-edit.png	Screen: Edit CustomerStories: Customer UpdateDesigner: Apostol	Header → Pre‑filled form → [Update] [Cancel]
 customer-edit-error.png	Screen: Edit Customer — ErrorStories: Customer UpdateDesigner: Apostol	Same form + alert: Record no longer editable
 customer-delete.png	Screen: Delete Confirm — CustomerStories: Customer DeleteDesigner: Apostol	Pop‑up: Delete? History retained → [Cancel] [Yes, Delete]
-
-File Name	Label	Quick Layout Guide			
-product-list-normal.png	Screen: Product Catalog — NormalStories: Product Read‑ListDesigner: Pepito	Header → [+ Add Product] → Table: ID	Name	Price	Stock
-product-list-empty.png	Screen: Product Catalog — EmptyStories: Product Read‑ListDesigner: Pepito	Header → "No products added yet." → [+ Add First Product]			
-product-list-error.png	Screen: Product Catalog — ErrorStories: Product Read‑ListDesigner: Pepito	Header → "⚠️ Failed to load product catalog." → [Retry]			
-product-detail.png	Screen: Product Details — NormalStories: Product Read‑DetailDesigner: Pepito	Header → Fields: Name, Price, Description, Stock → [Edit] [Delete]			
-product-detail-error.png	Screen: Product Details — ErrorStories: Product Read‑DetailDesigner: Pepito	Header → "⚠️ Product not found." → [Back]			
-product-create.png	Screen: Add New ProductStories: Product CreateDesigner: Pepito	Header → Form: Name, Price, Description, Initial Stock → [Save] [Cancel]			
-product-create-error.png	Screen: Add New Product — ErrorStories: Product CreateDesigner: Pepito	Same form + message: "⚠️ Price and stock cannot be negative."			
-product-edit.png	Screen: Edit ProductStories: Product UpdateDesigner: Pepito	Header → Pre‑filled form → [Update] [Cancel]			
-product-edit-error.png	Screen: Edit Product — ErrorStories: Product UpdateDesigner: Pepito	Same form + message: "⚠️ Product no longer available."			
-product-delete-confirm.png	Screen: Delete Confirmation — ProductStories: Product DeleteDesigner: Pepito	Pop‑up: "Remove this product? Existing orders remain unaffected." → [Cancel] [Delete]			
