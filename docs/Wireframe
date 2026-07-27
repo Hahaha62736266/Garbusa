@@ -1,14 +1,14 @@
-File Name	Label	Quick Layout Guide			
-customer-list-normal.png	Screen: Customer List — NormalStories: Customer Read‑ListDesigner: Apostol	Header → [+ Add Customer] + Search bar → Table: ID	Name	Contact	Gallon Balance
-customer-list-empty.png	Screen: Customer List — Empty StateStories: Customer Read‑ListDesigner: Apostol	Header → Centered message: "No customers added yet. Register your first customer to begin." → [+ Add First Customer] button			
-customer-list-error.png	Screen: Customer List — Error StateStories: Customer Read‑ListDesigner: Apostol	Header → Error box: "⚠️ Could not load customer list. Check connection and try again." → [Retry] button			
-customer-detail.png	Screen: Customer Profile — NormalStories: Customer Read‑DetailDesigner: Apostol	Header → Fields: Name, Contact, Address, Balance → Section: Recent Orders & Collections → [Edit] [Delete]			
-customer-detail-error.png	Screen: Customer Profile — Error StateStories: Customer Read‑DetailDesigner: Apostol	Header → Error: "⚠️ Customer record not found." → [Back to List]			
-customer-create.png	Screen: Add New CustomerStories: Customer CreateDesigner: Apostol	Header → Form: Full Name, Contact Number, Address → [Save] [Cancel]			
-customer-create-error.png	Screen: Add New Customer — ErrorStories: Customer CreateDesigner: Apostol	Same form + top message: "⚠️ Fill all required fields / Duplicate contact number."			
-customer-edit.png	Screen: Edit CustomerStories: Customer UpdateDesigner: Apostol	Header → Pre‑filled form → [Update] [Cancel]			
-customer-edit-error.png	Screen: Edit Customer — ErrorStories: Customer UpdateDesigner: Apostol	Same form + message: "⚠️ Record no longer available for editing."			
-customer-delete-confirm.png	Screen: Delete Confirmation — CustomerStories: Customer DeleteDesigner: Apostol	Centered pop‑up: "Delete this customer? History will be retained. This cannot be undone." → [Cancel] [Yes, Delete]
+File Name	Label	Quick Layout
+customer-list-normal.png	Screen: Customer List — NormalStories: Customer Read‑ListDesigner: Apostol	Header → [+ Add Customer] + Search → Table: ID / Name / Contact / Gallon Balance
+customer-list-empty.png	Screen: Customer List — EmptyStories: Customer Read‑ListDesigner: Apostol	Header → Message: No customers added yet → [+ Add First Customer]
+customer-list-error.png	Screen: Customer List — ErrorStories: Customer Read‑ListDesigner: Apostol	Header → Alert: Failed to load list → [Retry]
+customer-detail.png	Screen: Customer Profile — NormalStories: Customer Read‑DetailDesigner: Apostol	Header → All customer fields → Linked orders/collections → [Edit] [Delete]
+customer-detail-error.png	Screen: Customer Profile — ErrorStories: Customer Read‑DetailDesigner: Apostol	Header → Alert: Record not found → [Back to List]
+customer-create.png	Screen: Add New CustomerStories: Customer CreateDesigner: Apostol	Header → Form: Name / Contact / Address → [Save] [Cancel]
+customer-create-error.png	Screen: Add New Customer — ErrorStories: Customer CreateDesigner: Apostol	Same form + alert: Fill all fields / Duplicate contact
+customer-edit.png	Screen: Edit CustomerStories: Customer UpdateDesigner: Apostol	Header → Pre‑filled form → [Update] [Cancel]
+customer-edit-error.png	Screen: Edit Customer — ErrorStories: Customer UpdateDesigner: Apostol	Same form + alert: Record no longer editable
+customer-delete.png	Screen: Delete Confirm — CustomerStories: Customer DeleteDesigner: Apostol	Pop‑up: Delete? History retained → [Cancel] [Yes, Delete]
 
 File Name	Label	Quick Layout Guide			
 product-list-normal.png	Screen: Product Catalog — NormalStories: Product Read‑ListDesigner: Pepito	Header → [+ Add Product] → Table: ID	Name	Price	Stock
