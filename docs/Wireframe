@@ -21,17 +21,3 @@ product-create-error.png	Screen: Add New Product — ErrorStories: Product Creat
 product-edit.png	Screen: Edit ProductStories: Product UpdateDesigner: Pepito	Header → Pre‑filled form → [Update] [Cancel]			
 product-edit-error.png	Screen: Edit Product — ErrorStories: Product UpdateDesigner: Pepito	Same form + message: "⚠️ Product no longer available."			
 product-delete-confirm.png	Screen: Delete Confirmation — ProductStories: Product DeleteDesigner: Pepito	Pop‑up: "Remove this product? Existing orders remain unaffected." → [Cancel] [Delete]			
-
-File Name	Label	Quick Layout Guide					
-order-list-normal.png	Screen: Orders Queue — NormalStories: Order Read‑ListDesigner: Taylaran	Header → [+ New Order] + Filter: Status/Date → Table: ID	Customer	Product	Total	Status	Date
-order-list-empty.png	Screen: Orders Queue — EmptyStories: Order Read‑ListDesigner: Taylaran	Header → "No orders logged yet." → [+ Log First Order]					
-order-list-error.png	Screen: Orders Queue — ErrorStories: Order Read‑ListDesigner: Taylaran	Header → "⚠️ Could not load order records." → [Retry]					
-order-detail.png	Screen: Order Details — NormalStories: Order Read‑DetailDesigner: Taylaran	Header → Customer, Product, Qty, Total, Status, Date → Linked Collection → [Edit] [Delete]					
-order-detail-error.png	Screen: Order Details — ErrorStories: Order Read‑DetailDesigner: Taylaran	Header → "⚠️ Order not found or removed." → [Back]					
-order-create.png	Screen: Create New OrderStories: Order CreateDesigner: Taylaran	Header → Dropdown: Customer → Dropdown: Product → Quantity → Auto Total → [Log Order] [Cancel]					
-order-create-empty.png	Screen: Create New Order — EmptyStories: Order CreateDesigner: Taylaran	Same form + message: "⚠️ Add at least one customer and product first."					
-order-create-error.png	Screen: Create New Order — ErrorStories: Order CreateDesigner: Taylaran	Same form + message: "⚠️ Select valid entries / Quantity ≥ 1."					
-order-edit.png	Screen: Update OrderStories: Order UpdateDesigner: Taylaran	Header → Pre‑filled form + Status dropdown → [Update] [Cancel]					
-order-edit-error.png	Screen: Update Order — ErrorStories: Order UpdateDesigner: Taylaran	Same form + message: "⚠️ Cannot edit — already marked Delivered."					
-order-delete-confirm.png	Screen: Delete Confirmation — OrderStories: Order DeleteDesigner: Taylaran	Pop‑up: "Cancel and delete this order? Cannot be reversed." → [Cancel] [Yes, Cancel]
-					
