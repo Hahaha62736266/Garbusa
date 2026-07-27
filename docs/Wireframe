@@ -21,3 +21,4 @@ product-create-error.png	Screen: Add New Product — ErrorStories: Product Creat
 product-edit.png	Screen: Edit ProductStories: Product UpdateDesigner: Pepito	Header → Pre‑filled form → [Update] [Cancel]			
 product-edit-error.png	Screen: Edit Product — ErrorStories: Product UpdateDesigner: Pepito	Same form + message: "⚠️ Product no longer available."			
 product-delete-confirm.png	Screen: Delete Confirmation — ProductStories: Product DeleteDesigner: Pepito	Pop‑up: "Remove this product? Existing orders remain unaffected." → [Cancel] [Delete]			
+      
