@@ -13,13 +13,6 @@
 | Delete Confirmation | Confirm removal | ✅ Prompt: *"Delete this customer? History will be retained. This cannot be undone."* |
 
 ---
-### 🧾 Customers
-Method	Path	Handler Function	User Story Served
-GET	/customers	listCustomers	View all customer records
-GET	/customers/:customer_id	showCustomer	View one customer's details
-POST	/customers	createCustomer	Register / add new customer
-PUT	/customers/:customer_id	updateCustomer	Edit customer information
-DELETE	/customers/:customer_id	deleteCustomer	Remove / deactivate customer
 
 
 ### 🛒 Products Module

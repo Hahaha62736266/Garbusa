@@ -1,60 +1,29 @@
-# ===================================
-# Product Stub Handlers
-# ===================================
+# ==========================================================
+# THIN CONTROLLER: Products
+# ==========================================================
+from models.product_model import Product
 
 def listProducts(request):
-    """GET /products — List all products"""
-    return {
-        "status": 200,
-        "data": { "message": "listProducts stub" },
-        "error": None
-    }
-
+    products = Product.all()
+    return {"status": 200, "data": products, "error": None}
 
 def showProduct(request):
-    """GET /products/:product_id — View one product"""
     product_id = request.params.get("product_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "showProduct stub",
-            "product_id": product_id
-        },
-        "error": None
-    }
-
+    product = Product.find(product_id)
+    return {"status": 200, "data": product, "error": None}
 
 def createProduct(request):
-    """POST /products — Create new product"""
-    return {
-        "status": 201,
-        "data": { "message": "createProduct stub" },
-        "error": None
-    }
-
+    data = request.validatedBody
+    product = Product.save(data)
+    return {"status": 201, "data": product, "error": None}
 
 def updateProduct(request):
-    """PUT /products/:product_id — Update product"""
     product_id = request.params.get("product_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "updateProduct stub",
-            "product_id": product_id
-        },
-        "error": None
-    }
-
+    data = request.validatedBody
+    product = Product.update(product_id, data)
+    return {"status": 200, "data": product, "error": None}
 
 def deleteProduct(request):
-    """DELETE /products/:product_id — Delete product"""
     product_id = request.params.get("product_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "deleteProduct stub",
-            "product_id": product_id
-        },
-        "error": None
-    }
-
+    Product.remove(product_id)
+    return {"status": 200, "data": {"deleted_id": product_id}, "error": None}

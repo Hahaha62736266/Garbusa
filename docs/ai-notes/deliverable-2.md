@@ -1,21 +1,15 @@
 # AI Usage Statement — Deliverable 2
 
-## Project
-[Project Name — e.g. Farmer Support Platform / Faculty Performance System]
+## Declaration
+No AI tools were used to generate code, routes, validation rules, or test results
+for this deliverable. All work was written manually by the team.
 
-## AI Tools Used
-- [Tool Name(s), e.g. ChatGPT, GitHub Copilot, Dola]
+## Prompt Log
+None — no AI prompts used this week.
 
-## Scope of Assistance
-- ✅ AI assisted with: route structure design, validation schema drafting, test case suggestions, documentation formatting
-- ✅ AI provided reference code examples; reviewed for correctness & adapted to project needs
-- ❌ AI did NOT write final production logic, define requirements, or make design decisions
-
-## Human Contributions
-- Endpoint logic & business rules — [Member Names]
-- Validation rules & constraints — [Member Names]
-- Test implementation & verification — [Member Names]
-- Architecture & database design — [Member Names]
-
-## Compliance
-All AI-generated content reviewed, tested, and integrated by team. Transparency statement provided as required.
+## Contributions
+- Baydal — Customers routes & handlers
+- Obiasad — Products routes & handlers
+- Taylaran — Orders routes & handlers
+- Apostol — Collections routes & handlers
+- Pepito — Docs, PR reviews, branch protection

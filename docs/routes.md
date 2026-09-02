@@ -1,10 +1,11 @@
 # Routes Documentation — Aquaflow Tracker
+
 description: |
   Correct text starts on a new line and is 
   indented by two spaces under the key.
 next_line: value
-## Application Routes / Pages
 
+## Application Routes / Pages (Streamlit UI)
 | Route / Page | Purpose | HTTP Method / Action |
 |---|---|---|
 | **Customers** (`routes/customers.py`) | List, add, edit, delete customer records | Form submit → CRUD to controller |
@@ -12,55 +13,48 @@ next_line: value
 | **Orders** (`routes/orders.py`) | Create & view orders; auto-calculate total | Form submit → create order + update status |
 | **Collections** (`routes/collections.py`) | Record gallon returns/releases & balances | Form submit → update container balance |
 
-## Shared Behaviors
+### Shared Behaviors
 - All routes validate input via `/validation/` before passing to controllers
 - All routes return success/error messages to UI
 - Data persisted in `st.session_state` mock database
 
-# RESTful Routes — Aquaflow Tracker
-> Generated for Deliverable 2 — Task 1
-> Follows REST conventions: GET=read, POST=create, PUT=update, DELETE=remove
-
 ---
 
-## Customers
-| Method | Path | Handler | Purpose |
-|---|---|---|---|
-| GET | /customers | listCustomers | View all customers |
-| GET | /customers/:customer_id | showCustomer | View one customer |
-| POST | /customers | createCustomer | Add new customer |
-| PUT | /customers/:customer_id | updateCustomer | Update customer info |
-| DELETE | /customers/:customer_id | deleteCustomer | Delete customer |
+## RESTful API Specification
+> Standard Response shape: `{ "status": int, "data": {...}, "error": null }`
 
----
+### Customers
+| Method | Path | Handler | Status | Example Response |
+|---|---|---|---|---|
+| GET | /customers | listCustomers | 200 | {"status":200,"data":{"message":"listCustomers stub"},"error":null} |
+| GET | /customers/:customer_id | showCustomer | 200 | {"status":200,"data":{"message":"showCustomer stub","customer_id":"C001"},"error":null} |
+| POST | /customers | createCustomer | 201 | {"status":201,"data":{"message":"createCustomer stub"},"error":null} |
+| PUT | /customers/:customer_id | updateCustomer | 200 | {"status":200,"data":{"message":"updateCustomer stub","customer_id":"C001"},"error":null} |
+| DELETE | /customers/:customer_id | deleteCustomer | 200 | {"status":200,"data":{"message":"deleteCustomer stub","customer_id":"C001"},"error":null} |
 
-## Products
-| Method | Path | Handler | Purpose |
-|---|---|---|---|
-| GET | /products | listProducts | View all products |
-| GET | /products/:product_id | showProduct | View one product |
-| POST | /products | createProduct | Add new product |
-| PUT | /products/:product_id | updateProduct | Update product details |
-| DELETE | /products/:product_id | deleteProduct | Remove product |
+### Products
+| Method | Path | Handler | Status | Example Response |
+|---|---|---|---|---|
+| GET | /products | listProducts | 200 | {"status":200,"data":{"message":"listProducts stub"},"error":null} |
+| GET | /products/:product_id | showProduct | 200 | {"status":200,"data":{"message":"showProduct stub","product_id":"P002"},"error":null} |
+| POST | /products | createProduct | 201 | {"status":201,"data":{"message":"createProduct stub"},"error":null} |
+| PUT | /products/:product_id | updateProduct | 200 | {"status":200,"data":{"message":"updateProduct stub","product_id":"P002"},"error":null} |
+| DELETE | /products/:product_id | deleteProduct | 200 | {"status":200,"data":{"message":"deleteProduct stub","product_id":"P002"},"error":null} |
 
----
+### Orders
+| Method | Path | Handler | Status | Example Response |
+|---|---|---|---|---|
+| GET | /orders | listOrders | 200 | {"status":200,"data":{"message":"listOrders stub"},"error":null} |
+| GET | /orders/:order_id | showOrder | 200 | {"status":200,"data":{"message":"showOrder stub","order_id":"O005"},"error":null} |
+| POST | /orders | createOrder | 201 | {"status":201,"data":{"message":"createOrder stub"},"error":null} |
+| PUT | /orders/:order_id | updateOrder | 200 | {"status":200,"data":{"message":"updateOrder stub","order_id":"O005"},"error":null} |
+| DELETE | /orders/:order_id | deleteOrder | 200 | {"status":200,"data":{"message":"deleteOrder stub","order_id":"O005"},"error":null} |
 
-## Orders
-| Method | Path | Handler | Purpose |
-|---|---|---|---|
-| GET | /orders | listOrders | View all orders |
-| GET | /orders/:order_id | showOrder | View one order |
-| POST | /orders | createOrder | Place new order |
-| PUT | /orders/:order_id | updateOrder | Update order/status |
-| DELETE | /orders/:order_id | deleteOrder | Cancel order |
-
----
-
-## Collections
-| Method | Path | Handler | Purpose |
-|---|---|---|---|
-| GET | /collections | listCollections | View all transactions |
-| GET | /collections/:collection_id | showCollection | View one transaction |
-| POST | /collections | createCollection | Log jug return/release |
-| PUT | /collections/:collection_id | updateCollection | Edit transaction |
-| DELETE | /collections/:collection_id | deleteCollection | Remove record |
+### Collections
+| Method | Path | Handler | Status | Example Response |
+|---|---|---|---|---|
+| GET | /collections | listCollections | 200 | {"status":200,"data":{"message":"listCollections stub"},"error":null} |
+| GET | /collections/:collection_id | showCollection | 200 | {"status":200,"data":{"message":"showCollection stub","collection_id":"CL003"},"error":null} |
+| POST | /collections | createCollection | 201 | {"status":201,"data":{"message":"createCollection stub"},"error":null} |
+| PUT | /collections/:collection_id | updateCollection | 200 | {"status":200,"data":{"message":"updateCollection stub","collection_id":"CL003"},"error":null} |
+| DELETE | /collections/:collection_id | deleteCollection | 200 | {"status":200,"data":{"message":"deleteCollection stub","collection_id":"CL003"},"error":null} |

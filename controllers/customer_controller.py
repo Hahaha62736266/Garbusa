@@ -1,60 +1,36 @@
-
-# ===================================
-# Customer Stub Handlers
-# ===================================
+# ==========================================================
+# THIN CONTROLLER: Customers
+# NO validation here — already done in middleware
+# NO direct DB code — call Model only
+# ==========================================================
+from models.customer_model import Customer
 
 def listCustomers(request):
-    """GET /customers — List all customers"""
-    return {
-        "status": 200,
-        "data": { "message": "listCustomers stub" },
-        "error": None
-    }
-
+    """GET /customers — List all"""
+    customers = Customer.all()
+    return {"status": 200, "data": customers, "error": None}
 
 def showCustomer(request):
-    """GET /customers/:customer_id — View one customer"""
+    """GET /customers/:customer_id — Show one"""
     customer_id = request.params.get("customer_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "showCustomer stub",
-            "customer_id": customer_id
-        },
-        "error": None
-    }
-
+    customer = Customer.find(customer_id)
+    return {"status": 200, "data": customer, "error": None}
 
 def createCustomer(request):
-    """POST /customers — Create new customer"""
-    return {
-        "status": 201,
-        "data": { "message": "createCustomer stub" },
-        "error": None
-    }
-
+    """POST /customers — Create (validatedBody already clean)"""
+    data = request.validatedBody
+    customer = Customer.save(data)
+    return {"status": 201, "data": customer, "error": None}
 
 def updateCustomer(request):
-    """PUT /customers/:customer_id — Update customer"""
+    """PUT /customers/:customer_id — Update"""
     customer_id = request.params.get("customer_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "updateCustomer stub",
-            "customer_id": customer_id
-        },
-        "error": None
-    }
-
+    data = request.validatedBody
+    customer = Customer.update(customer_id, data)
+    return {"status": 200, "data": customer, "error": None}
 
 def deleteCustomer(request):
-    """DELETE /customers/:customer_id — Delete customer"""
+    """DELETE /customers/:customer_id — Delete"""
     customer_id = request.params.get("customer_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "deleteCustomer stub",
-            "customer_id": customer_id
-        },
-        "error": None
-    }
+    Customer.remove(customer_id)
+    return {"status": 200, "data": {"deleted_id": customer_id}, "error": None}

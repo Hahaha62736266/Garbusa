@@ -1,59 +1,29 @@
-# ===================================
-# Order Stub Handlers
-# ===================================
+# ==========================================================
+# THIN CONTROLLER: Orders
+# ==========================================================
+from models.order_model import Order
 
 def listOrders(request):
-    """GET /orders — List all orders"""
-    return {
-        "status": 200,
-        "data": { "message": "listOrders stub" },
-        "error": None
-    }
-
+    orders = Order.all()
+    return {"status": 200, "data": orders, "error": None}
 
 def showOrder(request):
-    """GET /orders/:order_id — View one order"""
     order_id = request.params.get("order_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "showOrder stub",
-            "order_id": order_id
-        },
-        "error": None
-    }
-
+    order = Order.find(order_id)
+    return {"status": 200, "data": order, "error": None}
 
 def createOrder(request):
-    """POST /orders — Create new order"""
-    return {
-        "status": 201,
-        "data": { "message": "createOrder stub" },
-        "error": None
-    }
-
+    data = request.validatedBody
+    order = Order.save(data)
+    return {"status": 201, "data": order, "error": None}
 
 def updateOrder(request):
-    """PUT /orders/:order_id — Update order"""
     order_id = request.params.get("order_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "updateOrder stub",
-            "order_id": order_id
-        },
-        "error": None
-    }
-
+    data = request.validatedBody
+    order = Order.update(order_id, data)
+    return {"status": 200, "data": order, "error": None}
 
 def deleteOrder(request):
-    """DELETE /orders/:order_id — Delete order"""
     order_id = request.params.get("order_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "deleteOrder stub",
-            "order_id": order_id
-        },
-        "error": None
-    }
+    Order.remove(order_id)
+    return {"status": 200, "data": {"deleted_id": order_id}, "error": None}

@@ -1,59 +1,29 @@
-# ===================================
-# Collection Stub Handlers
-# ===================================
+# ==========================================================
+# THIN CONTROLLER: Collections
+# ==========================================================
+from models.collection_model import Collection
 
 def listCollections(request):
-    """GET /collections — List all transactions"""
-    return {
-        "status": 200,
-        "data": { "message": "listCollections stub" },
-        "error": None
-    }
-
+    collections = Collection.all()
+    return {"status": 200, "data": collections, "error": None}
 
 def showCollection(request):
-    """GET /collections/:collection_id — View one transaction"""
     collection_id = request.params.get("collection_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "showCollection stub",
-            "collection_id": collection_id
-        },
-        "error": None
-    }
-
+    collection = Collection.find(collection_id)
+    return {"status": 200, "data": collection, "error": None}
 
 def createCollection(request):
-    """POST /collections — Create new transaction"""
-    return {
-        "status": 201,
-        "data": { "message": "createCollection stub" },
-        "error": None
-    }
-
+    data = request.validatedBody
+    collection = Collection.save(data)
+    return {"status": 201, "data": collection, "error": None}
 
 def updateCollection(request):
-    """PUT /collections/:collection_id — Update transaction"""
     collection_id = request.params.get("collection_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "updateCollection stub",
-            "collection_id": collection_id
-        },
-        "error": None
-    }
-
+    data = request.validatedBody
+    collection = Collection.update(collection_id, data)
+    return {"status": 200, "data": collection, "error": None}
 
 def deleteCollection(request):
-    """DELETE /collections/:collection_id — Delete transaction"""
     collection_id = request.params.get("collection_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "deleteCollection stub",
-            "collection_id": collection_id
-        },
-        "error": None
-    }
+    Collection.remove(collection_id)
+    return {"status": 200, "data": {"deleted_id": collection_id}, "error": None}
