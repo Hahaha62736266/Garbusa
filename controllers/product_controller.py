@@ -48,3 +48,31 @@ def createProduct(request):
 
     # ✅ ALL VALID — Proceed to create
     return {"status": 201, "data": {"message": "createProduct stub"}, "error": None}
+
+# OWNER: Obiasad
+def updateProduct(request):
+    product_id = request.params.get("product_id")
+    data = request.body or {}
+
+    # GUARD CLAUSES
+    if not re.match(r"^P\d{3}$", product_id or ""):
+        return {"status": 422, "data": None, "error": "product_id must be P followed by 3 digits"}
+
+    if "product_name" in data:
+        if not isinstance(data["product_name"], str) or not (2 <= len(data["product_name"]) <= 100):
+            return {"status": 422, "data": None, "error": "product_name must be 2–100 characters"}
+
+    if "price_per_unit" in data:
+        try:
+            price = float(data["price_per_unit"])
+            if price < 0.00:
+                return {"status": 422, "data": None, "error": "price_per_unit must be ≥ 0.00"}
+        except (TypeError, ValueError):
+            return {"status": 422, "data": None, "error": "price_per_unit must be a valid number"}
+
+    if "stock_available" in data:
+        if not isinstance(data["stock_available"], int) or data["stock_available"] < 0:
+            return {"status": 422, "data": None, "error": "stock_available must be a non-negative integer"}
+
+    # ✅ ALL VALID — Proceed to update
+    return {"status": 200, "data": {"message": "updateProduct stub", "product_id": product_id}, "error": None}
