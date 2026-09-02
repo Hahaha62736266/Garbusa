@@ -14,11 +14,7 @@ class MockRequest:
         self.auth = {"user_id": auth_user_id} if auth_user_id else None
 
 
-from middleware.validation import (
-    validateCustomerCreate, validateProductCreate,
-    validateOrderCreate, validateCollectionCreate,
-    authorizeDeleteOrder
-)
+
 from controllers.customer_controller import createCustomer
 from controllers.product_controller import createProduct
 from controllers.order_controller import createOrder, deleteOrder
