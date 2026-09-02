@@ -1,60 +1,6 @@
-
-# ===================================
-# Customer Stub Handlers
-# ===================================
-
-def listCustomers(request):
-    """GET /customers — List all customers"""
-    return {
-        "status": 200,
-        "data": { "message": "listCustomers stub" },
-        "error": None
-    }
-
-
-def showCustomer(request):
-    """GET /customers/:customer_id — View one customer"""
-    customer_id = request.params.get("customer_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "showCustomer stub",
-            "customer_id": customer_id
-        },
-        "error": None
-    }
-
-
-def createCustomer(request):
-    """POST /customers — Create new customer"""
-    return {
-        "status": 201,
-        "data": { "message": "createCustomer stub" },
-        "error": None
-    }
-
-
-def updateCustomer(request):
-    """PUT /customers/:customer_id — Update customer"""
-    customer_id = request.params.get("customer_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "updateCustomer stub",
-            "customer_id": customer_id
-        },
-        "error": None
-    }
-
-
-def deleteCustomer(request):
-    """DELETE /customers/:customer_id — Delete customer"""
-    customer_id = request.params.get("customer_id")
-    return {
-        "status": 200,
-        "data": {
-            "message": "deleteCustomer stub",
-            "customer_id": customer_id
-        },
-        "error": None
-    }
+from models.customer_model import Customer
+def listCustomers(r): return {"status":200,"data":Customer.all(),"error":None}
+def showCustomer(r): return {"status":200,"data":Customer.find(r.params.get("customer_id")),"error":None}
+def createCustomer(r): return {"status":201,"data":Customer.save(r.validatedBody),"error":None}
+def updateCustomer(r): return {"status":200,"data":Customer.update(r.params.get("customer_id"),r.validatedBody),"error":None}
+def deleteCustomer(r): Customer.remove(r.params.get("customer_id")); return {"status":200,"data":{},"error":None}
