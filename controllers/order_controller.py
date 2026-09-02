@@ -78,3 +78,33 @@ def updateOrder(request):
 
     # ✅ ALL VALID — Proceed to update
     return {"status": 200, "data": {"message": "updateOrder stub", "order_id": order_id}, "error": None}
+
+# OWNER: Taylaran
+# THIN CONTROLLER — Clean, simple, no logic
+
+from models.order_model import Order
+
+def listOrders(request):
+    orders = Order.all()
+    return {"status": 200, "data": orders, "error": None}
+
+def showOrder(request):
+    oid = request.params.get("order_id")
+    order = Order.find(oid)
+    return {"status": 200, "data": order, "error": None}
+
+def createOrder(request):
+    data = request.validatedBody           # ✅ Clean data from middleware
+    order = Order.save(data)
+    return {"status": 201, "data": order, "error": None}
+
+def updateOrder(request):
+    oid = request.params.get("order_id")
+    data = request.validatedBody
+    order = Order.update(oid, data)
+    return {"status": 200, "data": order, "error": None}
+
+def deleteOrder(request):
+    oid = request.params.get("order_id")
+    Order.remove(oid)
+    return {"status": 200, "data": {"deleted_id": oid}, "error": None}
