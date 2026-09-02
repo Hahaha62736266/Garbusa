@@ -286,3 +286,70 @@ def validateCollectionUpdate(request):
     # ✅ ALL VALID
     request.validatedBody = data
     return None
+
+
+# ==========================================================
+# AUTHORIZATION GUARD — Permission Checks
+# Returns 403 if user is NOT ALLOWED (distinct from 422)
+# ==========================================================
+
+def checkOwnership(request, recordOwnerId):
+    """
+    Simple permission check:
+    Current logged-in user must match the record owner ID.
+    Return None if allowed, or 403 error dict if forbidden.
+    """
+    # Get currently authenticated user (from your auth system / session / JWT)
+    currentUserId = request.auth.get("user_id") if request.auth else None
+
+    # If no one is logged in → forbidden
+    if not currentUserId:
+        return {
+            "status": 403,
+            "error": "Not authenticated — permission denied",
+            "field": None
+        }
+
+    # If logged-in user does NOT own this record → forbidden
+    if str(currentUserId) != str(recordOwnerId):
+        return {
+            "status": 403,
+            "error": "Forbidden: you do not own this record",
+            "field": None
+        }
+
+    # ✅ Allowed — proceed
+    return None
+
+
+# ----------------------------------------------------------
+# AUTHORIZATION MIDDLEWARE — Apply to Sensitive Actions
+# ----------------------------------------------------------
+
+def authorizeDeleteCustomer(request):
+    """DELETE /customers/:customer_id — Only the owner can delete"""
+    # Look up the existing record from Data Layer to get its owner
+    from models.customer_model import Customer
+    customerId = request.params.get("customer_id")
+    existing = Customer.find(customerId)
+
+    if not existing:
+        return {"status": 404, "error": "Record not found", "field": None}
+
+    # Compare: logged-in user vs record owner
+    ownerId = existing.get("owned_by_user_id", "admin")  # fallback if no owner yet
+    return checkOwnership(request, ownerId)
+
+
+def authorizeDeleteOrder(request):
+    """DELETE /orders/:order_id — Only the customer who placed it can delete"""
+    from models.order_model import Order
+    orderId = request.params.get("order_id")
+    existing = Order.find(orderId)
+
+    if not existing:
+        return {"status": 404, "error": "Record not found", "field": None}
+
+    # Order belongs to its customer_id
+    ownerId = existing.get("customer_id")
+    return checkOwnership(request, ownerId)
