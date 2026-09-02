@@ -77,3 +77,39 @@ def updateCustomer(request):
 
     # ✅ ALL VALID — Proceed to update
     return {"status": 200, "data": {"message": "updateCustomer stub", "customer_id": customer_id}, "error": None}
+
+# OWNER: Baydal
+# THIN CONTROLLER — Validation runs BEFORE → use validatedBody
+
+# Data Layer import (assumes models exist)
+from models.customer_model import Customer
+
+def listCustomers(request):
+    """GET /customers — List all"""
+    customers = Customer.all()
+    return {"status": 200, "data": customers, "error": None}
+
+def showCustomer(request):
+    """GET /customers/:customer_id — Show one"""
+    cid = request.params.get("customer_id")
+    customer = Customer.find(cid)
+    return {"status": 200, "data": customer, "error": None}
+
+def createCustomer(request):
+    """POST /customers — Create (validatedBody already clean)"""
+    data = request.validatedBody           # ✅ Validation done upstream
+    customer = Customer.save(data)          # ✅ Data Layer only
+    return {"status": 201, "data": customer, "error": None}
+
+def updateCustomer(request):
+    """PUT /customers/:customer_id — Update"""
+    cid = request.params.get("customer_id")
+    data = request.validatedBody
+    customer = Customer.update(cid, data)
+    return {"status": 200, "data": customer, "error": None}
+
+def deleteCustomer(request):
+    """DELETE /customers/:customer_id — Delete"""
+    cid = request.params.get("customer_id")
+    Customer.remove(cid)
+    return {"status": 200, "data": {"deleted_id": cid}, "error": None}
