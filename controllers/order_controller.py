@@ -51,3 +51,30 @@ def createOrder(request):
 
     # ✅ ALL VALID — Proceed to create
     return {"status": 201, "data": {"message": "createOrder stub"}, "error": None}
+
+
+# OWNER: Taylaran
+def updateOrder(request):
+    order_id = request.params.get("order_id")
+    data = request.body or {}
+    ALLOWED_STATUSES = {"Pending", "Delivered"}
+
+    # GUARD CLAUSES
+    if not re.match(r"^O\d{3}$", order_id or ""):
+        return {"status": 422, "data": None, "error": "order_id must be O followed by 3 digits"}
+
+    if "customer_id" in data and not re.match(r"^C\d{3}$", data["customer_id"]):
+        return {"status": 422, "data": None, "error": "customer_id must use format C###"}
+
+    if "product_id" in data and not re.match(r"^P\d{3}$", data["product_id"]):
+        return {"status": 422, "data": None, "error": "product_id must use format P###"}
+
+    if "quantity" in data:
+        if not isinstance(data["quantity"], int) or not (1 <= data["quantity"] <= 999):
+            return {"status": 422, "data": None, "error": "quantity must be an integer between 1 and 999"}
+
+    if "status" in data and data["status"] not in ALLOWED_STATUSES:
+        return {"status": 422, "data": None, "error": f"status must be one of: {', '.join(ALLOWED_STATUSES)}"}
+
+    # ✅ ALL VALID — Proceed to update
+    return {"status": 200, "data": {"message": "updateOrder stub", "order_id": order_id}, "error": None}
