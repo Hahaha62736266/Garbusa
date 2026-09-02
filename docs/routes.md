@@ -1,14 +1,7 @@
 # Routes Documentation — Aquaflow Tracker
-## Application Routes / Pages (Streamlit UI)
-description: |
-  Correct text starts on a new line and is 
-  indented by two spaces under the key.
-next_line: value
-=======
 
 ## Application Routes / Pages (Streamlit UI)
->>>>>>> main
-## Application Routes / Pages (Streamlit UI)
+
 | Route / Page | Purpose | HTTP Method / Action |
 |---|---|---|
 | **Customers** (`routes/customers.py`) | List, add, edit, delete customer records | Form submit → CRUD to controller |
