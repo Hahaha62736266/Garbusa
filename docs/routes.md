@@ -1,7 +1,5 @@
 # Routes Documentation — Aquaflow Tracker
-
 ## Application Routes / Pages (Streamlit UI)
-
 | Route / Page | Purpose | HTTP Method / Action |
 |---|---|---|
 | **Customers** (`routes/customers.py`) | List, add, edit, delete customer records | Form submit → CRUD to controller |
