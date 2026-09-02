@@ -1,24 +1,23 @@
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # ==========================================================
-# TEST RUNNER — Full Pipeline Verification
-# Simulates: Request → Validation → Authorization → Controller → Model
+# TEST SUITE — Arrange / Act / Assert Pattern
+# Per Controller: Happy Path + Validation Failure + Edge Case
 # ==========================================================
 
-# ─── Mock Request Object ───
 class MockRequest:
     def __init__(self, body=None, params=None, auth_user_id=None):
         self.body = body or {}
         self.params = params or {}
-        self.validatedBody = None  # Set by validation middleware
+        self.validatedBody = None
         self.auth = {"user_id": auth_user_id} if auth_user_id else None
 
 
-# ─── Import ALL layers ───
 from middleware.validation import (
-    validateCustomerCreate, validateCustomerUpdate,
-    validateProductCreate,
-    validateOrderCreate, authorizeDeleteOrder,
-    validateCollectionCreate
+    validateCustomerCreate, validateProductCreate,
+    validateOrderCreate, validateCollectionCreate,
+    authorizeDeleteOrder
 )
 from controllers.customer_controller import createCustomer
 from controllers.product_controller import createProduct
@@ -26,182 +25,156 @@ from controllers.order_controller import createOrder, deleteOrder
 from controllers.collection_controller import createCollection
 
 
-# ─── Test Helper ───
-def run_test(name, request, validation_fn=None, auth_fn=None, controller_fn=None):
-    print(f"\n{'='*60}")
-    print(f"🧪 TEST: {name}")
-    print(f"{'='*60}")
-    print(f"📥 Input body: {request.body}")
-    print(f"🔑 Params: {request.params}")
-    print(f"👤 Auth User: {request.auth.get('user_id') if request.auth else 'None'}")
+# ─── TEST HELPER ───
+def run_test(name, request, validation_fn, controller_fn, expected_status):
+    print(f"\n{'─'*60}")
+    print(f"🧪 {name}")
+    print(f"{'─'*60}")
 
-    result = None
-    step = "STARTED"
+    # ARRANGE
+    # (request already prepared above)
 
-    try:
-        # Step 1: VALIDATION
-        if validation_fn:
-            step = "VALIDATION"
-            error = validation_fn(request)
-            if error:
-                print(f"❌ {step} FAILED → {error}")
-                result = error
-                return result
-            print(f"✅ {step} PASSED → validatedBody set")
+    # ACT
+    error = validation_fn(request)
+    if error:
+        result = error
+    else:
+        result = controller_fn(request)
 
-        # Step 2: AUTHORIZATION
-        if auth_fn:
-            step = "AUTHORIZATION"
-            error = auth_fn(request)
-            if error:
-                print(f"❌ {step} FAILED → {error}")
-                result = error
-                return result
-            print(f"✅ {step} PASSED → permission granted")
-
-        # Step 3: CONTROLLER → MODEL
-        if controller_fn:
-            step = "CONTROLLER+MODEL"
-            result = controller_fn(request)
-            print(f"✅ {step} PASSED → {result}")
-
-    except Exception as e:
-        print(f"💥 EXCEPTION in {step}: {type(e).__name__}: {e}")
-        result = {"status": 500, "error": str(e), "field": None}
-
-    return result
+    # ASSERT
+    actual_status = result.get("status")
+    status = "✅ PASS" if actual_status == expected_status else f"❌ FAIL (got {actual_status}, expected {expected_status})"
+    print(f"   Status: {status}")
+    print(f"   Result: {result}")
+    return actual_status == expected_status
 
 
 # ==========================================================
-# 🚀 RUN ALL TESTS
+# 🚀 ALL TESTS
 # ==========================================================
 if __name__ == "__main__":
-    print("\n" + "🎯"*30)
-    print(" FULL PIPELINE TEST: Validation → Auth → Controller → Model ")
-    print("🎯"*30)
+    print("\n" + "🎯"*25)
+    print(" FULL TEST SUITE — ALL CONTROLLERS ")
+    print("🎯"*25)
 
-    # ─── TEST 1: Create Customer — VALID DATA ───
-    run_test(
-        "Create Customer — VALID DATA",
-        MockRequest({
-            "customer_id": "C001",
-            "full_name": "Juan Dela Cruz",
-            "contact_number": "0917-123-4567",
-            "address": "Manila City, PH",
-            "container_owned": 5
-        }),
-        validation_fn=validateCustomerCreate,
-        controller_fn=createCustomer
-    )
+    passed = 0
+    total = 0
 
-    # ─── TEST 2: Create Customer — INVALID (missing field) ───
-    run_test(
-        "Create Customer — MISSING full_name → should return 422",
-        MockRequest({
-            "customer_id": "C002",
-            "contact_number": "0917-123-4567",
-            "address": "Cebu City",
-            "container_owned": 2
-        }),
-        validation_fn=validateCustomerCreate,
-        controller_fn=createCustomer
-    )
+    # ─── CUSTOMER TESTS ───
+    print("\n" + "■"*40)
+    print(" 🧾 CUSTOMER CONTROLLER TESTS")
+    print("■"*40)
 
-    # ─── TEST 3: Create Customer — WRONG FORMAT → should return 422 ───
-    run_test(
-        "Create Customer — BAD ID FORMAT → should return 422",
-        MockRequest({
-            "customer_id": "CUS999",  # ❌ Should be C###
-            "full_name": "Valid Name",
-            "contact_number": "0917-123-4567",
-            "address": "Valid Address Here",
-            "container_owned": 1
-        }),
-        validation_fn=validateCustomerCreate,
-        controller_fn=createCustomer
-    )
+    total +=1
+    if run_test("Customer — Happy Path (valid data → 201)",
+        MockRequest({"customer_id":"C001","full_name":"Maria Santos","contact_number":"0917-111-2222","address":"Makati City, PH","container_owned":3}),
+        validateCustomerCreate, createCustomer, 201): passed +=1
 
-    # ─── TEST 4: Create Product — VALID DATA ───
-    run_test(
-        "Create Product — VALID DATA",
-        MockRequest({
-            "product_id": "P001",
-            "product_name": "Purified Water 5Gal",
-            "price_per_unit": 85.50,
-            "stock_available": 50
-        }),
-        validation_fn=validateProductCreate,
-        controller_fn=createProduct
-    )
+    total +=1
+    if run_test("Customer — Validation Fail (missing name → 422)",
+        MockRequest({"customer_id":"C002","contact_number":"0917-333-4444","address":"Quezon City","container_owned":1}),
+        validateCustomerCreate, createCustomer, 422): passed +=1
 
-    # ─── TEST 5: Create Order — VALID DATA ───
-    run_test(
-        "Create Order — VALID DATA",
-        MockRequest({
-            "order_id": "O001",
-            "customer_id": "C001",
-            "product_id": "P001",
-            "quantity": 3,
-            "status": "Pending"
-        }),
-        validation_fn=validateOrderCreate,
-        controller_fn=createOrder
-    )
+    total +=1
+    if run_test("Customer — Edge Case (bad ID format → 422)",
+        MockRequest({"customer_id":"CUS999","full_name":"Bad Format User","contact_number":"0917-555-6666","address":"Valid Address Here","container_owned":0}),
+        validateCustomerCreate, createCustomer, 422): passed +=1
 
-    # ─── TEST 6: Create Order — INVALID STATUS → should return 422 ───
-    run_test(
-        "Create Order — INVALID STATUS → should return 422",
-        MockRequest({
-            "order_id": "O002",
-            "customer_id": "C001",
-            "product_id": "P001",
-            "quantity": 2,
-            "status": "Cancelled"  # ❌ Only Pending/Delivered allowed
-        }),
-        validation_fn=validateOrderCreate,
-        controller_fn=createOrder
-    )
 
-    # ─── TEST 7: DELETE Order — WRONG USER → should return 403 ───
-    run_test(
-        "DELETE Order — WRONG USER → should return 403 Forbidden",
-        MockRequest(
-            body={},
-            params={"order_id": "O001"},
-            auth_user_id="C999"  # ❌ Different user from owner C001
-        ),
-        auth_fn=authorizeDeleteOrder,
-        controller_fn=deleteOrder
-    )
+    # ─── PRODUCT TESTS ───
+    print("\n" + "■"*40)
+    print(" 🧾 PRODUCT CONTROLLER TESTS")
+    print("■"*40)
 
-    # ─── TEST 8: DELETE Order — CORRECT OWNER → should PASS ───
-    run_test(
-        "DELETE Order — CORRECT OWNER → should PASS",
-        MockRequest(
-            body={},
-            params={"order_id": "O001"},
-            auth_user_id="C001"  # ✅ Matches order's customer_id
-        ),
-        auth_fn=authorizeDeleteOrder,
-        controller_fn=deleteOrder
-    )
+    total +=1
+    if run_test("Product — Happy Path (valid data → 201)",
+        MockRequest({"product_id":"P001","product_name":"5Gal Purified Water","price_per_unit":85.50,"stock_available":100}),
+        validateProductCreate, createProduct, 201): passed +=1
 
-    # ─── TEST 9: Create Collection — VALID DATA ───
-    run_test(
-        "Create Collection — VALID DATA",
-        MockRequest({
-            "collection_id": "CL001",
-            "customer_id": "C001",
-            "order_id": "O001",
-            "empty_jugs_returned": 2,
-            "filled_jugs_released": 3,
-            "container_balance": 5,
-            "collected_by": "Juan Dela Cruz"
-        }),
-        validation_fn=validateCollectionCreate,
-        controller_fn=createCollection
-    )
+    total +=1
+    if run_test("Product — Validation Fail (negative price → 422)",
+        MockRequest({"product_id":"P002","product_name":"Invalid Product","price_per_unit":-10.00,"stock_available":50}),
+        validateProductCreate, createProduct, 422): passed +=1
 
+    total +=1
+    if run_test("Product — Edge Case (zero stock → valid → 201)",
+        MockRequest({"product_id":"P003","product_name":"Out of Stock Item","price_per_unit":50.00,"stock_available":0}),
+        validateProductCreate, createProduct, 201): passed +=1
+
+
+    # ─── ORDER TESTS ───
+    print("\n" + "■"*40)
+    print(" 🧾 ORDER CONTROLLER TESTS")
+    print("■"*40)
+
+    total +=1
+    if run_test("Order — Happy Path (valid data → 201)",
+        MockRequest({"order_id":"O001","customer_id":"C001","product_id":"P001","quantity":3,"status":"Pending"}),
+        validateOrderCreate, createOrder, 201): passed +=1
+
+    total +=1
+    if run_test("Order — Validation Fail (negative qty → 422)",
+        MockRequest({"order_id":"O002","customer_id":"C001","product_id":"P001","quantity":-5,"status":"Pending"}),
+        validateOrderCreate, createOrder, 422): passed +=1
+
+    total +=1
+    if run_test("Order — Edge Case (invalid status → 422)",
+        MockRequest({"order_id":"O003","customer_id":"C001","product_id":"P001","quantity":1,"status":"Cancelled"}),
+        validateOrderCreate, createOrder, 422): passed +=1
+
+
+    # ─── COLLECTION TESTS ───
+    print("\n" + "■"*40)
+    print(" 🧾 COLLECTION CONTROLLER TESTS")
+    print("■"*40)
+
+    total +=1
+    if run_test("Collection — Happy Path (valid data → 201)",
+        MockRequest({"collection_id":"CL001","customer_id":"C001","order_id":"O001","empty_jugs_returned":2,"filled_jugs_released":3,"container_balance":5,"collected_by":"Delivery Team A"}),
+        validateCollectionCreate, createCollection, 201): passed +=1
+
+    total +=1
+    if run_test("Collection — Validation Fail (negative balance → 422)",
+        MockRequest({"collection_id":"CL002","customer_id":"C001","order_id":"O001","empty_jugs_returned":5,"filled_jugs_released":3,"container_balance":-2,"collected_by":"Team B"}),
+        validateCollectionCreate, createCollection, 422): passed +=1
+
+    total +=1
+    if run_test("Collection — Edge Case (zero returns → valid → 201)",
+        MockRequest({"collection_id":"CL003","customer_id":"C001","order_id":"O001","empty_jugs_returned":0,"filled_jugs_released":10,"container_balance":10,"collected_by":"Team C"}),
+        validateCollectionCreate, createCollection, 201): passed +=1
+
+
+    # ─── AUTHORIZATION TEST ───
+    print("\n" + "■"*40)
+    print(" 🔐 AUTHORIZATION TEST (DELETE)")
+    print("■"*40)
+
+    def test_auth_delete(name, request, expected_status):
+        print(f"\n🧪 {name}")
+        auth_err = authorizeDeleteOrder(request)
+        result = auth_err if auth_err else deleteOrder(request)
+        actual = result.get("status")
+        ok = "✅ PASS" if actual == expected_status else f"❌ FAIL (got {actual}, expected {expected_status})"
+        print(f"   Status: {ok}")
+        print(f"   Result: {result}")
+        return actual == expected_status
+
+    total +=1
+    if test_auth_delete("Delete Order — Wrong User → Forbidden 403",
+        MockRequest({}, params={"order_id":"O001"}, auth_user_id="C999"), 403): passed +=1
+
+    total +=1
+    if test_auth_delete("Delete Order — Correct Owner → Success 200",
+        MockRequest({}, params={"order_id":"O001"}, auth_user_id="C001"), 200): passed +=1
+
+
+    # ==========================================================
+    # 📊 FINAL SUMMARY
+    # ==========================================================
     print("\n" + "="*60)
-    print("✅ ALL TESTS COMPLETE — Review output above!")
+    print(f"📊 FINAL RESULT: {passed}/{total} TESTS PASSED")
+    if passed == total:
+        print("✅✅✅ ALL TESTS GREEN — FULLY WORKING! ✅✅✅")
+    else:
+        print(f"⚠️  {total-passed} test(s) failed — check output above")
     print("="*60)
