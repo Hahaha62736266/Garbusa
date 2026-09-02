@@ -237,3 +237,11 @@ if st.session_state.orders_db:
     st.dataframe(pd.DataFrame(st.session_state.orders_db))
 else:
     st.info("No orders captured today yet.")
+
+
+    ## 🧪 Run Test Suite
+
+### Setup (once)
+```bash
+pip install pytest
+
