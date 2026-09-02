@@ -1,18 +1,18 @@
-# OWNER: Baydal
-def listCustomers(request):
-    return {"status":200,"data":{"message":"listCustomers stub"},"error":None}
+# OWNER: Apostol
+def listCollections(request):
+    return {"status":200,"data":{"message":"listCollections stub"},"error":None}
 
-def showCustomer(request):
-    cid = request.params.get("customer_id")
-    return {"status":200,"data":{"message":"showCustomer stub","customer_id":cid},"error":None}
+def showCollection(request):
+    clid = request.params.get("collection_id")
+    return {"status":200,"data":{"message":"showCollection stub","collection_id":clid},"error":None}
 
-def createCustomer(request):
-    return {"status":201,"data":{"message":"createCustomer stub"},"error":None}
+def createCollection(request):
+    return {"status":201,"data":{"message":"createCollection stub"},"error":None}
 
-def updateCustomer(request):
-    cid = request.params.get("customer_id")
-    return {"status":200,"data":{"message":"updateCustomer stub","customer_id":cid},"error":None}
+def updateCollection(request):
+    clid = request.params.get("collection_id")
+    return {"status":200,"data":{"message":"updateCollection stub","collection_id":clid},"error":None}
 
-def deleteCustomer(request):
-    cid = request.params.get("customer_id")
-    return {"status":200,"data":{"message":"deleteCustomer stub","customer_id":cid},"error":None}
+def deleteCollection(request):
+    clid = request.params.get("collection_id")
+    return {"status":200,"data":{"message":"deleteCollection stub","collection_id":clid},"error":None}
