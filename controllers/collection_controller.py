@@ -88,3 +88,34 @@ def updateCollection(request):
 
     # ✅ ALL VALID — Proceed to update
     return {"status": 200, "data": {"message": "updateCollection stub", "collection_id": collection_id}, "error": None}
+
+# OWNER: Apostol
+# THIN CONTROLLER — Only orchestrate, never validate or query directly
+
+from models.collection_model import Collection
+
+def listCollections(request):
+    collections = Collection.all()
+    return {"status": 200, "data": collections, "error": None}
+
+def showCollection(request):
+    clid = request.params.get("collection_id")
+    collection = Collection.find(clid)
+    return {"status": 200, "data": collection, "error": None}
+
+def createCollection(request):
+    data = request.validatedBody           # ✅ Passed validation middleware
+    collection = Collection.save(data)
+    return {"status": 201, "data": collection, "error": None}
+
+def updateCollection(request):
+    clid = request.params.get("collection_id")
+    data = request.validatedBody
+    collection = Collection.update(clid, data)
+    return {"status": 200, "data": collection, "error": None}
+
+def deleteCollection(request):
+    clid = request.params.get("collection_id")
+    Collection.remove(clid)
+    return {"status": 200, "data": {"deleted_id": clid}, "error": None}
+    
