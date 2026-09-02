@@ -1,63 +1,62 @@
-# Routes Documentation — Aquaflow Tracker
+---
 
-## Application Routes / Pages
+# 🧪 Route Test Results — Task 3
+> Base URL: `http://localhost`
+> Response shape: `{ "status": int, "data": { ... }, "error": null }`
 
-| Route / Page | Purpose | HTTP Method / Action |
+---
+
+## Customers — Tested
+| Method | Path | Status | Example Response Body |
+|---|---|---|---|
+| GET | /customers | 200 | `{"message":"listCustomers stub"}` |
+| GET | /customers/C001 | 200 | `{"message":"showCustomer stub","customer_id":"C001"}` |
+| POST | /customers | 201 | `{"message":"createCustomer stub"}` |
+| PUT | /customers/C001 | 200 | `{"message":"updateCustomer stub","customer_id":"C001"}` |
+| DELETE | /customers/C001 | 200 | `{"message":"deleteCustomer stub","customer_id":"C001"}` |
+
+---
+
+## Products — Tested
+| Method | Path | Status | Example Response Body |
+|---|---|---|---|
+| GET | /products | 200 | `{"message":"listProducts stub"}` |
+| GET | /products/P002 | 200 | `{"message":"showProduct stub","product_id":"P002"}` |
+| POST | /products | 201 | `{"message":"createProduct stub"}` |
+| PUT | /products/P002 | 200 | `{"message":"updateProduct stub","product_id":"P002"}` |
+| DELETE | /products/P002 | 200 | `{"message":"deleteProduct stub","product_id":"P002"}` |
+
+---
+
+## Orders — Tested
+| Method | Path | Status | Example Response Body |
+|---|---|---|---|
+| GET | /orders | 200 | `{"message":"listOrders stub"}` |
+| GET | /orders/O005 | 200 | `{"message":"showOrder stub","order_id":"O005"}` |
+| POST | /orders | 201 | `{"message":"createOrder stub"}` |
+| PUT | /orders/O005 | 200 | `{"message":"updateOrder stub","order_id":"O005"}` |
+| DELETE | /orders/O005 | 200 | `{"message":"deleteOrder stub","order_id":"O005"}` |
+
+---
+
+## Collections — Tested
+| Method | Path | Status | Example Response Body |
+|---|---|---|---|
+| GET | /collections | 200 | `{"message":"listCollections stub"}` |
+| GET | /collections/CL003 | 200 | `{"message":"showCollection stub","collection_id":"CL003"}` |
+| POST | /collections | 201 | `{"message":"createCollection stub"}` |
+| PUT | /collections/CL003 | 200 | `{"message":"updateCollection stub","collection_id":"CL003"}` |
+| DELETE | /collections/CL003 | 200 | `{"message":"deleteCollection stub","collection_id":"CL003"}` |
+
+---
+
+## Edge-Case Validation
+| Request | Expected | Result |
 |---|---|---|
-| **Customers** (`routes/customers.py`) | List, add, edit, delete customer records | Form submit → CRUD to controller |
-| **Products** (`routes/products.py`) | Manage product catalog & pricing | Form submit → CRUD to controller |
-| **Orders** (`routes/orders.py`) | Create & view orders; auto-calculate total | Form submit → create order + update status |
-| **Collections** (`routes/collections.py`) | Record gallon returns/releases & balances | Form submit → update container balance |
-
-## Shared Behaviors
-- All routes validate input via `/validation/` before passing to controllers
-- All routes return success/error messages to UI
-- Data persisted in `st.session_state` mock database
-
-# RESTful Routes — Aquaflow Tracker
-> Generated for Deliverable 2 — Task 1
-> Follows REST conventions: GET=read, POST=create, PUT=update, DELETE=remove
+| DELETE /orders (no ID) | 404 / 405 | ✅ Returns error status |
+| POST /orders/O001 (create with ID) | 405 Method Not Allowed | ✅ Rejected sensibly |
+| GET /invalid-path | 404 Not Found | ✅ Standard error response |
 
 ---
 
-## Customers
-| Method | Path | Handler | Purpose |
-|---|---|---|---|
-| GET | /customers | listCustomers | View all customers |
-| GET | /customers/:customer_id | showCustomer | View one customer |
-| POST | /customers | createCustomer | Add new customer |
-| PUT | /customers/:customer_id | updateCustomer | Update customer info |
-| DELETE | /customers/:customer_id | deleteCustomer | Delete customer |
-
----
-
-## Products
-| Method | Path | Handler | Purpose |
-|---|---|---|---|
-| GET | /products | listProducts | View all products |
-| GET | /products/:product_id | showProduct | View one product |
-| POST | /products | createProduct | Add new product |
-| PUT | /products/:product_id | updateProduct | Update product details |
-| DELETE | /products/:product_id | deleteProduct | Remove product |
-
----
-
-## Orders
-| Method | Path | Handler | Purpose |
-|---|---|---|---|
-| GET | /orders | listOrders | View all orders |
-| GET | /orders/:order_id | showOrder | View one order |
-| POST | /orders | createOrder | Place new order |
-| PUT | /orders/:order_id | updateOrder | Update order/status |
-| DELETE | /orders/:order_id | deleteOrder | Cancel order |
-
----
-
-## Collections
-| Method | Path | Handler | Purpose |
-|---|---|---|---|
-| GET | /collections | listCollections | View all transactions |
-| GET | /collections/:collection_id | showCollection | View one transaction |
-| POST | /collections | createCollection | Log jug return/release |
-| PUT | /collections/:collection_id | updateCollection | Edit transaction |
-| DELETE | /collections/:collection_id | deleteCollection | Remove record |
+**Test Summary:** ✅ All 20 routes return correct status code + expected stub body. Parameters echoed correctly. Wrong methods/paths handled gracefully.
