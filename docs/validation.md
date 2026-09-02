@@ -35,3 +35,55 @@
 | empty_jugs_returned | Integer ≥ 0 | Cannot be negative |
 | filled_jugs_released | Integer ≥ 0 | Cannot be negative |
 | container_balance | Integer ≥ 0 | Cannot be negative |
+
+
+# Validation Matrix — Aquaflow Tracker
+> Task 1: Validation Rules for Create & Update Routes Only
+> Vocabulary: presence · type · length/range · format · allowed values · referential
+
+---
+
+## POST /customers & PUT /customers/:customer_id
+| Field | Presence | Type | Length / Range | Format | Allowed Values | Referential |
+|---|---|---|---|---|---|---|
+| customer_id | required | string | 5 chars exactly | C + 3 digits (C001–C999) | unique | — |
+| full_name | required | string | 2–100 chars | letters & spaces only | — | — |
+| contact_number | required | string | 12 chars exactly | 09XX-XXX-XXXX | PH format | — |
+| address | required | string | min 5 chars | plain text | — | — |
+| container_owned | required | integer | ≥ 0 | whole number | — | — |
+
+---
+
+## POST /products & PUT /products/:product_id
+| Field | Presence | Type | Length / Range | Format | Allowed Values | Referential |
+|---|---|---|---|---|---|---|
+| product_id | required | string | 5 chars exactly | P + 3 digits (P001–P999) | unique | — |
+| product_name | required | string | 2–100 chars | plain text | unique | — |
+| price_per_unit | required | decimal | ≥ 0.00, 2 decimals max | PHP currency | — | — |
+| description | optional | string | 0–200 chars | plain text | — | — |
+| stock_available | required | integer | ≥ 0 | whole number | — | — |
+
+---
+
+## POST /orders & PUT /orders/:order_id
+| Field | Presence | Type | Length / Range | Format | Allowed Values | Referential |
+|---|---|---|---|---|---|---|
+| order_id | required | string | 5 chars exactly | O + 3 digits (O001–O999) | unique | — |
+| customer_id | required | string | 5 chars exactly | C### format | — | exists in Customers |
+| product_id | required | string | 5 chars exactly | P### format | — | exists in Products |
+| quantity | required | integer | 1–999 | whole number | — | — |
+| total_amount | required | decimal | ≥ 0.00 | price × quantity | matches calculation | — |
+| status | required | string | — | — | Pending, Delivered | — |
+
+---
+
+## POST /collections & PUT /collections/:collection_id
+| Field | Presence | Type | Length / Range | Format | Allowed Values | Referential |
+|---|---|---|---|---|---|---|
+| collection_id | required | string | 7 chars exactly | CL + 3 digits (CL001–CL999) | unique | — |
+| customer_id | required | string | 5 chars exactly | C### format | — | exists in Customers |
+| order_id | optional | string | 5 chars exactly | O### format | — | if given, exists in Orders |
+| empty_jugs_returned | required | integer | ≥ 0 | whole number | — | — |
+| filled_jugs_released | required | integer | ≥ 0 | whole number | — | — |
+| container_balance | required | integer | ≥ 0 | whole number | — | — |
+| collected_by | required | string | 2–50 chars | staff name | — | — |
