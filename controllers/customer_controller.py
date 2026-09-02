@@ -50,3 +50,30 @@ def createCustomer(request):
 
     # ✅ ALL VALID — Proceed to create
     return {"status": 201, "data": {"message": "createCustomer stub"}, "error": None}
+
+# OWNER: Baydal
+def updateCustomer(request):
+    customer_id = request.params.get("customer_id")
+    data = request.body or {}
+
+    # GUARD CLAUSES
+    if not re.match(r"^C\d{3}$", customer_id or ""):
+        return {"status": 422, "data": None, "error": "customer_id must be C followed by 3 digits"}
+
+    if "full_name" in data:
+        if not isinstance(data["full_name"], str) or not (2 <= len(data["full_name"]) <= 100):
+            return {"status": 422, "data": None, "error": "full_name must be 2–100 characters"}
+
+    if "contact_number" in data:
+        if not re.match(r"^09\d{2}-\d{3}-\d{4}$", data["contact_number"]):
+            return {"status": 422, "data": None, "error": "contact_number must use format 09XX-XXX-XXXX"}
+
+    if "address" in data and len(data["address"]) < 5:
+        return {"status": 422, "data": None, "error": "address must be at least 5 characters"}
+
+    if "container_owned" in data:
+        if not isinstance(data["container_owned"], int) or data["container_owned"] < 0:
+            return {"status": 422, "data": None, "error": "container_owned must be a non-negative integer"}
+
+    # ✅ ALL VALID — Proceed to update
+    return {"status": 200, "data": {"message": "updateCustomer stub", "customer_id": customer_id}, "error": None}
