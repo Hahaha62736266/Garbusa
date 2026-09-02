@@ -76,3 +76,33 @@ def updateProduct(request):
 
     # ✅ ALL VALID — Proceed to update
     return {"status": 200, "data": {"message": "updateProduct stub", "product_id": product_id}, "error": None}
+
+# OWNER: Obiasad
+# THIN CONTROLLER — No validation here
+
+from models.product_model import Product
+
+def listProducts(request):
+    products = Product.all()
+    return {"status": 200, "data": products, "error": None}
+
+def showProduct(request):
+    pid = request.params.get("product_id")
+    product = Product.find(pid)
+    return {"status": 200, "data": product, "error": None}
+
+def createProduct(request):
+    data = request.validatedBody           # ✅ Already validated
+    product = Product.save(data)
+    return {"status": 201, "data": product, "error": None}
+
+def updateProduct(request):
+    pid = request.params.get("product_id")
+    data = request.validatedBody
+    product = Product.update(pid, data)
+    return {"status": 200, "data": product, "error": None}
+
+def deleteProduct(request):
+    pid = request.params.get("product_id")
+    Product.remove(pid)
+    return {"status": 200, "data": {"deleted_id": pid}, "error": None}
