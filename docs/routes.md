@@ -1,7 +1,24 @@
-# RESTful Routes — Aquaflow Tracker
-> Response shape: { "status": int, "data": {...}, "error": null }
+# Routes Documentation — Aquaflow Tracker
 
-## Customers
+## Application Routes / Pages (Streamlit UI)
+| Route / Page | Purpose | HTTP Method / Action |
+|---|---|---|
+| **Customers** (`routes/customers.py`) | List, add, edit, delete customer records | Form submit → CRUD to controller |
+| **Products** (`routes/products.py`) | Manage product catalog & pricing | Form submit → CRUD to controller |
+| **Orders** (`routes/orders.py`) | Create & view orders; auto-calculate total | Form submit → create order + update status |
+| **Collections** (`routes/collections.py`) | Record gallon returns/releases & balances | Form submit → update container balance |
+
+### Shared Behaviors
+- All routes validate input via `/validation/` before passing to controllers
+- All routes return success/error messages to UI
+- Data persisted in `st.session_state` mock database
+
+---
+
+## RESTful API Specification
+> Standard Response shape: `{ "status": int, "data": {...}, "error": null }`
+
+### Customers
 | Method | Path | Handler | Status | Example Response |
 |---|---|---|---|---|
 | GET | /customers | listCustomers | 200 | {"status":200,"data":{"message":"listCustomers stub"},"error":null} |
@@ -10,7 +27,7 @@
 | PUT | /customers/:customer_id | updateCustomer | 200 | {"status":200,"data":{"message":"updateCustomer stub","customer_id":"C001"},"error":null} |
 | DELETE | /customers/:customer_id | deleteCustomer | 200 | {"status":200,"data":{"message":"deleteCustomer stub","customer_id":"C001"},"error":null} |
 
-## Products
+### Products
 | Method | Path | Handler | Status | Example Response |
 |---|---|---|---|---|
 | GET | /products | listProducts | 200 | {"status":200,"data":{"message":"listProducts stub"},"error":null} |
@@ -19,7 +36,7 @@
 | PUT | /products/:product_id | updateProduct | 200 | {"status":200,"data":{"message":"updateProduct stub","product_id":"P002"},"error":null} |
 | DELETE | /products/:product_id | deleteProduct | 200 | {"status":200,"data":{"message":"deleteProduct stub","product_id":"P002"},"error":null} |
 
-## Orders
+### Orders
 | Method | Path | Handler | Status | Example Response |
 |---|---|---|---|---|
 | GET | /orders | listOrders | 200 | {"status":200,"data":{"message":"listOrders stub"},"error":null} |
@@ -28,7 +45,7 @@
 | PUT | /orders/:order_id | updateOrder | 200 | {"status":200,"data":{"message":"updateOrder stub","order_id":"O005"},"error":null} |
 | DELETE | /orders/:order_id | deleteOrder | 200 | {"status":200,"data":{"message":"deleteOrder stub","order_id":"O005"},"error":null} |
 
-## Collections
+### Collections
 | Method | Path | Handler | Status | Example Response |
 |---|---|---|---|---|
 | GET | /collections | listCollections | 200 | {"status":200,"data":{"message":"listCollections stub"},"error":null} |
