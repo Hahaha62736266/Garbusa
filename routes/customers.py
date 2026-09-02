@@ -80,3 +80,104 @@ def DELETE_customer_by_id(request):
 
     # Step 2: Allowed → pass to controller
     return deleteCustomer(request)
+
+import streamlit as st
+import pandas as pd
+import datetime
+
+# ======================================
+# 1️⃣ INITIALIZE DATABASE (Mock)
+# ======================================
+if "customers_db" not in st.session_state:
+    st.session_state.customers_db = [
+        {
+            "customer_id": "C001",
+            "full_name": "Maria Santos",
+            "contact_number": "0917-123-4567",
+            "address": "Brgy. 25, Cagayan de Oro",
+            "container_owned": 2,
+            "registration_date": "2026-01-10"
+        },
+        {
+            "customer_id": "C002",
+            "full_name": "Juan Dela Cruz",
+            "contact_number": "0918-987-6543",
+            "address": "Brgy. Lapasan, Cagayan de Oro",
+            "container_owned": 3,
+            "registration_date": "2026-02-15"
+        }
+    ]
+
+# ======================================
+# 2️⃣ PAGE HEADER
+# ======================================
+st.title("💧 Aquaflow Tracker — Customer Management")
+
+# ======================================
+# 3️⃣ FORM & UI ("Route")
+# ======================================
+with st.form("add_customer_form", clear_on_submit=True):
+    st.subheader("Register New Customer")
+
+    full_name = st.text_input("Full Name")
+    contact_number = st.text_input("Contact Number")
+    address = st.text_area("Delivery Address")
+    container_owned = st.number_input(
+        "Empty Jugs Currently Held",
+        min_value=0,
+        value=0,
+        step=1
+    )
+
+    submitted = st.form_submit_button("✅ Save Customer")
+
+    # ======================================
+    # 4️⃣ VALIDATION ("Validation Layer")
+    # ======================================
+    if submitted:
+        errors = []
+
+        if not full_name or len(full_name.strip()) < 2:
+            errors.append("• Full Name must be at least 2 characters")
+
+        if not contact_number or len(contact_number.strip()) < 7:
+            errors.append("• Enter a valid Contact Number")
+
+        if not address or len(address.strip()) < 5:
+            errors.append("• Address must be at least 5 characters")
+
+        # ❌ Show errors & stop
+        if errors:
+            for err in errors:
+                st.error(err)
+            st.stop()
+
+        # ======================================
+        # 5️⃣ CONTROLLER — Save Record
+        # ======================================
+        new_index = len(st.session_state.customers_db) + 1
+        new_customer_id = f"C{new_index:03d}"
+
+        new_customer = {
+            "customer_id": new_customer_id,
+            "full_name": full_name.strip(),
+            "contact_number": contact_number.strip(),
+            "address": address.strip(),
+            "container_owned": container_owned,
+            "registration_date": str(datetime.date.today())
+        }
+
+        st.session_state.customers_db.append(new_customer)
+        st.success(f"✅ Customer {new_customer_id} saved successfully!")
+
+# ======================================
+# 6️⃣ DISPLAY ALL RECORDS
+# ======================================
+st.divider()
+st.subheader("📋 Customer Records")
+
+if st.session_state.customers_db:
+    df = pd.DataFrame(st.session_state.customers_db)
+    st.dataframe(df, use_container_width=True)
+else:
+    st.info("No customers registered yet.")
