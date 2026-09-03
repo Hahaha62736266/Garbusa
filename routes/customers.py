@@ -110,6 +110,25 @@ def createCollection(request):
 
     # ✅ Proceed to create...
 
+def updateCustomer(request):
+    data = request.body or {}
+    customer_id = request.params.get("customer_id", "")  # from URL
+
+    # 🔒 GUARD 1: Validate URL param FIRST
+    if not re.match(r"^C\d{3}$", customer_id):
+        return {"status":422, "error":"customer_id must be C###", "field":"customer_id"}
+
+    # 🔒 GUARD 2: Validate ONLY IF field is present
+    if "full_name" in data:
+        if len(data["full_name"]) < 2 or len(data["full_name"]) > 100:
+            return {"status":422, "error":"full_name must be 2–100 chars", "field":"full_name"}
+
+    if "contact_number" in data:
+        if not re.match(r"^09\d{2}-\d{3}-\d{4}$", data["contact_number"]):
+            return {"status":422, "error":"bad format", "field":"contact_number"}
+
+    # ✅ All guards passed — proceed to update
+
 
 
 # routes/customers.py (example wiring)
