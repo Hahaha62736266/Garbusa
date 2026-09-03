@@ -144,3 +144,9 @@ def handle_all_errors(e):
   "error": "description of what went wrong",
   "field": "field_name_that_failed"
 }
+
+## 🪜 STEP 4 — Save & Push
+```bash
+git add routes/customers.py docs/validation.md
+git commit -m "Task 4: Authorization guard on delete route"
+git push origin main
