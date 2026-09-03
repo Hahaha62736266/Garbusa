@@ -88,6 +88,29 @@ def createOrder(request):
 
     # ✅ Proceed to create...
 
+def createCollection(request):
+    data = request.body or {}
+
+    # 🔒 GUARDS
+    if not data.get("collection_id"):
+        return {"status":422, "error":"collection_id is required", "field":"collection_id"}
+    if not re.match(r"^CL\d{3}$", data["collection_id"]):
+        return {"status":422, "error":"collection_id must be CL###", "field":"collection_id"}
+
+    if not data.get("customer_id"):
+        return {"status":422, "error":"customer_id is required", "field":"customer_id"}
+    if not re.match(r"^C\d{3}$", data["customer_id"]):
+        return {"status":422, "error":"customer_id must be C###", "field":"customer_id"}
+
+    if data.get("order_id") and not re.match(r"^O\d{3}$", data["order_id"]):
+        return {"status":422, "error":"order_id must be O###", "field":"order_id"}
+
+    if data.get("collected_by") and len(data["collected_by"]) < 2:
+        return {"status":422, "error":"collected_by min 2 chars", "field":"collected_by"}
+
+    # ✅ Proceed to create...
+
+
 
 # routes/customers.py (example wiring)
 from middleware.validation import validateCustomerCreate
