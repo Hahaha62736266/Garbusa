@@ -150,3 +150,19 @@ def handle_all_errors(e):
 git add routes/customers.py docs/validation.md
 git commit -m "Task 4: Authorization guard on delete route"
 git push origin main
+
+
+---
+## 🧪 TEST RESULTS — Bad Request Validation
+
+> All tests confirm: **Invalid input → clean error response (422/403) — NEVER crashes / 500**
+
+### ✅ Test 1 — Missing Required Field
+**Request:** `POST /orders` — body missing `quantity` field
+```json
+{
+  "order_id": "O001",
+  "customer_id": "C001",
+  "product_id": "P001",
+  "status": "Pending"
+}
