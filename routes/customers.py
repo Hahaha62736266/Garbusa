@@ -33,7 +33,31 @@ def createCustomer(request):
 
     # ✅ ALL GUARDS PASSED — ONLY NOW RUN YOUR BUSINESS LOGIC
     # ... your existing code to create the customer goes here ...
+def createProduct(request):
+    data = request.body or {}
 
+    # 🔒 GUARDS
+    if not data.get("product_id"):
+        return {"status":422, "error":"product_id is required", "field":"product_id"}
+    if not re.match(r"^P\d{3}$", data["product_id"]):
+        return {"status":422, "error":"product_id must be P###", "field":"product_id"}
+
+    if not data.get("product_name"):
+        return {"status":422, "error":"product_name is required", "field":"product_name"}
+    if len(data["product_name"]) < 2 or len(data["product_name"]) > 100:
+        return {"status":422, "error":"product_name must be 2–100 chars", "field":"product_name"}
+
+    if "price_per_unit" not in data:
+        return {"status":422, "error":"price_per_unit is required", "field":"price_per_unit"}
+    if data["price_per_unit"] < 0:
+        return {"status":422, "error":"price must be ≥ 0", "field":"price_per_unit"}
+
+    if "stock_available" not in data:
+        return {"status":422, "error":"stock_available is required", "field":"stock_available"}
+    if data["stock_available"] < 0:
+        return {"status":422, "error":"stock must be ≥ 0", "field":"stock_available"}
+
+    # ✅ Proceed to create...
 
 
 # routes/customers.py (example wiring)
