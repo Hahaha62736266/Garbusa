@@ -5,7 +5,7 @@ All routes follow consistent REST pattern: `METHOD /resource-name`
 
 ---
 
-## 🧑 Customers
+## Customers
 | Method | Route | Description | Validation | Auth |
 |---|---|---|---|---|
 | GET | `/customers` | List all customers | — | — |
@@ -16,7 +16,7 @@ All routes follow consistent REST pattern: `METHOD /resource-name`
 
 ---
 
-## 🧴 Products
+## Products
 | Method | Route | Description | Validation | Auth |
 |---|---|---|---|---|
 | GET | `/products` | List all products | — | — |
@@ -27,7 +27,7 @@ All routes follow consistent REST pattern: `METHOD /resource-name`
 
 ---
 
-## 📋 Orders
+## Orders
 | Method | Route | Description | Validation | Auth |
 |---|---|---|---|---|
 | GET | `/orders` | List all orders | — | — |
@@ -38,7 +38,7 @@ All routes follow consistent REST pattern: `METHOD /resource-name`
 
 ---
 
-## 📦 Collections
+## Collections
 | Method | Route | Description | Validation | Auth |
 |---|---|---|---|---|
 | GET | `/collections` | List all records | — | — |
@@ -49,7 +49,7 @@ All routes follow consistent REST pattern: `METHOD /resource-name`
 
 ---
 
-## ✅ Standards
-- **Validation runs FIRST**: Every `POST`/`PUT` body validated → returns `422` before controller
-- **ID formats**: `C###` Customers · `P###` Products · `O###` Orders · `CL###` Collections
-- **Responses**: Success → `{status, data}` · Validation fail → `{status:422, error, field}`
+## Standards
+- Validation runs FIRST on every POST/PUT → returns standardized 422 before controller
+- ID formats: `C###` Customers · `P###` Products · `O###` Orders · `CL###` Collections
+- Response shape: Success `{status, data}` · Validation fail `{status:422, error, field}`
