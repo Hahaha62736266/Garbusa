@@ -129,6 +129,17 @@ def updateCustomer(request):
 
     # ✅ All guards passed — proceed to update
 
+# Save all your files first (Ctrl+S)
+
+# Stage your changes
+git add routes/
+
+# Commit
+git commit -m "Task 2: Guard-clause validation on all create/update routes"
+
+# Push
+git push origin main
+
 
 
 # routes/customers.py (example wiring)
