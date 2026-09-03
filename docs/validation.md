@@ -118,6 +118,26 @@ def handle_all_errors(e):
         "field": "server"
     }), 500
 
+
+    ---
+
+## 🔒 Authorization Guard
+
+> **Status Code 403 = Forbidden** — input is VALID, but you are NOT ALLOWED to perform this action.
+> 
+> **Distinct from 422 (Validation Error):** 422 = bad input · 403 = permission denied
+
+### Protected Route: DELETE /customers/:customer_id
+- **Rule:** Only the record owner may delete
+- **Check:** `current_user_id == customer_id`
+- **Fails → Returns:**
+```json
+{
+  "status": 403,
+  "error": "You are not allowed to delete this record",
+  "field": "authorization"
+}
+
 ```json
 {
   "status": 422,
