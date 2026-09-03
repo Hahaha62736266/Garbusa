@@ -6,6 +6,35 @@ def updateCustomer(request):
     # ✅ PASTE EVERYTHING BELOW THIS LINE ↓
     # ==================================================
 
+        # 🔒 AUTHORIZATION GUARD — Only owner can delete
+    current_user_id = request.headers.get("X-User-ID", "")  # ← Current logged-in user
+    target_customer_id = customer_id  # ← Record being deleted
+
+    # If current user does NOT own this record → FORBIDDEN
+    if current_user_id != target_customer_id:
+        return {
+            "status": 403,
+            "error": "You are not allowed to delete this record",
+            "field": "authorization"
+        }, 403
+
+    # ✅ ALLOWED — proceed with delete
+
+    def deleteCustomer(request):
+    customer_id = request.params.get("customer_id", "")  # ← from URL
+
+    # 🔒 Authorization Guard — RUNS FIRST
+    current_user_id = request.headers.get("X-User-ID", "")
+    if current_user_id != customer_id:
+        return {
+            "status": 403,
+            "error": "You are not allowed to delete this record",
+            "field": "authorization"
+        }, 403
+
+    # ✅ Allowed → run validation → then delete
+    # ... your existing delete code runs here ...
+
        # 🔒 GUARD CLAUSES — Validation checks FIRST
     import re
 
