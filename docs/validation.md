@@ -1,100 +1,85 @@
-# Aquaflow Tracker — Validation Matrix
+# Validation Matrix
 
-> Rule Vocabulary: **Presence** · **Type** · **Length/Range** · **Format** · **Allowed Values** · **Referential**
-
----
-
-## 🧑 CUSTOMERS
-
-### POST /customers — Create
-| Field | Presence | Type | Length / Range | Format | Allowed Values | Referential |
-|---|---|---|---|---|---|---|
-| customer_id | Required | String | — | `C###` (C + 3 digits) | — | Must be unique |
-| full_name | Required | String | 2–100 characters | Plain text | — | — |
-| contact_number | Required | String | 13 characters | `09XX-XXX-XXXX` | — | — |
-| address | Required | String | Min 5 characters | Plain text | — | — |
-| container_owned | Required | Integer | ≥ 0 | Whole number | — | — |
-
-### PUT /customers/{customer_id} — Update
-| Field | Presence | Type | Length / Range | Format | Allowed Values | Referential |
-|---|---|---|---|---|---|---|
-| customer_id (URL) | Required | String | — | `C###` | — | Must exist |
-| full_name | Optional | String | 2–100 characters | Plain text | — | — |
-| contact_number | Optional | String | 13 characters | `09XX-XXX-XXXX` | — | — |
-| address | Optional | String | Min 5 characters | Plain text | — | — |
-| container_owned | Optional | Integer | ≥ 0 | Whole number | — | — |
+> Rule Vocabulary: **presence, type, length/range, format, allowed values, referential**
 
 ---
 
-## 🧴 PRODUCTS
-
-### POST /products — Create
-| Field | Presence | Type | Length / Range | Format | Allowed Values | Referential |
+## POST /customers — Create
+| Field | Presence | Type | Length/Range | Format | Allowed Values | Referential |
 |---|---|---|---|---|---|---|
-| product_id | Required | String | — | `P###` (P + 3 digits) | — | Must be unique |
-| product_name | Required | String | 2–100 characters | Plain text | — | — |
-| price_per_unit | Required | Decimal | ≥ 0.00 | Numeric, 2 decimal places | — | — |
-| stock_available | Required | Integer | ≥ 0 | Whole number | — | — |
+| customer_id | required | string | — | C### | — | unique |
+| full_name | required | string | 2–100 chars | plain text | — | — |
+| contact_number | required | string | — | 09XX-XXX-XXXX | — | — |
+| address | required | string | min 5 chars | plain text | — | — |
+| container_owned | required | integer | ≥ 0 | whole number | — | — |
 
-### PUT /products/{product_id} — Update
-| Field | Presence | Type | Length / Range | Format | Allowed Values | Referential |
+## PUT /customers/:customer_id — Update
+| Field | Presence | Type | Length/Range | Format | Allowed Values | Referential |
 |---|---|---|---|---|---|---|
-| product_id (URL) | Required | String | — | `P###` | — | Must exist |
-| product_name | Optional | String | 2–100 characters | Plain text | — | — |
-| price_per_unit | Optional | Decimal | ≥ 0.00 | Numeric, 2 decimal places | — | — |
-| stock_available | Optional | Integer | ≥ 0 | Whole number | — | — |
+| customer_id (URL) | required | string | — | C### | — | must exist |
+| full_name | optional | string | 2–100 chars | plain text | — | — |
+| contact_number | optional | string | — | 09XX-XXX-XXXX | — | — |
+| address | optional | string | min 5 chars | plain text | — | — |
+| container_owned | optional | integer | ≥ 0 | whole number | — | — |
 
 ---
 
-## 📋 ORDERS
-
-### POST /orders — Create
-| Field | Presence | Type | Length / Range | Format | Allowed Values | Referential |
+## POST /products — Create
+| Field | Presence | Type | Length/Range | Format | Allowed Values | Referential |
 |---|---|---|---|---|---|---|
-| order_id | Required | String | — | `O###` (O + 3 digits) | — | Must be unique |
-| customer_id | Required | String | — | `C###` | — | References Customers |
-| product_id | Required | String | — | `P###` | — | References Products |
-| quantity | Required | Integer | 1–999 | Whole number | — | — |
-| status | Required | String | — | Exact match | `Pending`, `Delivered` | — |
+| product_id | required | string | — | P### | — | unique |
+| product_name | required | string | 2–100 chars | plain text | — | — |
+| price_per_unit | required | decimal | ≥ 0.00 | numeric | — | — |
+| stock_available | required | integer | ≥ 0 | whole number | — | — |
 
-### PUT /orders/{order_id} — Update
-| Field | Presence | Type | Length / Range | Format | Allowed Values | Referential |
+## PUT /products/:product_id — Update
+| Field | Presence | Type | Length/Range | Format | Allowed Values | Referential |
 |---|---|---|---|---|---|---|
-| order_id (URL) | Required | String | — | `O###` | — | Must exist |
-| customer_id | Optional | String | — | `C###` | — | References Customers |
-| product_id | Optional | String | — | `P###` | — | References Products |
-| quantity | Optional | Integer | 1–999 | Whole number | — | — |
-| status | Optional | String | — | Exact match | `Pending`, `Delivered` | — |
+| product_id (URL) | required | string | — | P### | — | must exist |
+| product_name | optional | string | 2–100 chars | plain text | — | — |
+| price_per_unit | optional | decimal | ≥ 0.00 | numeric | — | — |
+| stock_available | optional | integer | ≥ 0 | whole number | — | — |
 
 ---
 
-## 📦 COLLECTIONS
-
-### POST /collections — Create
-| Field | Presence | Type | Length / Range | Format | Allowed Values | Referential |
+## POST /orders — Create
+| Field | Presence | Type | Length/Range | Format | Allowed Values | Referential |
 |---|---|---|---|---|---|---|
-| collection_id | Required | String | — | `CL###` (CL + 3 digits) | — | Must be unique |
-| customer_id | Required | String | — | `C###` | — | References Customers |
-| order_id | Optional | String | — | `O###` | — | References Orders |
-| empty_jugs_returned | Required | Integer | ≥ 0 | Whole number | — | — |
-| filled_jugs_released | Required | Integer | ≥ 0 | Whole number | — | — |
-| container_balance | Required | Integer | ≥ 0 | Whole number | — | — |
-| collected_by | Required | String | Min 2 characters | Plain text | — | — |
+| order_id | required | string | — | O### | — | unique |
+| customer_id | required | string | — | C### | — | references Customers |
+| product_id | required | string | — | P### | — | references Products |
+| quantity | required | integer | 1–999 | whole number | — | — |
+| status | required | string | — | exact match | Pending, Delivered | — |
 
-### PUT /collections/{collection_id} — Update
-| Field | Presence | Type | Length / Range | Format | Allowed Values | Referential |
+## PUT /orders/:order_id — Update
+| Field | Presence | Type | Length/Range | Format | Allowed Values | Referential |
 |---|---|---|---|---|---|---|
-| collection_id (URL) | Required | String | — | `CL###` | — | Must exist |
-| customer_id | Optional | String | — | `C###` | — | References Customers |
-| order_id | Optional | String | — | `O###` | — | References Orders |
-| empty_jugs_returned | Optional | Integer | ≥ 0 | Whole number | — | — |
-| filled_jugs_released | Optional | Integer | ≥ 0 | Whole number | — | — |
-| container_balance | Optional | Integer | ≥ 0 | Whole number | — | — |
-| collected_by | Optional | String | Min 2 characters | Plain text | — | — |
+| order_id (URL) | required | string | — | O### | — | must exist |
+| customer_id | optional | string | — | C### | — | references Customers |
+| product_id | optional | string | — | P### | — | references Products |
+| quantity | optional | integer | 1–999 | whole number | — | — |
+| status | optional | string | — | exact match | Pending, Delivered | — |
 
 ---
 
-## ⚠️ Standard Error Response
-> When ANY rule fails → return **HTTP 422**:
-```json
-{"status": 422, "error": "description", "field": "field_name"}
+## POST /collections — Create
+| Field | Presence | Type | Length/Range | Format | Allowed Values | Referential |
+|---|---|---|---|---|---|---|
+| collection_id | required | string | — | CL### | — | unique |
+| customer_id | required | string | — | C### | — | references Customers |
+| order_id | optional | string | — | O### | — | references Orders |
+| empty_jugs_returned | required | integer | ≥ 0 | whole number | — | — |
+| filled_jugs_released | required | integer | ≥ 0 | whole number | — | — |
+| container_balance | required | integer | ≥ 0 | whole number | — | — |
+| collected_by | required | string | min 2 chars | plain text | — | — |
+
+## PUT /collections/:collection_id — Update
+| Field | Presence | Type | Length/Range | Format | Allowed Values | Referential |
+|---|---|---|---|---|---|---|
+| collection_id (URL) | required | string | — | CL### | — | must exist |
+| customer_id | optional | string | — | C### | — | references Customers |
+| order_id | optional | string | — | O### | — | references Orders |
+| empty_jugs_returned | optional | integer | ≥ 0 | whole number | — | — |
+| filled_jugs_released | optional | integer | ≥ 0 | whole number | — | — |
+| container_balance | optional | integer | ≥ 0 | whole number | — | — |
+| collected_by | optional | string | min 2 chars | plain text | — | — |
