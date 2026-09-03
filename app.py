@@ -227,3 +227,15 @@ if __name__ == "__main__":
     print("🚀 Starting Garbusa API Server...")
     print("📍 http://127.0.0.1:5000")
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+# ==================================================
+# ✅ STANDARD ERROR HANDLER — PREVENT STACK TRACES LEAKING
+# ==================================================
+@app.errorhandler(Exception)
+def handle_all_errors(e):
+    # NEVER return raw stack traces or database errors to client
+    return {
+        "status": 500,
+        "error": "Internal server error. Please check your input or try again.",
+        "field": "server"
+    }, 500
