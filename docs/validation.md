@@ -61,9 +61,6 @@
 
 ---
 
-## Standard Validation Error Shape
-```json
-{"status":422, "error":"message", "field":"field_name"}
 
 # Aquaflow Tracker — Validation Matrix
 
