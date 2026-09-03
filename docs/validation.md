@@ -83,3 +83,16 @@
 | filled_jugs_released | optional | integer | ≥ 0 | whole number | — | — |
 | container_balance | optional | integer | ≥ 0 | whole number | — | — |
 | collected_by | optional | string | min 2 chars | plain text | — | — |
+
+---
+
+## ⚠️ Standard Error Response Format
+
+> **Every validation failure returns EXACTLY this shape:**
+
+```json
+{
+  "status": 422,
+  "error": "description of what went wrong",
+  "field": "field_name_that_failed"
+}
