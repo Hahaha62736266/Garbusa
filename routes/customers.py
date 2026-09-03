@@ -59,6 +59,35 @@ def createProduct(request):
 
     # ✅ Proceed to create...
 
+def createOrder(request):
+    data = request.body or {}
+
+    # 🔒 GUARDS
+    if not data.get("order_id"):
+        return {"status":422, "error":"order_id is required", "field":"order_id"}
+    if not re.match(r"^O\d{3}$", data["order_id"]):
+        return {"status":422, "error":"order_id must be O###", "field":"order_id"}
+
+    if not data.get("customer_id"):
+        return {"status":422, "error":"customer_id is required", "field":"customer_id"}
+    if not re.match(r"^C\d{3}$", data["customer_id"]):
+        return {"status":422, "error":"customer_id must be C###", "field":"customer_id"}
+
+    if not data.get("product_id"):
+        return {"status":422, "error":"product_id is required", "field":"product_id"}
+    if not re.match(r"^P\d{3}$", data["product_id"]):
+        return {"status":422, "error":"product_id must be P###", "field":"product_id"}
+
+    if "quantity" not in data:
+        return {"status":422, "error":"quantity is required", "field":"quantity"}
+    if data["quantity"] < 1 or data["quantity"] > 999:
+        return {"status":422, "error":"quantity must be 1–999", "field":"quantity"}
+
+    if data.get("status") not in ["Pending", "Delivered"]:
+        return {"status":422, "error":"status must be Pending or Delivered", "field":"status"}
+
+    # ✅ Proceed to create...
+
 
 # routes/customers.py (example wiring)
 from middleware.validation import validateCustomerCreate
