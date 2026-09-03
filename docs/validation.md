@@ -96,14 +96,6 @@
 
 ---
 
-## 🪜 STEP 2 — Add Safety Error Handler to App
-### 📍 WHERE TO PASTE:
-> Open your **main app file** → usually named `app.py` or `main.py`
-> 
-> **PASTE THIS AT THE TOP of the file** — right below your existing imports, BEFORE your routes/functions
-
-### 👇 COPY THIS BLOCK & PASTE IT THERE:
-```python
 # ==================================================
 # ✅ STANDARD ERROR HANDLER — PREVENT STACK TRACES LEAKING
 # ==================================================
