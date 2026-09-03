@@ -166,3 +166,25 @@ git push origin main
   "product_id": "P001",
   "status": "Pending"
 }
+
+... your existing content above ...
+
+✅ ✅ ✅ CLICK HERE → NEW EMPTY SPACE ✅ ✅ ✅
+
+---
+
+## 🧪 TASK 5 — Validation & Authorization Test Results
+
+> **Goal:** Send deliberately bad requests → confirm clean error responses (422 / 403) — **NEVER crash / 500**
+
+---
+
+### ✅ TEST 1 — Missing Required Field
+**Request:** `POST /orders` — missing required field `quantity`
+```json
+{
+  "order_id": "O001",
+  "customer_id": "C001",
+  "product_id": "P001",
+  "status": "Pending"
+}
