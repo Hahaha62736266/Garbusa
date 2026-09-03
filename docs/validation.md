@@ -90,6 +90,42 @@
 
 > **Every validation failure returns EXACTLY this shape:**
 
+
+### ✅ AFTER PASTING:
+> **Save the file** (Ctrl+S) ✅
+
+---
+
+## 🪜 STEP 2 — Add Safety Error Handler to App
+### 📍 WHERE TO PASTE:
+> Open your **main app file** → usually named `app.py` or `main.py`
+> 
+> **PASTE THIS AT THE TOP of the file** — right below your existing imports, BEFORE your routes/functions
+
+### 👇 COPY THIS BLOCK & PASTE IT THERE:
+```python
+# ==================================================
+# ✅ STANDARD ERROR HANDLER — PREVENT STACK TRACES LEAKING
+# ==================================================
+from flask import jsonify
+
+@app.errorhandler(422)
+def bad_request(e):
+    return jsonify({
+        "status": 422,
+        "error": str(e.description) if hasattr(e, "description") else "Validation failed",
+        "field": getattr(e, "field", "unknown")
+    }), 422
+
+@app.errorhandler(Exception)
+def handle_all_errors(e):
+    # NEVER show raw errors to client
+    return jsonify({
+        "status": 500,
+        "error": "Internal server error. Please check your input or try again.",
+        "field": "server"
+    }), 500
+
 ```json
 {
   "status": 422,
