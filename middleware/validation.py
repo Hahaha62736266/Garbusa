@@ -1,17 +1,4 @@
-# ✅ middleware/validation.py — GUARDS LIVE HERE
-def validateCustomerCreate(request):
-    data = request.body
-    if not data.get("customer_id"):       # ✅ Validation HERE
-        return {"status":422,...}
-    request.validatedBody = cleanData      # ✅ Attach clean data
-    return None  # No error = proceed
-
-# ✅ controllers/customer_controller.py — THIN
-def createCustomer(request):
-    data = request.validatedBody           # ✅ Already clean!
-    customer = Customer.save(data)         # ✅ Only work, no checks
-    return {"status":201, "data":customer, "error":None}
-
+import re
 
 # ==========================================================
 # VALIDATION MIDDLEWARE
@@ -19,7 +6,6 @@ def createCustomer(request):
 # Returns 422 immediately if invalid → never reaches controller
 # Attaches clean data to: request.validatedBody
 # ==========================================================
-import re
 
 # ----------------------------------------------------------
 # CUSTOMERS Validation
@@ -53,7 +39,7 @@ def validateCustomerCreate(request):
 
     # ✅ ALL VALID — attach clean data to request
     request.validatedBody = data
-    return None  # No error = proceed to controller
+    return None
 
 
 def validateCustomerUpdate(request):
@@ -299,10 +285,8 @@ def checkOwnership(request, recordOwnerId):
     Current logged-in user must match the record owner ID.
     Return None if allowed, or 403 error dict if forbidden.
     """
-    # Get currently authenticated user (from your auth system / session / JWT)
     currentUserId = request.auth.get("user_id") if request.auth else None
 
-    # If no one is logged in → forbidden
     if not currentUserId:
         return {
             "status": 403,
@@ -310,7 +294,6 @@ def checkOwnership(request, recordOwnerId):
             "field": None
         }
 
-    # If logged-in user does NOT own this record → forbidden
     if str(currentUserId) != str(recordOwnerId):
         return {
             "status": 403,
@@ -318,7 +301,6 @@ def checkOwnership(request, recordOwnerId):
             "field": None
         }
 
-    # ✅ Allowed — proceed
     return None
 
 
@@ -328,7 +310,6 @@ def checkOwnership(request, recordOwnerId):
 
 def authorizeDeleteCustomer(request):
     """DELETE /customers/:customer_id — Only the owner can delete"""
-    # Look up the existing record from Data Layer to get its owner
     from models.customer_model import Customer
     customerId = request.params.get("customer_id")
     existing = Customer.find(customerId)
@@ -336,8 +317,7 @@ def authorizeDeleteCustomer(request):
     if not existing:
         return {"status": 404, "error": "Record not found", "field": None}
 
-    # Compare: logged-in user vs record owner
-    ownerId = existing.get("owned_by_user_id", "admin")  # fallback if no owner yet
+    ownerId = existing.get("owned_by_user_id", "admin")
     return checkOwnership(request, ownerId)
 
 
@@ -350,6 +330,6 @@ def authorizeDeleteOrder(request):
     if not existing:
         return {"status": 404, "error": "Record not found", "field": None}
 
-    # Order belongs to its customer_id
     ownerId = existing.get("customer_id")
     return checkOwnership(request, ownerId)
+    
