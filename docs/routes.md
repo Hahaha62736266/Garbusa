@@ -58,3 +58,36 @@ next_line: value
 | POST | /collections | createCollection | 201 | {"status":201,"data":{"message":"createCollection stub"},"error":null} |
 | PUT | /collections/:collection_id | updateCollection | 200 | {"status":200,"data":{"message":"updateCollection stub","collection_id":"CL003"},"error":null} |
 | DELETE | /collections/:collection_id | deleteCollection | 200 | {"status":200,"data":{"message":"deleteCollection stub","collection_id":"CL003"},"error":null} |
+
+
+# Aquaflow Tracker — Route Specification
+
+## Customers
+GET    /customers          → List all
+POST   /customers          → Create (validated)
+GET    /customers/:id      → Get one
+PUT    /customers/:id      → Update (validated)
+DELETE /customers/:id      → Delete (authorized)
+
+## Products
+GET    /products
+POST   /products           → Create (validated)
+GET    /products/:id
+PUT    /products/:id       → Update (validated)
+DELETE /products/:id
+
+## Orders
+GET    /orders
+POST   /orders             → Create (validated)
+GET    /orders/:id
+PUT    /orders/:id         → Update (validated)
+DELETE /orders/:id
+
+## Collections
+GET    /collections
+POST   /collections        → Create (validated)
+GET    /collections/:id
+PUT    /collections/:id     → Update (validated)
+DELETE /collections/:id
+
+✅ All routes follow identical pattern; validation runs on POST/PUT before controller.
