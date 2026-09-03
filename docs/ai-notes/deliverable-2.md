@@ -23,3 +23,9 @@ No generative AI assistance was used during the development of controllers, vali
 - **Code written solo**: Checkpoint route-building completed without AI
 - **Documentation formatting only**: AI was consulted solely to standardize markdown structure and presentation — content, validation rules, route patterns, and test logic were defined entirely by the team
 - **No prompt log**: No code-generation prompts were used during implementation
+
+- 
+
+# AI Usage Declaration — Deliverable 2
+
+No generative AI assistance was used in writing controllers, validation logic, test cases, or during the live AI-off checkpoint. All code and implementation work represents the original effort of the team and individual authors.
