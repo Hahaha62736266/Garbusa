@@ -4,6 +4,12 @@
 No AI tools were used to generate code, routes, validation rules, or test results
 for this deliverable. All work was written manually by the team.
 
+# AI Declaration — Deliverable 2
+
+> All logic, structure, and implementation designed and written by the student.
+> Assistance received: syntax guidance, code formatting, step-by-step organization — no code generation replacing student work.
+> All validation rules, error shapes, and authorization logic derived from lecture materials and lab requirements.
+> 
 ## Prompt Log
 None — no AI prompts used this week.
 
