@@ -1,0 +1,229 @@
+{
+  "info": {
+    "_postman_id": "garbusa-api-v1",
+    "name": "Garbusa REST API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Full API — Validation → Auth → Controller → Model. Standard responses: {status, data/error, field}"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5000",
+      "type": "string"
+    },
+    {
+      "key": "auth_user",
+      "value": "C001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🏠 Root / Status",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/",
+        "description": "API info & endpoint list"
+      }
+    },
+    {
+      "name": "🧾 Customers",
+      "item": [
+        {
+          "name": "List All",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/customers"
+          }
+        },
+        {
+          "name": "Create — Valid → 201",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/customers",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"C001\",\n  \"full_name\": \"Maria Santos\",\n  \"contact_number\": \"0917-123-4567\",\n  \"address\": \"Davao City, PH\",\n  \"container_owned\": 5\n}"
+            }
+          }
+        },
+        {
+          "name": "Create — Missing Name → 422",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/customers",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"C002\",\n  \"contact_number\": \"0917-111-2222\",\n  \"address\": \"CDO\",\n  \"container_owned\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "Create — Bad ID Format → 422",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/customers",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"CUS999\",\n  \"full_name\": \"Bad ID User\",\n  \"contact_number\": \"0917-333-4444\",\n  \"address\": \"CDO\",\n  \"container_owned\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Get One",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/customers/C001"
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/api/customers/C001",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Maria Dela Cruz\",\n  \"contact_number\": \"0917-999-8888\",\n  \"address\": \"Updated Address\",\n  \"container_owned\": 3\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/customers/C001"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Products",
+      "item": [
+        {
+          "name": "List All",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/products"
+          }
+        },
+        {
+          "name": "Create — Valid → 201",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/products",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"P001\",\n  \"product_name\": \"5-Gallon Purified Water\",\n  \"price_per_unit\": 85.50,\n  \"stock_available\": 100\n}"
+            }
+          }
+        },
+        {
+          "name": "Create — Negative Price → 422",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/products",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"P002\",\n  \"product_name\": \"Bad Product\",\n  \"price_per_unit\": -10.00,\n  \"stock_available\": 50\n}"
+            }
+          }
+        },
+        {
+          "name": "Create — Zero Stock → 201",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/products",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"P003\",\n  \"product_name\": \"Out of Stock Item\",\n  \"price_per_unit\": 75.00,\n  \"stock_available\": 0\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Orders",
+      "item": [
+        {
+          "name": "Create — Valid → 201",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/orders",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-User-ID", "value": "{{auth_user}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"O001\",\n  \"customer_id\": \"C001\",\n  \"product_id\": \"P001\",\n  \"quantity\": 3,\n  \"status\": \"Pending\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create — Negative Qty → 422",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/orders",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"O002\",\n  \"customer_id\": \"C001\",\n  \"product_id\": \"P001\",\n  \"quantity\": -5,\n  \"status\": \"Pending\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete — Wrong User → 403",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/orders/O001",
+            "header": [{"key": "X-User-ID", "value": "C999"}]
+          }
+        },
+        {
+          "name": "Delete — Owner → 200",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/orders/O001",
+            "header": [{"key": "X-User-ID", "value": "{{auth_user}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚚 Collections",
+      "item": [
+        {
+          "name": "Create — Valid → 201",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/collections",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"collection_id\": \"CL001\",\n  \"customer_id\": \"C001\",\n  \"order_id\": \"O001\",\n  \"empty_jugs_returned\": 2,\n  \"filled_jugs_released\": 5,\n  \"container_balance\": 3,\n  \"collected_by\": \"Delivery Team A\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create — Negative Balance → 422",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/collections",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"collection_id\": \"CL002\",\n  \"customer_id\": \"C001\",\n  \"order_id\": \"O001\",\n  \"empty_jugs_returned\": 5,\n  \"filled_jugs_released\": 3,\n  \"container_balance\": -2,\n  \"collected_by\": \"Delivery Team B\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
