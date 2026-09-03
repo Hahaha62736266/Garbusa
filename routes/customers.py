@@ -1,38 +1,38 @@
-def createCustomer(request):
+def updateCustomer(request):
     data = request.body or {}
+    customer_id = request.params.get("customer_id", "")  # ← ID from URL
+                                                          #
+    # ==================================================
+    # ✅ PASTE EVERYTHING BELOW THIS LINE ↓
+    # ==================================================
 
-    # ========== 🔒 GUARD CLAUSES — ADD THIS BLOCK HERE ==========
+       # 🔒 GUARD CLAUSES — Validation checks FIRST
+    import re
 
-    # Guard 1: Check customer_id
-    if not data.get("customer_id"):
-        return {"status":422, "error":"customer_id is required", "field":"customer_id"}
-    if not re.match(r"^C\d{3}$", data["customer_id"]):
-        return {"status":422, "error":"customer_id must be C followed by 3 digits", "field":"customer_id"}
+    # Validate URL customer_id FIRST
+    if not re.match(r"^C\d{3}$", customer_id):
+        return {"status": 422, "error": "customer_id must be C followed by 3 digits (e.g. C001)", "field": "customer_id"}
 
-    # Guard 2: Check full_name
-    if not data.get("full_name"):
-        return {"status":422, "error":"full_name is required", "field":"full_name"}
-    if not isinstance(data["full_name"], str) or len(data["full_name"]) < 2 or len(data["full_name"]) > 100:
-        return {"status":422, "error":"full_name must be 2–100 characters", "field":"full_name"}
+    # Validate full_name IF provided
+    if "full_name" in data:
+        if not isinstance(data["full_name"], str) or len(data["full_name"]) < 2 or len(data["full_name"]) > 100:
+            return {"status": 422, "error": "full_name must be 2–100 characters", "field": "full_name"}
 
-    # Guard 3: Check contact_number
-    if not data.get("contact_number"):
-        return {"status":422, "error":"contact_number is required", "field":"contact_number"}
-    if not re.match(r"^09\d{2}-\d{3}-\d{4}$", data["contact_number"]):
-        return {"status":422, "error":"contact_number must be 09XX-XXX-XXXX", "field":"contact_number"}
+    # Validate contact_number IF provided
+    if "contact_number" in data:
+        if not re.match(r"^09\d{2}-\d{3}-\d{4}$", data["contact_number"]):
+            return {"status": 422, "error": "contact_number must use format 09XX-XXX-XXXX", "field": "contact_number"}
 
-    # Guard 4: Check address
-    if not data.get("address") or len(data["address"]) < 5:
-        return {"status":422, "error":"address is required (min 5 chars)", "field":"address"}
+    # Validate address IF provided
+    if "address" in data and len(data["address"]) < 5:
+        return {"status": 422, "error": "address must be at least 5 characters", "field": "address"}
 
-    # Guard 5: Check container_owned
-    if "container_owned" not in data:
-        return {"status":422, "error":"container_owned is required", "field":"container_owned"}
-    if not isinstance(data["container_owned"], int) or data["container_owned"] < 0:
-        return {"status":422, "error":"container_owned must be ≥ 0", "field":"container_owned"}
+    # Validate container_owned IF provided
+    if "container_owned" in data:
+        if not isinstance(data["container_owned"], int) or data["container_owned"] < 0:
+            return {"status": 422, "error": "container_owned must be a non-negative integer", "field": "container_owned"}
 
-    # ✅ ALL GUARDS PASSED — ONLY NOW RUN YOUR BUSINESS LOGIC
-    # ... your existing code to create the customer goes here ...
+    # ✅ ALL VALIDATION PASSED — your existing code below runs now
 def createProduct(request):
     data = request.body or {}
 
