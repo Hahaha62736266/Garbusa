@@ -1,5 +1,5 @@
 # Validation Rules & Error Responses — Aquaflow Tracker
-> Error shape: { "status": 400, "data": null, "error": "message" }
+
 
 ## Customers
 | Field | Rule | Error Message |
@@ -87,3 +87,36 @@
 | filled_jugs_released | required | integer | ≥ 0 | whole number | — | — |
 | container_balance | required | integer | ≥ 0 | whole number | — | — |
 | collected_by | required | string | 2–50 chars | staff name | — | — |
+
+# Aquaflow Tracker — Validation Rules
+
+## Customers
+- customer_id: required, format C###
+- full_name: required, string 2–100 chars
+- contact_number: required, format 09XX-XXX-XXXX
+- address: required, min 5 chars
+- container_owned: required, integer ≥ 0
+
+## Products
+- product_id: required, format P###
+- product_name: required, string 2–100 chars
+- price_per_unit: required, number ≥ 0.00
+- stock_available: required, integer ≥ 0
+
+## Orders
+- order_id: required, format O###
+- customer_id: required, format C###
+- product_id: required, format P###
+- quantity: required, integer 1–999
+- status: required, one of: Pending, Delivered
+
+## Collections
+- collection_id: required, format CL###
+- customer_id: required, format C###
+- order_id: optional, format O### if provided
+- empty_jugs_returned: required, integer ≥ 0
+- filled_jugs_released: required, integer ≥ 0
+- container_balance: required, integer ≥ 0
+- collected_by: required, min 2 chars
+
+✅ All POST/PUT routes validated; returns 422 + error + field on failure.
