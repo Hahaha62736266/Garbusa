@@ -25,7 +25,3 @@ No generative AI assistance was used during the development of controllers, vali
 - **No prompt log**: No code-generation prompts were used during implementation
 
 - 
-
-# AI Usage Declaration — Deliverable 2
-
-No generative AI assistance was used in writing controllers, validation logic, test cases, or during the live AI-off checkpoint. All code and implementation work represents the original effort of the team and individual authors.
