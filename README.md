@@ -245,3 +245,7 @@ else:
 ```bash
 pip install pytest
 
+## 🧪 Run Test Suite
+```bash
+python -m pytest tests/ -v
+
