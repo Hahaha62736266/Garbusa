@@ -323,7 +323,7 @@ def authorizeDeleteCustomer(request):
 
 def authorizeDeleteOrder(request):
     """DELETE /orders/:order_id — Only the customer who placed it can delete"""
-    from models.order_model import Order
+    from models import order_model
     orderId = request.params.get("order_id")
     existing = Order.find(orderId)
 
