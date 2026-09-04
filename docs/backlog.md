@@ -64,3 +64,14 @@
 - ✔ Every story has **1–3 verifiable acceptance criteria**
 - ✔ All team members have assigned ownership
 - ✔ Matches Aquaflow Tracker’s actual fields and workflow
+
+# Wireframe to User Story Mapping
+
+| Story ID | Wireframe Filename |
+|---|---|
+| C1 | docs/wireframes/add-customer.png |
+| C2 | docs/wireframes/edit-customer.png |
+| O1 | docs/wireframes/place-order.png |
+| O2 | docs/wireframes/view-orders.png |
+| P1 | docs/wireframes/manage-products.png |
+| CL1 | docs/wireframes/record-collection.png |
