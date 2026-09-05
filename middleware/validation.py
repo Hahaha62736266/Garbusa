@@ -332,4 +332,19 @@ def authorizeDeleteOrder(request):
 
     ownerId = existing.get("customer_id")
     return checkOwnership(request, ownerId)
+
+# 422 Validation Error
+{
+    "status": 422,
+    "error": "Validation Error",
+    "message": "Invalid input data",
+    "details": ["field X is required", "field Y format invalid"]
+}
+
+# 403 Authorization Guard (Week 4 requirement)
+{
+    "status": 403,
+    "error": "Forbidden",
+    "message": "You are not authorized to perform this action"
+}
     
