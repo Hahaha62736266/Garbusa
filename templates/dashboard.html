@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="container">
+    <h1 class="page-header__title">Dashboard</h1>
+    <p class="page-header__subtitle">Today's overview — orders, customers, inventory</p>
+    <a href="/orders/new" class="btn page-header__action btn--primary">+ New Order</a>
+  </div>
+</header>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin:1.5rem 0;">
+  <div style="background:white; padding:1.25rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+    <h3 style="font-size:0.9rem; color:#90A4AE; margin-bottom:0.5rem;">Active Orders</h3>
+    <p style="font-size:1.8rem; font-weight:700; color:#0288D1;">12</p>
+    <span class="text-muted">3 pending delivery</span>
+  </div>
+  <div style="background:white; padding:1.25rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+    <h3 style="font-size:0.9rem; color:#90A4AE; margin-bottom:0.5rem;">Customers</h3>
+    <p style="font-size:1.8rem; font-weight:700; color:#0288D1;">47</p>
+    <span class="text-success">+2 this week</span>
+  </div>
+  <div style="background:white; padding:1.25rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+    <h3 style="font-size:0.9rem; color:#90A4AE; margin-bottom:0.5rem;">Gallons in Stock</h3>
+    <p style="font-size:1.8rem; font-weight:700; color:#0288D1;">205</p>
+    <span class="text-muted">18 loaned out</span>
+  </div>
+  <div style="background:white; padding:1.25rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+    <h3 style="font-size:0.9rem; color:#90A4AE; margin-bottom:0.5rem;">Today's Sales</h3>
+    <p style="font-size:1.8rem; font-weight:700; color:#0288D1;">₱ 4,280</p>
+    <span class="text-success">+12% vs yesterday</span>
+  </div>
+</div>
+
+<h2 style="margin:2rem 0 1rem; font-size:1.25rem;">Recent Orders</h2>
+<div id="orders-list">
+  <div class="order-item" data-status="delivered">
+    <div class="order-item__body">
+      <div class="order-item__id">O001</div>
+      <h4 class="order-item__customer">Maria Santos (C001)</h4>
+      <p class="text-muted">5-Gal Distilled — 2 units</p>
+      <p class="text-muted" style="font-size:0.8rem;">2026-09-30</p>
+    </div>
+    <div style="text-align:right; min-width:100px;">
+      <p class="order-item__price">₱ 90.00</p>
+      <span class="status-badge status-badge--delivered">Delivered</span>
+    </div>
+    <div class="order-item__actions">
+      <button class="btn btn--sm btn--outline">View</button>
+    </div>
+  </div>
+
+  <div class="order-item" data-status="pending">
+    <div class="order-item__body">
+      <div class="order-item__id">O002</div>
+      <h4 class="order-item__customer">Juan Dela Cruz (C002)</h4>
+      <p class="text-muted">5-Gal Purified — 3 units</p>
+      <p class="text-muted" style="font-size:0.8rem;">2026-09-30</p>
+    </div>
+    <div style="text-align:right; min-width:100px;">
+      <p class="order-item__price">₱ 105.00</p>
+      <span class="status-badge status-badge--pending">Pending</span>
+    </div>
+    <div class="order-item__actions">
+      <button class="btn btn--sm btn--primary">Process</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Products & Inventory{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="container">
+    <h1 class="page-header__title">Products & Inventory</h1>
+    <p class="page-header__subtitle">Pricing and stock levels</p>
+    <a href="/products/new" class="btn page-header__action btn--primary">+ Add Product</a>
+  </div>
+</header>
+
+<div class="data-table-wrapper">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Product Name</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>P001</td>
+        <td><strong>5-Gal Purified</strong><br><span class="text-muted" style="font-size:0.8rem;">Refill only</span></td>
+        <td>₱ 35.00</td>
+        <td>120</td>
+        <td><span class="status-badge status-badge--delivered">Available</span></td>
+        <td><button class="btn btn--sm btn--outline">Edit</button></td>
+      </tr>
+      <tr>
+        <td>P002</td>
+        <td><strong>5-Gal Distilled</strong><br><span class="text-muted" style="font-size:0.8rem;">Best for drinking</span></td>
+        <td>₱ 45.00</td>
+        <td>85</td>
+        <td><span class="status-badge status-badge--delivered">Available</span></td>
+        <td><button class="btn btn--sm btn--outline">Edit</button></td>
+      </tr>
+      <tr>
+        <td>P003</td>
+        <td><strong>New 5-Gal Jug</strong><br><span class="text-muted" style="font-size:0.8rem;">Empty plastic jug</span></td>
+        <td>₱ 180.00</td>
+        <td>12</td>
+        <td><span class="status-badge status-badge--lowstock">Low Stock</span></td>
+        <td><button class="btn btn--sm btn--outline">Edit</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}

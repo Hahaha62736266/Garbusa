@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Customers{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="container">
+    <h1 class="page-header__title">Customer Directory</h1>
+    <p class="page-header__subtitle">Manage profiles and gallon balances</p>
+    <a href="/customers/new" class="btn page-header__action btn--primary">+ Add Customer</a>
+  </div>
+</header>
+
+<div style="margin-bottom:1.5rem;">
+  <input type="search" placeholder="Search by name or ID..." class="form-control" style="max-width:400px;">
+</div>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:1rem;">
+  <div style="background:white; padding:1.25rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+    <h3 style="margin-bottom:0.25rem;">Maria Santos</h3>
+    <p style="font-family:monospace; color:#90A4AE;">C001</p>
+    <p class="text-muted" style="margin:0.5rem 0;">0917-123-4567<br>Brgy. 25, CdeO</p>
+    <p style="margin-top:0.75rem;"><strong>Outstanding Jugs:</strong> <span style="color:#0288D1; font-size:1.2rem;">2</span></p>
+    <p class="text-muted" style="font-size:0.8rem;">Since 2026-01-10</p>
+    <div style="margin-top:1rem;">
+      <a href="/customers/C001" class="btn btn--sm btn--outline">View Profile</a>
+    </div>
+  </div>
+
+  <div style="background:white; padding:1.25rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+    <h3 style="margin-bottom:0.25rem;">Juan Dela Cruz</h3>
+    <p style="font-family:monospace; color:#90A4AE;">C002</p>
+    <p class="text-muted" style="margin:0.5rem 0;">0918-987-6543<br>Brgy. Lapasan, CdeO</p>
+    <p style="margin-top:0.75rem;"><strong>Outstanding Jugs:</strong> <span style="color:#0288D1; font-size:1.2rem;">3</span></p>
+    <p class="text-muted" style="font-size:0.8rem;">Since 2026-02-15</p>
+    <div style="margin-top:1rem;">
+      <a href="/customers/C002" class="btn btn--sm btn--outline">View Profile</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Profile — Maria Santos (C001){% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="container">
+    <h1 class="page-header__title">Maria Santos</h1>
+    <p class="page-header__subtitle">C001 · Brgy. 25, CdeO · 0917-123-4567</p>
+  </div>
+</header>
+
+<div style="display:grid; grid-template-columns:1fr 2fr; gap:2rem;">
+  <div style="background:white; padding:1.5rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08); height:fit-content;">
+    <h3 style="margin-bottom:1rem;">Container Balance</h3>
+    <p style="font-size:2rem; font-weight:700; color:#0288D1;">2 jugs</p>
+    <p class="text-muted">Outstanding containers</p>
+    <hr style="margin:1.5rem 0; border:none; border-top:1px solid #ECEFF1;">
+    <p><strong>Contact:</strong><br>0917-123-4567</p>
+    <p style="margin-top:0.75rem;"><strong>Address:</strong><br>Brgy. 25, CdeO</p>
+    <p style="margin-top:0.75rem;"><strong>Since:</strong><br>2026-01-10</p>
+    <button class="btn btn--outline" style="width:100%; margin-top:1.5rem;">Edit Profile</button>
+  </div>
+
+  <div>
+    <h3 style="margin-bottom:1rem;">Order History</h3>
+    <div class="order-item" data-status="delivered">
+      <div class="order-item__body">
+        <div class="order-item__id">O001</div>
+        <h4 class="order-item__customer">5-Gal Distilled — 2 units</h4>
+        <p class="text-muted" style="font-size:0.8rem;">2026-09-30</p>
+      </div>
+      <div style="text-align:right; min-width:100px;">
+        <p class="order-item__price">₱ 90.00</p>
+        <span class="status-badge status-badge--delivered">Delivered</span>
+      </div>
+    </div>
+
+    <h3 style="margin:2rem 0 1rem;">Collection Records</h3>
+    <div style="background:white; padding:1rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+      <strong>CL001</strong>
+      <p class="text-muted" style="font-size:0.85rem;">Returned: 2 · Released: 2 · Balance: 2</p>
+      <p class="text-muted" style="font-size:0.8rem;">2026-09-30 · Staff A</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
