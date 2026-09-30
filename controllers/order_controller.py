@@ -119,4 +119,46 @@ def updateOrder(order_id, data):
     except Exception as e:
         return {"success": False, "message": str(e)}, 500
 
+def updateOrder(order_id, data):
+    """Update an existing order record"""
+    try:
+        from models.database import get_connection
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        updates = []
+        values = []
+
+        if "customer_id" in data:
+            updates.append("customer_id = %s")
+            values.append(data["customer_id"])
+        if "product_id" in data:
+            updates.append("product_id = %s")
+            values.append(data["product_id"])
+        if "quantity" in data:
+            updates.append("quantity = %s")
+            values.append(data["quantity"])
+        if "status" in data:
+            updates.append("status = %s")
+            values.append(data["status"])
+        if "total_amount" in data:
+            updates.append("total_amount = %s")
+            values.append(data["total_amount"])
+
+        if not updates:
+            return {"success": False, "message": "No fields provided to update"}, 400
+
+        values.append(order_id)
+        query = f"UPDATE orders SET {', '.join(updates)} WHERE order_id = %s"
+        cursor.execute(query, values)
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return {"success": False, "message": "Order not found"}, 404
+
+        return {"success": True, "message": "Order updated successfully"}, 200
+
+    except Exception as e:
+        return {"success": False, "message": f"Database error: {str(e)}"}, 500
+
 __all__ = ["createOrder", "getAllOrders", "getOrder", "updateOrder", "deleteOrder"]
