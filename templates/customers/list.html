@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% set page = 'customers' %}
+{% block title %}Customers — Aquaflow Tracker{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1 class="page-title">👤 Customers</h1>
+    <a href="/customers/create" class="af-btn primary">+ New Customer</a>
+  </div>
+
+  <div class="af-list">
+    <div class="af-list-row">
+      <div class="af-row-main">
+        <div class="af-row-primary">C001 — Maria Santos</div>
+        <div class="af-row-secondary">Brgy. 25, CdeO · 0917-123-4567 · Jugs: 2</div>
+      </div>
+      <div class="af-row-meta">
+        <span class="af-badge active">Active</span>
+        <div class="af-row-actions">
+          <a href="/customers/C001" class="af-btn small ghost">View</a>
+          <a href="/customers/C001/edit" class="af-btn small primary">Edit</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="af-list-row">
+      <div class="af-row-main">
+        <div class="af-row-primary">C002 — Juan Dela Cruz</div>
+        <div class="af-row-secondary">Brgy. Lapasan, CdeO · 0918-987-6543 · Jugs: 3</div>
+      </div>
+      <div class="af-row-meta">
+        <span class="af-badge active">Active</span>
+        <div class="af-row-actions">
+          <a href="/customers/C002" class="af-btn small ghost">View</a>
+          <a href="/customers/C002/edit" class="af-btn small primary">Edit</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
