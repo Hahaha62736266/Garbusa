@@ -1,7 +1,3 @@
-"""
-Aquaflow Tracker — Main Flask App
-Serves all static templates + connects to controllers
-"""
 from flask import Flask, render_template, request, redirect, url_for
 
 # Import controllers
@@ -16,24 +12,26 @@ from controllers.customer_controller import (
 app = Flask(__name__)
 
 # =============================================
-# 🏠 DASHBOARD / HOME
+# 🏠 DASHBOARD / HOME — THIS IS WHAT'S MISSING!
 # =============================================
 @app.route("/")
 def index():
     return render_template("index.html")
 
 # =============================================
-# 👤 CUSTOMERS — List, Create, Detail, Edit
+# 👤 CUSTOMERS
 # =============================================
 @app.route("/customers")
 def customers_list():
-    result = list_customers()
-    return render_template("customers/list.html", customers=result["data"])
+    try:
+        result = list_customers()
+        return render_template("customers/list.html", customers=result["data"])
+    except Exception as e:
+        return render_template("customers/list.html", error=str(e)), 500
 
 @app.route("/customers/create", methods=["GET", "POST"])
 def customers_create():
     if request.method == "POST":
-        # Wrap request body to match controller expectation
         class Req:
             def __init__(self, body):
                 self.body = body
@@ -52,16 +50,6 @@ def customers_detail(customer_id):
         return "Customer not found", 404
     return render_template("customers/detail.html", customer=result["data"])
 
-@app.route("/customers")
-def customers_list():
-    try:
-        result = list_customers()
-        # Pass empty list [] if no data — triggers empty state
-        return render_template("customers/list.html", customers=result["data"])
-    except Exception as e:
-        # Pass error message — triggers error state
-        return render_template("customers/list.html", error=str(e)), 500
-
 @app.route("/customers/<customer_id>/edit", methods=["GET", "POST"])
 def customers_edit(customer_id):
     if request.method == "POST":
@@ -73,14 +61,13 @@ def customers_edit(customer_id):
         if result["status"] == 200:
             return redirect(url_for("customers_detail", customer_id=customer_id))
         return f"Error: {result['message']}"
-    # GET — Show edit form with sample data
     result = showCustomer(customer_id)
     if result["status"] == 404:
         return "Customer not found", 404
     return render_template("customers/edit.html", customer=result["data"])
 
 # =============================================
-# 🚀 RUN SERVER
+# 🚀 RUN — MUST have host="0.0.0.0"
 # =============================================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
