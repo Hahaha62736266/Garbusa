@@ -11,8 +11,10 @@ app = Flask(__name__)
 # 🏠 WEB PAGES — These were MISSING!
 # =============================================
 @app.route("/")
-def home_page():
-    return render_template("index.html")
+def home():
+    # Directly show dashboard
+    from flask import render_template
+    return render_template("dashboard.html")
 
 @app.route("/customers")
 def customers_page():
