@@ -73,4 +73,9 @@ def customers_edit(customer_id):
 # 🚀 RUN SERVER
 # =============================================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # REQUIRED for GitHub Codespaces/App — listen on ALL interfaces
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )
