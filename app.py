@@ -1,73 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for
-
-# Import controllers
-from controllers.customer_controller import (
-    list_customers,
-    showCustomer,
-    createCustomer,
-    updateCustomer,
-    deleteCustomer
-)
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
-# =============================================
-# 🏠 DASHBOARD / HOME — THIS IS WHAT'S MISSING!
-# =============================================
+# THIS IS THE HOME PAGE ROUTE — "Cannot GET /" means this was missing!
 @app.route("/")
-def index():
+def home():
     return render_template("index.html")
 
-# =============================================
-# 👤 CUSTOMERS
-# =============================================
 @app.route("/customers")
-def customers_list():
-    try:
-        result = list_customers()
-        return render_template("customers/list.html", customers=result["data"])
-    except Exception as e:
-        return render_template("customers/list.html", error=str(e)), 500
+def customers():
+    return render_template("customers/list.html")
 
-@app.route("/customers/create", methods=["GET", "POST"])
-def customers_create():
-    if request.method == "POST":
-        class Req:
-            def __init__(self, body):
-                self.body = body
-                self.validatedBody = body
-        req = Req(request.form)
-        result = createCustomer(req)
-        if result["status"] == 201:
-            return redirect(url_for("customers_list"))
-        return f"Error: {result['message']} — {result.get('error','')}"
-    return render_template("customers/create.html")
-
-@app.route("/customers/<customer_id>")
-def customers_detail(customer_id):
-    result = showCustomer(customer_id)
-    if result["status"] == 404:
-        return "Customer not found", 404
-    return render_template("customers/detail.html", customer=result["data"])
-
-@app.route("/customers/<customer_id>/edit", methods=["GET", "POST"])
-def customers_edit(customer_id):
-    if request.method == "POST":
-        class Req:
-            def __init__(self, body):
-                self.body = body
-        req = Req(request.form)
-        result = updateCustomer(customer_id, req)
-        if result["status"] == 200:
-            return redirect(url_for("customers_detail", customer_id=customer_id))
-        return f"Error: {result['message']}"
-    result = showCustomer(customer_id)
-    if result["status"] == 404:
-        return "Customer not found", 404
-    return render_template("customers/edit.html", customer=result["data"])
-
-# =============================================
-# 🚀 RUN — MUST have host="0.0.0.0"
-# =============================================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
