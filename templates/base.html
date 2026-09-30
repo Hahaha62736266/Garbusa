@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Aquaflow Tracker{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/screens.css">
+</head>
+<body>
+  <nav class="af-navbar">
+    <a href="/" class="af-navbar-brand">💧 Aquaflow Tracker</a>
+    <div class="af-navbar-links">
+      <a href="/" class="af-nav-link {% if page=='dashboard' %}active{% endif %}">Dashboard</a>
+      <a href="/customers" class="af-nav-link {% if page=='customers' %}active{% endif %}">Customers</a>
+      <a href="/orders" class="af-nav-link {% if page=='orders' %}active{% endif %}">Orders</a>
+      <a href="/products" class="af-nav-link {% if page=='products' %}active{% endif %}">Products</a>
+      <a href="/collections" class="af-nav-link {% if page=='collections' %}active{% endif %}">Collections</a>
+    </div>
+  </nav>
+  <main class="page-container">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
