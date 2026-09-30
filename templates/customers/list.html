@@ -1,40 +1,26 @@
-{% extends "base.html" %}
-{% set page = 'customers' %}
-{% block title %}Customers — Aquaflow Tracker{% endblock %}
-
-{% block content %}
-  <div class="page-header">
-    <h1 class="page-title">👤 Customers</h1>
-    <a href="/customers/create" class="af-btn primary">+ New Customer</a>
-  </div>
-
-  <div class="af-list">
-    <div class="af-list-row">
-      <div class="af-row-main">
-        <div class="af-row-primary">C001 — Maria Santos</div>
-        <div class="af-row-secondary">Brgy. 25, CdeO · 0917-123-4567 · Jugs: 2</div>
-      </div>
-      <div class="af-row-meta">
-        <span class="af-badge active">Active</span>
-        <div class="af-row-actions">
-          <a href="/customers/C001" class="af-btn small ghost">View</a>
-          <a href="/customers/C001/edit" class="af-btn small primary">Edit</a>
-        </div>
-      </div>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Customers</title>
+  <meta charset="UTF-8">
+</head>
+<body style="font-family:system-ui;background:#f0f4f8;padding:2rem;max-width:800px;margin:0 auto;">
+  <a href="/" style="color:#2563eb;">← Home</a>
+  <h1>👤 Customers</h1>
+  <a href="/customers/create" style="background:#2563eb;color:white;padding:0.5rem 1rem;border-radius:6px;text-decoration:none;display:inline-block;margin-bottom:1rem;">+ New Customer</a>
+  
+  {% if customers and customers|length > 0 %}
+    {% for c in customers %}
+    <div style="background:white;padding:1rem;border-radius:6px;margin:0.5rem 0;">
+      <strong>{{ c.customer_id }} — {{ c.full_name }}</strong><br>
+      {{ c.contact_number }} · {{ c.address }}
     </div>
-
-    <div class="af-list-row">
-      <div class="af-row-main">
-        <div class="af-row-primary">C002 — Juan Dela Cruz</div>
-        <div class="af-row-secondary">Brgy. Lapasan, CdeO · 0918-987-6543 · Jugs: 3</div>
-      </div>
-      <div class="af-row-meta">
-        <span class="af-badge active">Active</span>
-        <div class="af-row-actions">
-          <a href="/customers/C002" class="af-btn small ghost">View</a>
-          <a href="/customers/C002/edit" class="af-btn small primary">Edit</a>
-        </div>
-      </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align:center;padding:3rem;border:2px dashed #cbd5e1;border-radius:12px;">
+      <p style="font-size:1.2rem;color:#64748b;">No customers yet</p>
+      <a href="/customers/create" style="color:#2563eb;">Add your first customer</a>
     </div>
-  </div>
-{% endblock %}
+  {% endif %}
+</body>
+</html>

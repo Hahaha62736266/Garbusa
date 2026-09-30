@@ -207,32 +207,58 @@ def api_delete_collection(collection_id):
 
 
 # ═══════════════════════════════════════════════════════
-# 🏠 HOME
+# 🏠 HOME & WEB PAGES
 # ═══════════════════════════════════════════════════════
+from flask import render_template, redirect, url_for, request
+
 @app.route("/", methods=["GET"])
 def index():
-    return jsonify({
-        "message": "Garbusa REST API — Full Pipeline Working ✅",
-        "version": "1.0.0",
-        "endpoints": {
-            "customers": "/api/customers",
-            "products": "/api/products",
-            "orders": "/api/orders",
-            "collections": "/api/collections"
-        },
-        "note": "Send X-User-ID header for auth/delete operations"
-    }), 200
+    try:
+        return render_template("index.html")
+    except Exception as e:
+        return f"""
+        <html><body style="padding:2rem;font-family:sans-serif;">
+            <h1>💧 Aquaflow Tracker</h1>
+            <p style="color:red;">⚠️ Template missing: {e}</p>
+            <h3>Quick Links:</h3>
+            <ul>
+                <li><a href="/customers">/customers</a> — Customer List</li>
+                <li><a href="/api/customers">/api/customers</a> — JSON Data</li>
+            </ul>
+        </body></html>
+        """, 200
+
+# 👤 Customers Web Pages
+@app.route("/customers")
+def customers_list_page():
+    try:
+        from controllers.customer_controller import list_customers
+        result = list_customers()
+        return render_template("customers/list.html", customers=result["data"])
+    except Exception as e:
+        return f"Error: {str(e)}", 500
+
+@app.route("/customers/create", methods=["GET", "POST"])
+def customers_create_page():
+    from controllers.customer_controller import createCustomer
+    if request.method == "POST":
+        class Req:
+            def __init__(self, body):
+                self.body = body
+                self.validatedBody = body
+        req = Req(request.form)
+        result = createCustomer(req)
+        if result["status"] == 201:
+            return redirect(url_for("customers_list_page"))
+        return f"Error: {result['message']}", 400
 
 
-if __name__ == "__main__":
-    print("🚀 Starting Garbusa API Server...")
-    print("📍 http://127.0.0.1:5000")
-    app.run(host="0.0.0.0", port=5000)
 
 # ==================================================
 # ✅ STANDARD ERROR HANDLER — PREVENT STACK TRACES LEAKING
 # ==================================================
 @app.errorhandler(Exception)
+
 def handle_all_errors(e):
     # NEVER return raw stack traces or database errors to client
     return {
@@ -240,3 +266,5 @@ def handle_all_errors(e):
         "error": "Internal server error. Please check your input or try again.",
         "field": "server"
     }, 500
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
