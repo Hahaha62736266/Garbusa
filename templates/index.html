@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% set page = 'dashboard' %}
+{% block title %}Dashboard — Aquaflow Tracker{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1 class="page-title">📊 Dashboard</h1>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-card__label">Active Orders</div>
+      <div class="summary-card__value">5</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card__label">Registered Customers</div>
+      <div class="summary-card__value">24</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card__label">Today's Sales</div>
+      <div class="summary-card__value">₱2,450</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card__label">Gallons Out</div>
+      <div class="summary-card__value">42</div>
+    </div>
+  </div>
+
+  <h2 style="font-size:1.1rem; margin-bottom:12px;">Recent Orders</h2>
+  <div class="af-list">
+    <div class="af-list-row">
+      <div class="af-row-main">
+        <div class="af-row-primary">O002 — Juan Dela Cruz</div>
+        <div class="af-row-secondary">5-Gal Purified × 3 — ₱105.00</div>
+      </div>
+      <span class="af-badge pending">Pending</span>
+    </div>
+    <div class="af-list-row">
+      <div class="af-row-main">
+        <div class="af-row-primary">O001 — Maria Santos</div>
+        <div class="af-row-secondary">5-Gal Distilled × 2 — ₱90.00</div>
+      </div>
+      <span class="af-badge delivered">Delivered</span>
+    </div>
+  </div>
+{% endblock %}

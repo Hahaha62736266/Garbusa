@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% set page = 'customers' %}
+{% block title %}C001 — Maria Santos | Aquaflow Tracker{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1 class="page-title">👤 Customer — C001</h1>
+    <div style="display:flex; gap:8px;">
+      <a href="/customers" class="af-btn ghost">← Back</a>
+      <a href="/customers/C001/edit" class="af-btn primary">Edit</a>
+    </div>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-row">
+      <div class="detail-label">Full Name</div>
+      <div class="detail-value">Maria Santos</div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">Contact Number</div>
+      <div class="detail-value">0917-123-4567</div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">Delivery Address</div>
+      <div class="detail-value">Brgy. 25, Cagayan de Oro, Misamis Oriental</div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">Empty Jugs Held</div>
+      <div class="detail-value">2</div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">Registration Date</div>
+      <div class="detail-value">January 10, 2026</div>
+    </div>
+    <div class="detail-row">
+      <div class="detail-label">Status</div>
+      <div class="detail-value"><span class="af-badge active">Active</span></div>
+    </div>
+  </div>
+
+  <h2 style="font-size:1rem; margin:32px 0 12px;">Recent Orders</h2>
+  <div class="af-list">
+    <div class="af-list-row">
+      <div class="af-row-main">
+        <div class="af-row-primary">O001 — 5-Gal Distilled × 2</div>
+        <div class="af-row-secondary">₱90.00 · July 3, 2026</div>
+      </div>
+      <span class="af-badge delivered">Delivered</span>
+    </div>
+  </div>
+{% endblock %}
