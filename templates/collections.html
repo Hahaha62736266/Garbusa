@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Container Collections{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="container">
+    <h1 class="page-header__title">Container Exchange Log</h1>
+    <p class="page-header__subtitle">Track jugs returned and released</p>
+    <a href="/collections/new" class="btn page-header__action btn--primary">+ Record Collection</a>
+  </div>
+</header>
+
+<div style="background:white; padding:1rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <strong>CL001 — Maria Santos (C001)</strong>
+    <p class="text-muted" style="font-size:0.85rem;">O001 · 2026-09-30 · Collected by: Staff A</p>
+  </div>
+  <div style="display:flex; gap:1.5rem; text-align:center;">
+    <div><span class="text-muted" style="font-size:0.75rem;">Returned</span><br><strong>2</strong></div>
+    <div><span class="text-muted" style="font-size:0.75rem;">Released</span><br><strong>2</strong></div>
+    <div><span class="text-muted" style="font-size:0.75rem;">Balance</span><br><strong style="color:#0288D1;">2</strong></div>
+  </div>
+  <span class="status-badge status-badge--delivered">Completed</span>
+</div>
+
+<div style="background:white; padding:1rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <strong>CL002 — Juan Dela Cruz (C002)</strong>
+    <p class="text-muted" style="font-size:0.85rem;">O002 · 2026-09-30 · Collected by: Staff B</p>
+  </div>
+  <div style="display:flex; gap:1.5rem; text-align:center;">
+    <div><span class="text-muted" style="font-size:0.75rem;">Returned</span><br><strong>3</strong></div>
+    <div><span class="text-muted" style="font-size:0.75rem;">Released</span><br><strong>0</strong></div>
+    <div><span class="text-muted" style="font-size:0.75rem;">Balance</span><br><strong style="color:#FF8F00;">3</strong></div>
+  </div>
+  <span class="status-badge status-badge--pending">Pending Return</span>
+</div>
+{% endblock %}

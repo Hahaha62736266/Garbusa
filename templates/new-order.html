@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Create New Order{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="container">
+    <h1 class="page-header__title">Create New Order</h1>
+    <p class="page-header__subtitle">Log a new delivery request</p>
+  </div>
+</header>
+
+<div style="max-width:600px; margin:0 auto; background:white; padding:2rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+  <form id="new-order-form">
+    <div class="form-group">
+      <label>Select Customer</label>
+      <select class="form-control" required>
+        <option value="">-- Choose customer --</option>
+        <option value="C001">C001 — Maria Santos</option>
+        <option value="C002">C002 — Juan Dela Cruz</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Product</label>
+      <select class="form-control" required>
+        <option value="">-- Select product --</option>
+        <option value="P001">5-Gal Purified — ₱35.00</option>
+        <option value="P002">5-Gal Distilled — ₱45.00</option>
+        <option value="P003">New 5-Gal Jug — ₱180.00</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Quantity</label>
+      <input type="number" class="form-control" min="1" value="1" required>
+    </div>
+
+    <div style="background:#E1F5FE; padding:1rem; border-radius:8px; margin:1.5rem 0;">
+      <strong>Estimated Total:</strong> <span id="calc-total">₱ 0.00</span>
+    </div>
+
+    <button type="submit" class="btn btn--primary" style="width:100%;">Log Order</button>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const priceMap = { P001: 35, P002: 45, P003: 180 };
+  const form = document.getElementById('new-order-form');
+  const totalSpan = document.getElementById('calc-total');
+  form.addEventListener('input', () => {
+    const prodText = form.querySelector('select:nth-of-type(2)').value;
+    const prod = prodText ? prodText.split(' — ')[0] : '';
+    const qty = parseInt(form.querySelector('input[type=number]').value) || 0;
+    totalSpan.textContent = `₱ ${(priceMap[prod] || 0) * qty}.toFixed(2)`;
+  });
+});
+</script>
+{% endblock %}

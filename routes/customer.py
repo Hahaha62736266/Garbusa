@@ -20,7 +20,7 @@ def updateCustomer(request):
 
     # ✅ ALLOWED — proceed with delete
 
-    def deleteCustomer(request):
+def deleteCustomer(request):
     customer_id = request.params.get("customer_id", "")  # ← from URL
 
     # 🔒 Authorization Guard — RUNS FIRST
@@ -157,17 +157,6 @@ def updateCustomer(request):
             return {"status":422, "error":"bad format", "field":"contact_number"}
 
     # ✅ All guards passed — proceed to update
-
-# Save all your files first (Ctrl+S)
-
-# Stage your changes
-git add routes/
-
-# Commit
-git commit -m "Task 2: Guard-clause validation on all create/update routes"
-
-# Push
-git push origin main
 
 
 
@@ -354,3 +343,36 @@ if st.session_state.customers_db:
     st.dataframe(df, use_container_width=True)
 else:
     st.info("No customers registered yet.")
+
+from flask import Blueprint, request, jsonify
+from middleware.validation import validate_customer_data
+from middleware.auth_guard import require_auth
+from controllers import customer_controller
+
+bp = Blueprint("customers", __name__)
+
+# ✅ CREATE — validation enforced + auth guard
+@bp.route("/", methods=["POST"])
+@require_auth
+def create_customer():
+    data = request.get_json() or {}
+    errors = validate_customer_data(data)
+    if errors:
+        return jsonify(errors), 422  # ✅ Consistent 422 shape, NEVER 500/crash
+
+    # Route is THIN — passes to controller, no business logic here
+    result = customer_controller.create_customer(data)
+    return jsonify(result), 201
+
+
+# ✅ UPDATE — validation enforced + auth guard
+@bp.route("/<customer_id>", methods=["PUT"])
+@require_auth
+def update_customer(customer_id):
+    data = request.get_json() or {}
+    errors = validate_customer_data(data, is_update=True)
+    if errors:
+        return jsonify(errors), 422  # ✅ Consistent error handling
+
+    result = customer_controller.update_customer(customer_id, data)
+    return jsonify(result), 200
