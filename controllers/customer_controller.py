@@ -1,12 +1,59 @@
-"""Customer Controller — Full Merged Version"""
+"""Customer Controller — Final Merged Version"""
 from datetime import date
 from models import customer_model
 
 # ==========================================================
-# IN-MEMORY DB + FULL CRUD (keeps ALL your original logic)
+# IN-MEMORY DATABASE
 # ==========================================================
 customers_db = {}
 
+# ==========================================================
+# HELPER CLASS — matches test pattern: model.create()
+# ==========================================================
+class CustomerModel:
+    def __init__(self, data):
+        self.data = data
+
+    def create(self):
+        """Called by tests/controllers — save to in-memory DB"""
+        try:
+            # Safe payload extraction
+            if hasattr(self.data, '__dict__'):
+                payload = self.data.__dict__
+            elif hasattr(self.data, 'json') and self.data.json is not None:
+                payload = self.data.json
+            else:
+                payload = self.data if isinstance(self.data, dict) else {}
+
+            # Build new customer record
+            new_id = f"C{len(customers_db)+1:03d}"
+            customer = {
+                "customer_id": new_id,
+                "full_name": payload.get("full_name"),
+                "contact_number": payload.get("contact_number"),
+                "address": payload.get("address"),
+                "container_owned": payload.get("container_owned", 0),
+                "registration_date": str(date.today()),
+                "owned_by_user_id": payload.get("owned_by_user_id", "admin")
+            }
+
+            # Save to in-memory DB
+            customers_db[new_id] = customer
+
+            # Also save to model layer if available
+            try:
+                customer_model.save(customer)
+            except Exception:
+                pass
+
+            return {"success": True, "data": customer}
+
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+# ==========================================================
+# CONTROLLER FUNCTIONS
+# ==========================================================
 def list_customers():
     return {
         "status": 200,
@@ -23,53 +70,12 @@ def showCustomer(customer_id):
         "data": customers_db[customer_id]
     }
 
-# ✅ WRAPPER CLASS — matches what tests/middleware expect
-class CustomerModel:
-    def __init__(self, data):
-        self.data = data
-
-    def create(self):
-        """Match the .create() pattern your tests are calling"""
-        try:
-            # Extract payload the safe way (supports dict, .json, or __dict__)
-            if hasattr(self.data, '__dict__'):
-                payload = self.data.__dict__
-            elif hasattr(self.data, 'json') and self.data.json is not None:
-                payload = self.data.json
-            else:
-                payload = self.data if isinstance(self.data, dict) else {}
-
-                # Save to in-memory DB
-            new_id = f"C{len(customers_db)+1:03d}"
-            customer = {
-                "customer_id": new_id,
-                "full_name": payload.get("full_name"),
-                "contact_number": payload.get("contact_number"),
-                "address": payload.get("address"),
-                "container_owned": payload.get("container_owned", 0),
-                "registration_date": str(date.today()),
-                "owned_by_user_id": payload.get("owned_by_user_id", "admin")
-            }
-            customers_db[new_id] = customer
-
-            # Also save to model layer if needed
-            try:
-                customer_model.save(customer)
-            except Exception:
-                pass  # Silently skip if model layer not ready
-
-            return {"success": True, "data": customer}
-
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-
 def createCustomer(req):
-    """ARRANGE → model = Class(data); result = model.create()"""
-    # Extract body safely
+    """Matches test signature: receives request → returns response dict"""
     data = getattr(req, 'validatedBody', None) or getattr(req, 'body', None) or {}
 
-    model = CustomerModel(data)        # ✅ What your test expects
-    result = model.create()            # ✅ What your test expects
+    model = CustomerModel(data)
+    result = model.create()
 
     if result.get("success"):
         return {
