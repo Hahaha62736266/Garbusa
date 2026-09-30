@@ -20,7 +20,8 @@ def customers_page():
         result = list_customers()
         return render_template("customers/list.html", customers=result["data"])
     except Exception as e:
-        return render_template("customers/list.html", error=str(e))
+        # Pass error → triggers Error State
+        return render_template("customers/list.html", error=str(e)), 500
 
 @app.route("/customers/create", methods=["GET", "POST"])
 def customers_create_page():
