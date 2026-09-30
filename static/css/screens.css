@@ -1,3 +1,10 @@
+/*
+  Styles: Empty / Loading / Error States
+  Source: AI-generated, human-tweaked
+  Week 06 — See: docs/ai-notes/week-06.md
+  Adjustments: spacing, BEM naming, mobile responsiveness
+*/
+
 /* screens.css — Aquaflow Tracker Screen Styles */
 :root {
   --primary: #0288D1;
