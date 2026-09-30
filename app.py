@@ -52,6 +52,16 @@ def customers_detail(customer_id):
         return "Customer not found", 404
     return render_template("customers/detail.html", customer=result["data"])
 
+@app.route("/customers")
+def customers_list():
+    try:
+        result = list_customers()
+        # Pass empty list [] if no data — triggers empty state
+        return render_template("customers/list.html", customers=result["data"])
+    except Exception as e:
+        # Pass error message — triggers error state
+        return render_template("customers/list.html", error=str(e)), 500
+
 @app.route("/customers/<customer_id>/edit", methods=["GET", "POST"])
 def customers_edit(customer_id):
     if request.method == "POST":
