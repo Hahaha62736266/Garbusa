@@ -54,9 +54,148 @@ def api_create_customer():
     result = createCustomer(Req(body))
     return jsonify(result), result["status"]
 
-# =============================================
-# 🚀 SERVER — Must use 0.0.0.0 for Codespaces
-# =============================================
+
+# ═══════════════════════════════════════════════════════
+# 🧾 ORDER ENDPOINTS
+# ═══════════════════════════════════════════════════════
+@app.route("/api/orders", methods=["GET"])
+def api_list_orders():
+    req = RequestWrapper({})
+    result = listOrders(req)
+    return jsonify(result), result["status"]
+
+@app.route("/api/orders/<order_id>", methods=["GET"])
+def api_show_order(order_id):
+    req = RequestWrapper({}, params={"order_id": order_id})
+    result = showOrder(req)
+    return jsonify(result), result["status"]
+
+@app.route("/api/orders", methods=["POST"])
+def api_create_order():
+    body = request.get_json(force=True, silent=True) or {}
+    req = RequestWrapper(body, auth_user_id=get_auth_user_id())
+    err = validateOrderCreate(req)
+    if err: return jsonify(err), err["status"]
+    result = createOrder(req)
+    return jsonify(result), result["status"]
+
+@app.route("/api/orders/<order_id>", methods=["PUT"])
+def api_update_order(order_id):
+    body = request.get_json(force=True, silent=True) or {}
+    req = RequestWrapper(body, params={"order_id": order_id})
+    err = validateOrderUpdate(req)
+    if err: return jsonify(err), err["status"]
+    result = updateOrder(req)
+    return jsonify(result), result["status"]
+
+@app.route("/api/orders/<order_id>", methods=["DELETE"])
+def api_delete_order(order_id):
+    req = RequestWrapper({}, params={"order_id": order_id}, auth_user_id=get_auth_user_id())
+    auth_err = authorizeDeleteOrder(req)
+    if auth_err: return jsonify(auth_err), auth_err["status"]
+    result = deleteOrder(req)
+    return jsonify(result), result["status"]
+
+
+# ═══════════════════════════════════════════════════════
+# 🧾 COLLECTION ENDPOINTS
+# ═══════════════════════════════════════════════════════
+@app.route("/api/collections", methods=["GET"])
+def api_list_collections():
+    req = RequestWrapper({})
+    result = listCollections(req)
+    return jsonify(result), result["status"]
+
+@app.route("/api/collections/<collection_id>", methods=["GET"])
+def api_show_collection(collection_id):
+    req = RequestWrapper({}, params={"collection_id": collection_id})
+    result = showCollection(req)
+    return jsonify(result), result["status"]
+
+@app.route("/api/collections", methods=["POST"])
+def api_create_collection():
+    body = request.get_json(force=True, silent=True) or {}
+    req = RequestWrapper(body, auth_user_id=get_auth_user_id())
+    err = validateCollectionCreate(req)
+    if err: return jsonify(err), err["status"]
+    result = createCollection(req)
+    return jsonify(result), result["status"]
+
+@app.route("/api/collections/<collection_id>", methods=["PUT"])
+def api_update_collection(collection_id):
+    body = request.get_json(force=True, silent=True) or {}
+    req = RequestWrapper(body, params={"collection_id": collection_id})
+    err = validateCollectionUpdate(req)
+    if err: return jsonify(err), err["status"]
+    result = updateCollection(req)
+    return jsonify(result), result["status"]
+
+@app.route("/api/collections/<collection_id>", methods=["DELETE"])
+def api_delete_collection(collection_id):
+    req = RequestWrapper({}, params={"collection_id": collection_id})
+    result = deleteCollection(req)
+    return jsonify(result), result["status"]
+
+
+# ═══════════════════════════════════════════════════════
+# 🏠 HOME & WEB PAGES
+# ═══════════════════════════════════════════════════════
+from flask import render_template, redirect, url_for, request
+
+@app.route("/", methods=["GET"])
+def index():
+    try:
+        return render_template("index.html")
+    except Exception as e:
+        return f"""
+        <html><body style="padding:2rem;font-family:sans-serif;">
+            <h1>💧 Aquaflow Tracker</h1>
+            <p style="color:red;">⚠️ Template missing: {e}</p>
+            <h3>Quick Links:</h3>
+            <ul>
+                <li><a href="/customers">/customers</a> — Customer List</li>
+                <li><a href="/api/customers">/api/customers</a> — JSON Data</li>
+            </ul>
+        </body></html>
+        """, 200
+
+# 👤 Customers Web Pages
+@app.route("/customers")
+def customers_list_page():
+    try:
+        from controllers.customer_controller import list_customers
+        result = list_customers()
+        return render_template("customers/list.html", customers=result["data"])
+    except Exception as e:
+        return f"Error: {str(e)}", 500
+
+@app.route("/customers/create", methods=["GET", "POST"])
+def customers_create_page():
+    from controllers.customer_controller import createCustomer
+    if request.method == "POST":
+        class Req:
+            def __init__(self, body):
+                self.body = body
+                self.validatedBody = body
+        req = Req(request.form)
+        result = createCustomer(req)
+        if result["status"] == 201:
+            return redirect(url_for("customers_list_page"))
+        return f"Error: {result['message']}", 400
+
+
+
+# ==================================================
+# ✅ STANDARD ERROR HANDLER — PREVENT STACK TRACES LEAKING
+# ==================================================
+@app.errorhandler(Exception)
+
+def handle_all_errors(e):
+    # NEVER return raw stack traces or database errors to client
+    return {
+        "status": 500,
+        "error": "Internal server error. Please check your input or try again.",
+        "field": "server"
+    }, 500
 if __name__ == "__main__":
-    print("🚀 Aquaflow starting...")
     app.run(host="0.0.0.0", port=5000, debug=True)
