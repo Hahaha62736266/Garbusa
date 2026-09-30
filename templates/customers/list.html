@@ -3,38 +3,77 @@
 {% block title %}Customers — Aquaflow Tracker{% endblock %}
 
 {% block content %}
+  <!-- Error State — Shown if error passed from route -->
+  {% if error %}
+  <div class="error-state">
+    <p class="error-state__title">⚠️ Something went wrong</p>
+    <p class="error-state__message">{{ error }}</p>
+  </div>
+  {% endif %}
+
   <div class="page-header">
     <h1 class="page-title">👤 Customers</h1>
     <a href="/customers/create" class="af-btn primary">+ New Customer</a>
   </div>
 
-  <div class="af-list">
-    <div class="af-list-row">
-      <div class="af-row-main">
-        <div class="af-row-primary">C001 — Maria Santos</div>
-        <div class="af-row-secondary">Brgy. 25, CdeO · 0917-123-4567 · Jugs: 2</div>
-      </div>
-      <div class="af-row-meta">
-        <span class="af-badge active">Active</span>
-        <div class="af-row-actions">
-          <a href="/customers/C001" class="af-btn small ghost">View</a>
-          <a href="/customers/C001/edit" class="af-btn small primary">Edit</a>
-        </div>
-      </div>
+  <!-- Loading State — Visible via JavaScript -->
+  <div id="loading-view" class="loading-container" style="display: none;">
+    <div class="spinner"></div>
+    <p>Loading customer records...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div id="content-view">
+    <!-- Empty State — Zero Customers -->
+    {% if customers is defined and customers|length == 0 %}
+    <div class="empty-state">
+      <div class="empty-state__icon">👥</div>
+      <h2 class="empty-state__title">No customers yet</h2>
+      <p class="empty-state__text">Your customer list is empty. Start by adding your first delivery customer.</p>
+      <a href="/customers/create" class="af-btn primary">+ Add First Customer</a>
     </div>
 
-    <div class="af-list-row">
-      <div class="af-row-main">
-        <div class="af-row-primary">C002 — Juan Dela Cruz</div>
-        <div class="af-row-secondary">Brgy. Lapasan, CdeO · 0918-987-6543 · Jugs: 3</div>
-      </div>
-      <div class="af-row-meta">
-        <span class="af-badge active">Active</span>
-        <div class="af-row-actions">
-          <a href="/customers/C002" class="af-btn small ghost">View</a>
-          <a href="/customers/C002/edit" class="af-btn small primary">Edit</a>
+    <!-- List State — Has Records -->
+    {% else %}
+    <div class="af-list">
+      {% for customer in customers %}
+      <div class="af-list-row">
+        <div class="af-row-main">
+          <div class="af-row-primary">{{ customer.customer_id }} — {{ customer.full_name }}</div>
+          <div class="af-row-secondary">
+            {{ customer.address }} · {{ customer.contact_number }} · Jugs: {{ customer.container_owned }}
+          </div>
+        </div>
+        <div class="af-row-meta">
+          <span class="af-badge active">Active</span>
+          <div class="af-row-actions">
+            <a href="/customers/{{ customer.customer_id }}" class="af-btn small ghost">View</a>
+            <a href="/customers/{{ customer.customer_id }}/edit" class="af-btn small primary">Edit</a>
+          </div>
         </div>
       </div>
+      {% endfor %}
     </div>
+    {% endif %}
   </div>
+
+  <!-- JavaScript: Simulate Loading State -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const loadingView = document.getElementById('loading-view');
+      const contentView = document.getElementById('content-view');
+
+      // Only show loading briefly when page first loads
+      {% if not customers %}
+      loadingView.style.display = 'flex';
+      contentView.style.display = 'none';
+
+      // Simulate network delay then reveal content
+      setTimeout(() => {
+        loadingView.style.display = 'none';
+        contentView.style.display = 'block';
+      }, 600);
+      {% endif %}
+    });
+  </script>
 {% endblock %}
