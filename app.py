@@ -49,10 +49,14 @@ def customers_create_page():
             return redirect(url_for("customers_page"))
         return f"Error: {result.get('message')} — {result.get('error','')}"
     return render_template("customers/create.html")
-
+    
+def submit_form():
+    # Previous code block
+    req = Req(request.form)  # <--- Aligned with the code block inside the function
 # =============================================
 # 🧾 API ENDPOINTS — Keep your original ones
 # =============================================
+
 @app.route("/api/customers", methods=["GET"])
 def api_list_customers():
     return jsonify(list_customers()), 200
