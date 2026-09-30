@@ -73,3 +73,50 @@ def deleteOrder(order_id):
         return {"status": 404, "error": "Not Found", "message": "Order not found"}
     deleted = orders_db.pop(order_id)
     return {"status": 200, "message": "Order deleted", "data": deleted}
+
+def updateOrder(order_id, data):
+    """Update an existing order by ID"""
+    try:
+        # Connect to your database here
+        from models.database import get_connection
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Build update fields dynamically
+        fields = []
+        values = []
+        
+        if "customer_id" in data:
+            fields.append("customer_id = %s")
+            values.append(data["customer_id"])
+        if "product_id" in data:
+            fields.append("product_id = %s")
+            values.append(data["product_id"])
+        if "quantity" in data:
+            fields.append("quantity = %s")
+            values.append(data["quantity"])
+        if "status" in data:
+            fields.append("status = %s")
+            values.append(data["status"])
+        if "total_amount" in data:
+            fields.append("total_amount = %s")
+            values.append(data["total_amount"])
+
+        if not fields:
+            return {"success": False, "message": "No fields to update"}, 400
+
+        values.append(order_id)
+        query = f"UPDATE orders SET {', '.join(fields)} WHERE id = %s"
+        
+        cursor.execute(query, values)
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return {"success": False, "message": "Order not found"}, 404
+
+        return {"success": True, "message": "Order updated successfully"}, 200
+
+    except Exception as e:
+        return {"success": False, "message": str(e)}, 500
+
+__all__ = ["createOrder", "getAllOrders", "getOrder", "updateOrder", "deleteOrder"]
