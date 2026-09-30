@@ -10,9 +10,8 @@ app = Flask(__name__)
 # =============================================
 # 🏠 WEB PAGES — These were MISSING!
 # =============================================
-@app.route("/")
-def home():
-    # Directly show dashboard
+@app.route("/dashboard")
+def dashboard():
     from flask import render_template
     return render_template("dashboard.html")
 
