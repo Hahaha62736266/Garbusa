@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% set page = 'customers' %}
+{% block title %}Edit C001 — Aquaflow Tracker{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1 class="page-title">✏️ Edit Customer — C001</h1>
+    <a href="/customers/C001" class="af-btn ghost">← Back</a>
+  </div>
+
+  <div class="form-card">
+    <form method="post" action="/customers/C001">
+      <div class="form-group">
+        <label class="form-label" for="full_name">Full Name</label>
+        <input class="form-input" type="text" id="full_name" name="full_name" value="Maria Santos" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="contact_number">Contact Number</label>
+        <input class="form-input" type="tel" id="contact_number" name="contact_number" value="0917-123-4567" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="address">Delivery Address</label>
+        <textarea class="form-input" id="address" name="address" rows="3" required>Brgy. 25, Cagayan de Oro, Misamis Oriental</textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="container_owned">Empty Jugs Held</label>
+        <input class="form-input" type="number" id="container_owned" name="container_owned" value="2" min="0">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="status">Status</label>
+        <select class="form-input" id="status" name="status">
+          <option selected>Active</option>
+          <option>Inactive</option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <a href="/customers/C001" class="af-btn ghost">Cancel</a>
+        <button type="submit" class="af-btn primary">Update Customer</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}
