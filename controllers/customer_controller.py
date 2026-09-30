@@ -1,23 +1,18 @@
-"""Customer Controller — Final Merged Version"""
+"""Customer Controller — Aquaflow Tracker"""
 from datetime import date
 from models import customer_model
 
-# ==========================================================
-# IN-MEMORY DATABASE
-# ==========================================================
+# In-memory database
 customers_db = {}
 
-# ==========================================================
-# HELPER CLASS — matches test pattern: model.create()
-# ==========================================================
+# Model wrapper — matches test pattern
 class CustomerModel:
     def __init__(self, data):
         self.data = data
 
     def create(self):
-        """Called by tests/controllers — save to in-memory DB"""
         try:
-            # Safe payload extraction
+            # Extract data safely
             if hasattr(self.data, '__dict__'):
                 payload = self.data.__dict__
             elif hasattr(self.data, 'json') and self.data.json is not None:
@@ -25,7 +20,7 @@ class CustomerModel:
             else:
                 payload = self.data if isinstance(self.data, dict) else {}
 
-            # Build new customer record
+            # Create new customer
             new_id = f"C{len(customers_db)+1:03d}"
             customer = {
                 "customer_id": new_id,
@@ -36,24 +31,19 @@ class CustomerModel:
                 "registration_date": str(date.today()),
                 "owned_by_user_id": payload.get("owned_by_user_id", "admin")
             }
-
-            # Save to in-memory DB
             customers_db[new_id] = customer
 
-            # Also save to model layer if available
+            # Save to model if available
             try:
                 customer_model.save(customer)
             except Exception:
                 pass
 
             return {"success": True, "data": customer}
-
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-# ==========================================================
-# CONTROLLER FUNCTIONS
-# ==========================================================
+# Controller functions
 def list_customers():
     return {
         "status": 200,
@@ -71,12 +61,9 @@ def showCustomer(customer_id):
     }
 
 def createCustomer(req):
-    """Matches test signature: receives request → returns response dict"""
     data = getattr(req, 'validatedBody', None) or getattr(req, 'body', None) or {}
-
     model = CustomerModel(data)
     result = model.create()
-
     if result.get("success"):
         return {
             "status": 201,
@@ -90,10 +77,7 @@ def createCustomer(req):
     }
 
 def updateCustomer(customer_id, data):
-    if hasattr(data, 'json'):
-        payload = data.json
-    else:
-        payload = data
+    payload = getattr(data, 'json', None) or data
     if customer_id not in customers_db:
         return {"status": 404, "error": "Not Found", "message": "Customer not found"}
     for k, v in payload.items():
