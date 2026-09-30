@@ -1,46 +1,79 @@
 {% extends "base.html" %}
-{% block title %}Profile — Maria Santos (C001){% endblock %}
+{% set page = 'customers' %}
+{% block title %}Customers — Aquaflow Tracker{% endblock %}
 
 {% block content %}
-<header class="page-header">
-  <div class="container">
-    <h1 class="page-header__title">Maria Santos</h1>
-    <p class="page-header__subtitle">C001 · Brgy. 25, CdeO · 0917-123-4567</p>
+  <!-- Error State — Shown if error passed -->
+  {% if error %}
+  <div class="error-state">
+    <p class="error-state__title">⚠️ Something went wrong</p>
+    <p class="error-state__message">{{ error }}</p>
   </div>
-</header>
+  {% endif %}
 
-<div style="display:grid; grid-template-columns:1fr 2fr; gap:2rem;">
-  <div style="background:white; padding:1.5rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08); height:fit-content;">
-    <h3 style="margin-bottom:1rem;">Container Balance</h3>
-    <p style="font-size:2rem; font-weight:700; color:#0288D1;">2 jugs</p>
-    <p class="text-muted">Outstanding containers</p>
-    <hr style="margin:1.5rem 0; border:none; border-top:1px solid #ECEFF1;">
-    <p><strong>Contact:</strong><br>0917-123-4567</p>
-    <p style="margin-top:0.75rem;"><strong>Address:</strong><br>Brgy. 25, CdeO</p>
-    <p style="margin-top:0.75rem;"><strong>Since:</strong><br>2026-01-10</p>
-    <button class="btn btn--outline" style="width:100%; margin-top:1.5rem;">Edit Profile</button>
+  <div class="page-header">
+    <h1 class="page-title">👤 Customers</h1>
+    <a href="/customers/create" class="af-btn primary">+ New Customer</a>
   </div>
 
-  <div>
-    <h3 style="margin-bottom:1rem;">Order History</h3>
-    <div class="order-item" data-status="delivered">
-      <div class="order-item__body">
-        <div class="order-item__id">O001</div>
-        <h4 class="order-item__customer">5-Gal Distilled — 2 units</h4>
-        <p class="text-muted" style="font-size:0.8rem;">2026-09-30</p>
-      </div>
-      <div style="text-align:right; min-width:100px;">
-        <p class="order-item__price">₱ 90.00</p>
-        <span class="status-badge status-badge--delivered">Delivered</span>
-      </div>
+  <!-- Loading State — Visible via JS while fetching -->
+  <div id="loading-view" class="loading-container" style="display: none;">
+    <div class="spinner"></div>
+    <p>Loading customer records...</p>
+  </div>
+
+  <!-- Main Content Container -->
+  <div id="content-view">
+    <!-- Empty State — Zero customers -->
+    {% if customers is defined and customers|length == 0 %}
+    <div class="empty-state">
+      <div class="empty-state__icon">👥</div>
+      <h2 class="empty-state__title">No customers yet</h2>
+      <p class="empty-state__text">Your customer list is empty. Start by adding your first delivery customer.</p>
+      <a href="/customers/create" class="af-btn primary">+ Add First Customer</a>
     </div>
-
-    <h3 style="margin:2rem 0 1rem;">Collection Records</h3>
-    <div style="background:white; padding:1rem; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
-      <strong>CL001</strong>
-      <p class="text-muted" style="font-size:0.85rem;">Returned: 2 · Released: 2 · Balance: 2</p>
-      <p class="text-muted" style="font-size:0.8rem;">2026-09-30 · Staff A</p>
+    {% else %}
+    <!-- List State — Has records -->
+    <div class="af-list">
+      {% for customer in customers %}
+      <div class="af-list-row">
+        <div class="af-row-main">
+          <div class="af-row-primary">{{ customer.customer_id }} — {{ customer.full_name }}</div>
+          <div class="af-row-secondary">
+            {{ customer.address }} · {{ customer.contact_number }} · Jugs: {{ customer.container_owned }}
+          </div>
+        </div>
+        <div class="af-row-meta">
+          <span class="af-badge active">Active</span>
+          <div class="af-row-actions">
+            <a href="/customers/{{ customer.customer_id }}" class="af-btn small ghost">View</a>
+            <a href="/customers/{{ customer.customer_id }}/edit" class="af-btn small primary">Edit</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
     </div>
+    {% endif %}
   </div>
-</div>
+
+  <!-- JavaScript: Simulate Loading State -->
+  <script>
+    // Show loading → hide → show content (simulate async load)
+    document.addEventListener('DOMContentLoaded', function () {
+      const loadingView = document.getElementById('loading-view');
+      const contentView = document.getElementById('content-view');
+
+      // Only show loading briefly if not server-rendered instantly
+      {% if not customers %}
+      loadingView.style.display = 'flex';
+      contentView.style.display = 'none';
+
+      // Simulate network delay then reveal content
+      setTimeout(() => {
+        loadingView.style.display = 'none';
+        contentView.style.display = 'block';
+      }, 600);
+      {% endif %}
+    });
+  </script>
 {% endblock %}

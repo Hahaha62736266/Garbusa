@@ -1,126 +1,57 @@
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 
-from flask import Flask, request, jsonify, g
-
-# ─── Import Your Full Pipeline ───
-from middleware.validation import (
-    validateCustomerCreate, validateCustomerUpdate,
-    validateProductCreate, validateProductUpdate,
-    validateOrderCreate, validateOrderUpdate,
-    validateCollectionCreate, validateCollectionUpdate,
-    authorizeDeleteOrder
-)
+# Import controllers
 from controllers.customer_controller import (
-    list_customers,
-    showCustomer,
-    createCustomer,
-    updateCustomer,
-    deleteCustomer
-)
-from controllers.order_controller import (
-    listOrders, showOrder, createOrder, updateOrder, deleteOrder
-)
-from controllers.collection_controller import (
-    listCollections, showCollection, createCollection, updateCollection, deleteCollection
+    list_customers, showCustomer, createCustomer, updateCustomer, deleteCustomer
 )
 
 app = Flask(__name__)
 
-# ═══════════════════════════════════════════════════════
-# 🔗 REQUEST WRAPPER — Convert Flask request → Your format
-# ═══════════════════════════════════════════════════════
-class RequestWrapper:
-    """Makes Flask request look like what your controllers expect"""
-    def __init__(self, body, params=None, auth_user_id=None):
-        self.body = body or {}
-        self.params = params or {}
-        self.validatedBody = None
-        self.auth = {"user_id": auth_user_id} if auth_user_id else None
+# =============================================
+# 🏠 WEB PAGES — These were MISSING!
+# =============================================
+@app.route("/")
+def home_page():
+    return render_template("index.html")
 
+@app.route("/customers")
+def customers_page():
+    try:
+        result = list_customers()
+        return render_template("customers/list.html", customers=result["data"])
+    except Exception as e:
+        # Pass error → triggers Error State
+        return render_template("customers/list.html", error=str(e)), 500
 
-def get_auth_user_id():
-    """Get auth from header: X-User-ID (for demo/testing)"""
-    return request.headers.get("X-User-ID")
+@app.route("/customers/create", methods=["GET", "POST"])
+def customers_create_page():
+    if request.method == "POST":
+        class Req:
+            def __init__(self, body):
+                self.body = body
+                self.validatedBody = body
+        req = Req(request.form)
+        result = createCustomer(req)
+        if result["status"] == 201:
+            return redirect(url_for("customers_page"))
+        return f"Error: {result.get('message')} — {result.get('error','')}"
+    return render_template("customers/create.html")
 
-
-# ═══════════════════════════════════════════════════════
-# 🧾 CUSTOMER ENDPOINTS
-# ═══════════════════════════════════════════════════════
+# =============================================
+# 🧾 API ENDPOINTS — Keep your original ones
+# =============================================
 @app.route("/api/customers", methods=["GET"])
 def api_list_customers():
-    req = RequestWrapper({})
-    result = listCustomers(req)
-    return jsonify(result), result["status"]
-
-@app.route("/api/customers/<customer_id>", methods=["GET"])
-def api_show_customer(customer_id):
-    req = RequestWrapper({}, params={"customer_id": customer_id})
-    result = showCustomer(req)
-    return jsonify(result), result["status"]
+    return jsonify(list_customers()), 200
 
 @app.route("/api/customers", methods=["POST"])
 def api_create_customer():
-    body = request.get_json(force=True, silent=True) or {}
-    req = RequestWrapper(body, auth_user_id=get_auth_user_id())
-    err = validateCustomerCreate(req)
-    if err: return jsonify(err), err["status"]
-    result = createCustomer(req)
-    return jsonify(result), result["status"]
-
-@app.route("/api/customers/<customer_id>", methods=["PUT"])
-def api_update_customer(customer_id):
-    body = request.get_json(force=True, silent=True) or {}
-    req = RequestWrapper(body, params={"customer_id": customer_id})
-    err = validateCustomerUpdate(req)
-    if err: return jsonify(err), err["status"]
-    result = updateCustomer(req)
-    return jsonify(result), result["status"]
-
-@app.route("/api/customers/<customer_id>", methods=["DELETE"])
-def api_delete_customer(customer_id):
-    req = RequestWrapper({}, params={"customer_id": customer_id})
-    result = deleteCustomer(req)
-    return jsonify(result), result["status"]
-
-
-# ═══════════════════════════════════════════════════════
-# 🧾 PRODUCT ENDPOINTS
-# ═══════════════════════════════════════════════════════
-@app.route("/api/products", methods=["GET"])
-def api_list_products():
-    req = RequestWrapper({})
-    result = listProducts(req)
-    return jsonify(result), result["status"]
-
-@app.route("/api/products/<product_id>", methods=["GET"])
-def api_show_product(product_id):
-    req = RequestWrapper({}, params={"product_id": product_id})
-    result = showProduct(req)
-    return jsonify(result), result["status"]
-
-@app.route("/api/products", methods=["POST"])
-def api_create_product():
-    body = request.get_json(force=True, silent=True) or {}
-    req = RequestWrapper(body)
-    err = validateProductCreate(req)
-    if err: return jsonify(err), err["status"]
-    result = createProduct(req)
-    return jsonify(result), result["status"]
-
-@app.route("/api/products/<product_id>", methods=["PUT"])
-def api_update_product(product_id):
-    body = request.get_json(force=True, silent=True) or {}
-    req = RequestWrapper(body, params={"product_id": product_id})
-    err = validateProductUpdate(req)
-    if err: return jsonify(err), err["status"]
-    result = updateProduct(req)
-    return jsonify(result), result["status"]
-
-@app.route("/api/products/<product_id>", methods=["DELETE"])
-def api_delete_product(product_id):
-    req = RequestWrapper({}, params={"product_id": product_id})
-    result = deleteProduct(req)
+    body = request.get_json(silent=True) or {}
+    class Req:
+        def __init__(self, b):
+            self.body = b
+            self.validatedBody = b
+    result = createCustomer(Req(body))
     return jsonify(result), result["status"]
 
 

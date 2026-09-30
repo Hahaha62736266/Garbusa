@@ -20,6 +20,16 @@
       </div>
     </div>
   </nav>
+
+  <!-- Global Loading Overlay (hidden by default) -->
+  <div id="loading-overlay" style="display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 200; display: none; align-items: center; justify-content: center;">
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading data...</p>
+    </div>
+  </div>
+
+  <main class="page-container">
   <main class="container">{% block content %}{% endblock %}</main>
   <footer style="text-align:center; padding:2rem; color:var(--muted); font-size:0.85rem; margin-top:3rem; border-top:1px solid var(--neutral);">
     Aquaflow Tracker · Garbusa v0.2
