@@ -322,14 +322,39 @@ def authorizeDeleteCustomer(request):
 
 
 def authorizeDeleteOrder(request):
-    """DELETE /orders/:order_id — Only the customer who placed it can delete"""
-    from models.order_model import Order
-    orderId = request.params.get("order_id")
-    existing = Order.find(orderId)
-
-    if not existing:
-        return {"status": 404, "error": "Record not found", "field": None}
-
-    ownerId = existing.get("customer_id")
-    return checkOwnership(request, ownerId)
+    """
+    ✅ CORRECT ORDER: Find order FIRST → if exists, CHECK OWNERSHIP → return 403 if mismatch
+    Returns None if allowed, error dict if forbidden or not found
+    """
+    # Get order_id from URL params
+    order_id = getattr(request, 'params', {}).get("order_id", "")
     
+    # ✅ Import HERE to avoid circular import
+    from controllers.order_controller import showOrder
+    
+    # Step 1: LOOK UP THE ORDER FIRST
+    lookup_result = showOrder(order_id)  # ← pass the string ID, NOT the request object
+    
+    # Step 2: If NOT FOUND → return 404
+    if lookup_result.get("status") == 404 or not lookup_result.get("data"):
+        return {"status": 404, "error": "Order not found"}
+    
+    # Step 3: Order EXISTS → NOW CHECK OWNERSHIP
+    order_data = lookup_result["data"]
+    owner_id = order_data.get("owned_by_user_id")
+    
+    # Get requester ID from headers
+    headers = getattr(request, 'headers', {})
+    current_user_id = headers.get("X-User-ID", "") if isinstance(headers, dict) else getattr(headers, "X-User-ID", "")
+    
+    # ✅ OWNERSHIP CHECK
+    if owner_id != current_user_id:
+        return {
+            "status": 403,
+            "error": "Forbidden: you do not own this order"
+        }
+    
+    # ✅ ALL OK — NO ERROR → proceed to delete
+    return None
+
+   

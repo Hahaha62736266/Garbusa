@@ -12,10 +12,11 @@ from middleware.validation import (
     authorizeDeleteOrder
 )
 from controllers.customer_controller import (
-    listCustomers, showCustomer, createCustomer, updateCustomer, deleteCustomer
-)
-from controllers.product_controller import (
-    listProducts, showProduct, createProduct, updateProduct, deleteProduct
+    list_customers,
+    showCustomer,
+    createCustomer,
+    updateCustomer,
+    deleteCustomer
 )
 from controllers.order_controller import (
     listOrders, showOrder, createOrder, updateOrder, deleteOrder
@@ -226,7 +227,7 @@ def index():
 if __name__ == "__main__":
     print("🚀 Starting Garbusa API Server...")
     print("📍 http://127.0.0.1:5000")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
 
 # ==================================================
 # ✅ STANDARD ERROR HANDLER — PREVENT STACK TRACES LEAKING
