@@ -1,0 +1,11 @@
+*   [33m104740c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmove-wireframes-to-folder[m[33m, [m[1;31morigin/move-wireframes-to-folder[m[33m)[m Merge branch 'move-wireframes-to-folder' of https://github.com/Hahaha62736266/Garbusa into move-wireframes-to-folder
+[31m|[m[32m\[m  
+* [32m|[m [33mc132199[m add Procfile — fix 502 gateway error
+[32m|[m [32m|[m * [33m3fbb474[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Update app.py
+[32m|[m [32m|[m * [33m3fb4dc0[m Add GitHub Actions workflow for GitHub Pages deployment
+[32m|[m [32m|[m * [33m84d8949[m Add GitHub Actions workflow for Jekyll site deployment
+[32m|[m [32m|[m * [33m060948b[m Change server to run on all interfaces
+[32m|[m [32m|[m * [33mee801a3[m Update order_controller.py
+[32m|[m [32m|[m * [33m3aef22b[m Add updateOrder function to modify existing orders
+[32m|[m [32m|[m * [33m82eb5fa[m Update order_controller.py
+[32m|[m [32m|[m * [33md06002b[m Update app.py
