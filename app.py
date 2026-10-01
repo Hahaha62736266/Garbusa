@@ -294,3 +294,9 @@ with tab4:
 # ==================================================
 st.divider()
 st.caption("💧 Aquaflow Tracker — Water Refilling Station Management System | Permanent Storage: Supabase")
+
+# Import the app instance — adjust the module name to match your project
+from Garbusa import app  # or from app import app
+
+if __name__ == "__main__":
+    app.run(debug=True, use_reloader=False, port=5000)
