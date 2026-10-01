@@ -30,8 +30,10 @@ def dashboard():
     </style>
 </head>
 <body>
-    <h1>🌾 Garbusa Dashboard</h1>
-    <div class="status">✅ Server is running — connected successfully!</div>
+  <h1 style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.8rem; color: #0e7c7b;">
+  <span style="font-size: 2rem; filter: drop-shadow(0 2px 4px rgba(14,124,123,0.3));">💧</span>
+  Aqua Flow
+</h1>
 
     <div class="grid">
         <div class="card">
