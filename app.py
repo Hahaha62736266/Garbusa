@@ -5,13 +5,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
+app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key")
 
-# ─── Register Blueprints ───
+# Register Dashboard Blueprint
 from routes import dashboard
-app.register_blueprint(dashboard.bp)
+app.register_blueprint(dashboard.bp, url_prefix='/dashboard')
 
-# ─── Homepage → Redirect to Dashboard ───
+# Root → go straight to Dashboard
 @app.route('/')
 def home():
     return redirect(url_for('dashboard.main'))
