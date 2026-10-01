@@ -1,70 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Aquaflow Tracker</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garbusa | Farmer Support System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <h1>💧 Aquaflow Tracker — Dashboard</h1>
-  <p>Welcome! <a href="/customers">View Customers</a></p>
+    <div class="page-container">
+        <main class="hero-section">
+            <div class="status-card">
+                <div class="status-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h1 class="main-heading">Garbusa IS WORKING!</h1>
+                <p class="subtext">Your system is online and ready to serve</p>
+                <a href="/dashboard" class="dashboard-link">
+                    <i class="fas fa-chart-pie"></i>
+                    Go to Dashboard
+                </a>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>© 2026 Garbusa — Empowering Local Farmers</p>
+        </footer>
+    </div>
 </body>
 </html>
-
-<form action="/submit-form" method="POST">
-  <label>Name:</label>
-  <input type="text" name="name" required>
-
-  <label>Email:</label>
-  <input type="email" name="email" required>
-
-  <label>Message:</label>
-  <textarea name="message"></textarea>
-
-  <button type="submit">Submit</button>
-</form>
-
-{% extends "base.html" %}
-{% set page = 'dashboard' %}
-{% block title %}Dashboard — Aquaflow Tracker{% endblock %}
-
-{% block content %}
-  <div class="page-header">
-    <h1 class="page-title">📊 Dashboard</h1>
-  </div>
-
-  <div class="summary-grid">
-    <div class="summary-card">
-      <div class="summary-card__label">Active Orders</div>
-      <div class="summary-card__value">5</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card__label">Registered Customers</div>
-      <div class="summary-card__value">24</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card__label">Today's Sales</div>
-      <div class="summary-card__value">₱2,450</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-card__label">Gallons Out</div>
-      <div class="summary-card__value">42</div>
-    </div>
-  </div>
-
-  <h2 style="font-size:1.1rem; margin-bottom:12px;">Recent Orders</h2>
-  <div class="af-list">
-    <div class="af-list-row">
-      <div class="af-row-main">
-        <div class="af-row-primary">O002 — Juan Dela Cruz</div>
-        <div class="af-row-secondary">5-Gal Purified × 3 — ₱105.00</div>
-      </div>
-      <span class="af-badge pending">Pending</span>
-    </div>
-    <div class="af-list-row">
-      <div class="af-row-main">
-        <div class="af-row-primary">O001 — Maria Santos</div>
-        <div class="af-row-secondary">5-Gal Distilled × 2 — ₱90.00</div>
-      </div>
-      <span class="af-badge delivered">Delivered</span>
-    </div>
-  </div>
-{% endblock %}
