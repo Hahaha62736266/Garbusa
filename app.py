@@ -136,9 +136,4 @@ def api_customers():
 # 🚀 START SERVER
 # =============================================
 if __name__ == "__main__":
-    print("=" * 50)
-    print("🌾 Garbusa Server Starting...")
-    print("📍 Dashboard: http://0.0.0.0:8501")
-    print("📝 Form endpoint: /submit-form")
-    print("=" * 50)
-    app.run(host="0.0.0.0", port=8501, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
