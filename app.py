@@ -1,6 +1,18 @@
 import streamlit as st
 import pandas as pd
 import datetime
+from supabase import create_client, Client
+
+# ==================================================
+# SUPABASE CONNECTION — PASTE YOUR KEYS HERE 🔑
+# ==================================================
+SUPABASE_URL = "https://YOUR-PROJECT.supabase.co"       # ← Your URL
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." # ← Your anon key
+
+def init_supabase() -> Client:
+    return create_client(SUPABASE_URL, SUPABASE_KEY)
+
+supabase = init_supabase()
 
 # ==================================================
 # PAGE CONFIG
@@ -12,7 +24,7 @@ st.set_page_config(
 )
 
 # ==================================================
-# PROJECT IDENTITY — AQUAFLOW TRACKER
+# PROJECT IDENTITY
 # ==================================================
 st.title("💧 Aquaflow Tracker")
 st.subheader("Water Refilling Station Management System")
@@ -33,40 +45,40 @@ This system is **not** a water flow sensor or hydrology monitoring tool — it m
 st.divider()
 
 # ==================================================
-# INITIALIZE DATABASES (Session State)
+# DATABASE HELPER FUNCTIONS
 # ==================================================
-if "customers_db" not in st.session_state:
-    st.session_state.customers_db = [
-        {"customer_id": "C001", "full_name": "Maria Santos", "contact_number": "0917-123-4567", 
-         "address": "Brgy. 25, CdeO", "container_owned": 2, "registration_date": "2026-01-10"},
-        {"customer_id": "C002", "full_name": "Juan Dela Cruz", "contact_number": "0918-987-6543", 
-         "address": "Brgy. Lapasan, CdeO", "container_owned": 3, "registration_date": "2026-02-15"}
-    ]
+def fetch_all(table):
+    """Get all records from a Supabase table"""
+    try:
+        res = supabase.table(table).select("*").execute()
+        return res.data or []
+    except Exception as e:
+        st.error(f"Error loading {table}: {e}")
+        return []
 
-if "products_db" not in st.session_state:
-    st.session_state.products_db = [
-        {"product_id": "P001", "product_name": "5-Gal Purified", "price_per_unit": 35.00, 
-         "description": "Refill only", "stock_available": 120},
-        {"product_id": "P002", "product_name": "5-Gal Distilled", "price_per_unit": 45.00, 
-         "description": "Best for drinking", "stock_available": 85},
-        {"product_id": "P003", "product_name": "New 5-Gal Jug", "price_per_unit": 180.00, 
-         "description": "Empty plastic jug", "stock_available": 40}
-    ]
+def insert_record(table, data):
+    """Add a new record"""
+    try:
+        supabase.table(table).insert(data).execute()
+        return True
+    except Exception as e:
+        st.error(f"Error saving to {table}: {e}")
+        return False
 
-if "orders_db" not in st.session_state:
-    st.session_state.orders_db = [
-        {"order_id": "O001", "customer_id": "C001", "product_id": "P002", "quantity": 2, 
-         "total_amount": 90.00, "order_date": "2026-07-03", "status": "Delivered"},
-        {"order_id": "O002", "customer_id": "C002", "product_id": "P001", "quantity": 3, 
-         "total_amount": 105.00, "order_date": "2026-07-03", "status": "Pending"}
-    ]
+def update_order_status(order_id, new_status):
+    """Update order status"""
+    try:
+        supabase.table("orders").update({"status": new_status}).eq("order_id", order_id).execute()
+        return True
+    except Exception as e:
+        st.error(f"Error updating order: {e}")
+        return False
 
-if "collections_db" not in st.session_state:
-    st.session_state.collections_db = [
-        {"collection_id": "CL001", "customer_id": "C001", "order_id": "O001", 
-         "empty_jugs_returned": 2, "filled_jugs_released": 2, "container_balance": 2,
-         "collection_date": "2026-07-03", "collected_by": "Staff A"}
-    ]
+def get_next_id(table, prefix):
+    """Generate next ID like C001, O002"""
+    records = fetch_all(table)
+    count = len(records) + 1
+    return f"{prefix}{count:03d}"
 
 # ==================================================
 # NAVIGATION TABS
@@ -84,7 +96,6 @@ tab1, tab2, tab3, tab4 = st.tabs([
 with tab1:
     st.header("Customer Management")
     
-    # Add New Customer Form
     with st.form("add_customer_form", clear_on_submit=True):
         st.subheader("Register New Customer")
         col1, col2 = st.columns(2)
@@ -100,8 +111,8 @@ with tab1:
         submitted = st.form_submit_button("✅ Add Customer")
         
         if submitted:
-            new_id = f"C{len(st.session_state.customers_db)+1:03d}"
-            new_customer = {
+            new_id = get_next_id("customers", "C")
+            data = {
                 "customer_id": new_id,
                 "full_name": full_name,
                 "contact_number": contact_number,
@@ -109,13 +120,16 @@ with tab1:
                 "container_owned": container_owned,
                 "registration_date": str(datetime.date.today())
             }
-            st.session_state.customers_db.append(new_customer)
-            st.success(f"Customer {new_id} — {full_name} added successfully!")
+            if insert_record("customers", data):
+                st.success(f"Customer {new_id} — {full_name} saved to database!")
+                st.rerun()
     
-    # Display All Customers
     st.subheader("Customer Records")
-    df_customers = pd.DataFrame(st.session_state.customers_db)
-    st.dataframe(df_customers, use_container_width=True, hide_index=True)
+    customers = fetch_all("customers")
+    if customers:
+        st.dataframe(pd.DataFrame(customers), use_container_width=True, hide_index=True)
+    else:
+        st.info("No customers yet. Add your first one above!")
 
 # ==================================================
 # TAB 2: PRODUCTS
@@ -133,20 +147,24 @@ with tab2:
         submitted = st.form_submit_button("✅ Add Product")
         
         if submitted:
-            new_id = f"P{len(st.session_state.products_db)+1:03d}"
-            new_product = {
+            new_id = get_next_id("products", "P")
+            data = {
                 "product_id": new_id,
                 "product_name": product_name,
-                "price_per_unit": price_per_unit,
+                "price_per_unit": float(price_per_unit),
                 "description": description,
                 "stock_available": stock_available
             }
-            st.session_state.products_db.append(new_product)
-            st.success(f"Product {new_id} — {product_name} added!")
+            if insert_record("products", data):
+                st.success(f"Product {new_id} — {product_name} saved!")
+                st.rerun()
     
     st.subheader("Product List")
-    df_products = pd.DataFrame(st.session_state.products_db)
-    st.dataframe(df_products, use_container_width=True, hide_index=True)
+    products = fetch_all("products")
+    if products:
+        st.dataframe(pd.DataFrame(products), use_container_width=True, hide_index=True)
+    else:
+        st.info("No products yet.")
 
 # ==================================================
 # TAB 3: ORDERS
@@ -154,59 +172,64 @@ with tab2:
 with tab3:
     st.header("Order Management")
     
-    # Dropdown options
-    customer_list = [f"{c['customer_id']} — {c['full_name']}" for c in st.session_state.customers_db]
-    product_list = [f"{p['product_id']} — {p['product_name']} (₱{p['price_per_unit']})" 
-                    for p in st.session_state.products_db]
-    price_map = {p['product_id']: p['price_per_unit'] for p in st.session_state.products_db}
+    customers = fetch_all("customers")
+    products = fetch_all("products")
+    orders = fetch_all("orders")
+    
+    price_map = {p["product_id"]: p["price_per_unit"] for p in products}
     
     with st.form("add_order_form", clear_on_submit=True):
         st.subheader("Create New Order")
-        selected_cust = st.selectbox("Select Customer", customer_list)
-        selected_prod = st.selectbox("Select Product", product_list)
-        quantity = st.number_input("Quantity", min_value=1, value=1)
+        cust_options = [f"{c['customer_id']} — {c['full_name']}" for c in customers] if customers else []
+        prod_options = [f"{p['product_id']} — {p['product_name']} (₱{p['price_per_unit']})" for p in products] if products else []
         
-        # Calculate total
-        prod_code = selected_prod.split(" — ")[0]
-        unit_price = price_map[prod_code]
-        total_amount = unit_price * quantity
-        st.info(f"💰 Total: ₱{total_amount:.2f}")
-        
-        submitted = st.form_submit_button("✅ Log Order")
-        
-        if submitted:
-            cust_code = selected_cust.split(" — ")[0]
-            new_id = f"O{len(st.session_state.orders_db)+1:03d}"
-            new_order = {
-                "order_id": new_id,
-                "customer_id": cust_code,
-                "product_id": prod_code,
-                "quantity": quantity,
-                "total_amount": total_amount,
-                "order_date": str(datetime.date.today()),
-                "status": "Pending"
-            }
-            st.session_state.orders_db.append(new_order)
-            st.success(f"Order {new_id} created successfully!")
+        if cust_options and prod_options:
+            selected_cust = st.selectbox("Select Customer", cust_options)
+            selected_prod = st.selectbox("Select Product", prod_options)
+            quantity = st.number_input("Quantity", min_value=1, value=1)
+            
+            prod_code = selected_prod.split(" — ")[0]
+            unit_price = price_map[prod_code]
+            total_amount = unit_price * quantity
+            st.info(f"💰 Total: ₱{total_amount:.2f}")
+            
+            submitted = st.form_submit_button("✅ Log Order")
+            
+            if submitted:
+                cust_code = selected_cust.split(" — ")[0]
+                new_id = get_next_id("orders", "O")
+                data = {
+                    "order_id": new_id,
+                    "customer_id": cust_code,
+                    "product_id": prod_code,
+                    "quantity": quantity,
+                    "total_amount": float(total_amount),
+                    "order_date": str(datetime.date.today()),
+                    "status": "Pending"
+                }
+                if insert_record("orders", data):
+                    st.success(f"Order {new_id} saved to database!")
+                    st.rerun()
+        else:
+            st.warning("⚠️ Add Customers and Products first before creating orders.")
     
-    # Update Order Status
     st.subheader("Update Order Status")
-    if st.session_state.orders_db:
-        order_list = [f"{o['order_id']} — {o['status']}" for o in st.session_state.orders_db]
-        selected_order = st.selectbox("Select Order to Update", order_list)
+    if orders:
+        order_options = [f"{o['order_id']} — {o['status']}" for o in orders]
+        selected_order = st.selectbox("Select Order", order_options)
         new_status = st.selectbox("New Status", ["Pending", "Delivered", "Cancelled"])
         
         if st.button("🔄 Update Status"):
             order_code = selected_order.split(" — ")[0]
-            for o in st.session_state.orders_db:
-                if o["order_id"] == order_code:
-                    o["status"] = new_status
-                    st.success(f"Order {order_code} updated to {new_status}!")
-                    break
+            if update_order_status(order_code, new_status):
+                st.success(f"Order {order_code} updated to {new_status}!")
+                st.rerun()
     
     st.subheader("Active Orders")
-    df_orders = pd.DataFrame(st.session_state.orders_db)
-    st.dataframe(df_orders, use_container_width=True, hide_index=True)
+    if orders:
+        st.dataframe(pd.DataFrame(orders), use_container_width=True, hide_index=True)
+    else:
+        st.info("No orders yet.")
 
 # ==================================================
 # TAB 4: COLLECTIONS
@@ -214,17 +237,22 @@ with tab3:
 with tab4:
     st.header("Collections & Container Tracking")
     
-    if st.session_state.orders_db and st.session_state.customers_db:
-        order_list = [f"{o['order_id']}" for o in st.session_state.orders_db]
-        customer_list = [f"{c['customer_id']}" for c in st.session_state.customers_db]
+    customers = fetch_all("customers")
+    orders = fetch_all("orders")
+    collections = fetch_all("collections")
+    
+    with st.form("add_collection_form", clear_on_submit=True):
+        st.subheader("Record Collection / Exchange")
         
-        with st.form("add_collection_form", clear_on_submit=True):
-            st.subheader("Record Collection / Exchange")
+        cust_options = [c["customer_id"] for c in customers] if customers else []
+        order_options = ["—"] + [o["order_id"] for o in orders] if orders else ["—"]
+        
+        if cust_options:
             col1, col2 = st.columns(2)
             
             with col1:
-                selected_cust = st.selectbox("Customer ID", customer_list)
-                selected_order = st.selectbox("Linked Order (Optional)", ["—"] + order_list)
+                selected_cust = st.selectbox("Customer ID", cust_options)
+                selected_order = st.selectbox("Linked Order (Optional)", order_options)
                 empty_returned = st.number_input("Empty Jugs Returned", min_value=0, value=0)
             
             with col2:
@@ -237,9 +265,9 @@ with tab4:
             submitted = st.form_submit_button("✅ Save Collection")
             
             if submitted:
-                new_id = f"CL{len(st.session_state.collections_db)+1:03d}"
+                new_id = get_next_id("collections", "CL")
                 order_ref = None if selected_order == "—" else selected_order
-                new_collection = {
+                data = {
                     "collection_id": new_id,
                     "customer_id": selected_cust,
                     "order_id": order_ref,
@@ -249,13 +277,15 @@ with tab4:
                     "collection_date": str(datetime.date.today()),
                     "collected_by": collected_by
                 }
-                st.session_state.collections_db.append(new_collection)
-                st.success(f"Collection {new_id} saved!")
+                if insert_record("collections", data):
+                    st.success(f"Collection {new_id} saved permanently!")
+                    st.rerun()
+        else:
+            st.warning("⚠️ Add customers and orders above first.")
     
     st.subheader("Collection Logs")
-    if st.session_state.collections_db:
-        df_collections = pd.DataFrame(st.session_state.collections_db)
-        st.dataframe(df_collections, use_container_width=True, hide_index=True)
+    if collections:
+        st.dataframe(pd.DataFrame(collections), use_container_width=True, hide_index=True)
     else:
         st.info("No collections recorded yet.")
 
@@ -263,4 +293,4 @@ with tab4:
 # FOOTER
 # ==================================================
 st.divider()
-st.caption("💧 Aquaflow Tracker — Water Refilling Station Management System | Capstone Project")
+st.caption("💧 Aquaflow Tracker — Water Refilling Station Management System | Permanent Storage: Supabase")
