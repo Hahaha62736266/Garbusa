@@ -11,37 +11,34 @@ def dashboard():
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Aqua Flow Dashboard</title>
+    <title>Aqua Flow — System Dashboard</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
         body { background: #f0f9f9; padding: 2rem; max-width: 1200px; margin: 0 auto; }
-        .logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; padding-bottom: 1rem; border-bottom: 2px solid #c6e6e6; }
+        .header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; padding-bottom: 1rem; border-bottom: 2px solid #c6e6e6; }
         .logo-icon { font-size: 2.2rem; filter: drop-shadow(0 2px 4px rgba(14,124,123,0.25)); }
         .logo-text { font-size: 1.8rem; color: #0e7c7b; font-weight: 700; letter-spacing: -0.5px; }
         .status { background: #e6f7f7; color: #0e7c7b; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid #0e7c7b; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 6px rgba(14,124,123,0.08); }
+        .card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,124,123,0.08); }
         .card h3 { color: #0e7c7b; margin-bottom: 1rem; }
-        form { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 6px rgba(14,124,123,0.08); }
+        form { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,124,123,0.08); }
         label { display: block; margin: 1rem 0 0.3rem; font-weight: 500; color: #0a5f5e; }
         input, textarea { width: 100%; padding: 0.75rem; border: 1px solid #b2d8d8; border-radius: 6px; background: #fcfefe; }
         button { margin-top: 1.2rem; padding: 0.75rem 2rem; background: #0e7c7b; color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
         button:hover { background: #0b6362; }
         a { color: #0e7c7b; text-decoration: none; font-weight: 500; }
         a:hover { text-decoration: underline; }
-        h2 { color: #0e7c7b; margin: 2rem 0 1rem; }
     </style>
 </head>
 <body>
-    <div class="logo">
+    <div class="header">
         <span class="logo-icon">💧</span>
         <span class="logo-text">Aqua Flow</span>
     </div>
-
     <div class="status">✅ System Online — Welcome to Aqua Flow</div>
-
     <div class="grid">
         <div class="card">
             <h3>📈 System Status</h3>
