@@ -1,3 +1,8 @@
+from app import app  # matches filename where app = Flask(...) is
+
+if __name__ == "__main__":
+    app.run(debug=True, use_reloader=False, port=5000)
+
 import streamlit as st
 import pandas as pd
 import datetime
