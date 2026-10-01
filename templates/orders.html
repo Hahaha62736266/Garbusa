@@ -1,53 +1,26 @@
-{% extends "base.html" %}
-{% block title %}Orders Queue{% endblock %}
-
-{% block content %}
-<header class="page-header">
-  <div class="container">
-    <h1 class="page-header__title">Orders Queue</h1>
-    <p class="page-header__subtitle">Track and process deliveries</p>
-    <a href="/orders/new" class="btn page-header__action btn--primary">+ New Order</a>
+<form id="createOrderForm">
+  <div class="form-group">
+    <label>Farmer Name</label>
+    <input type="text" name="farmer_name" required>
   </div>
-</header>
-
-<div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap;">
-  <button class="btn btn--sm btn--primary">All</button>
-  <button class="btn btn--sm btn--outline">Pending</button>
-  <button class="btn btn--sm btn--outline">Delivered</button>
-</div>
-
-<div id="orders-list">
-  <div class="order-item" data-status="pending">
-    <div class="order-item__body">
-      <div class="order-item__id">O002</div>
-      <h4 class="order-item__customer">Juan Dela Cruz (C002)</h4>
-      <p class="text-muted">5-Gal Purified — 3 units</p>
-      <p class="text-muted" style="font-size:0.8rem;">2026-09-30</p>
-    </div>
-    <div style="text-align:right; min-width:100px;">
-      <p class="order-item__price">₱ 105.00</p>
-      <span class="status-badge status-badge--pending">Pending</span>
-    </div>
-    <div class="order-item__actions">
-      <button class="btn btn--sm btn--primary">Mark Delivered</button>
-      <button class="btn btn--sm btn--outline">View</button>
-    </div>
+  <div class="form-group">
+    <label>Product</label>
+    <input type="text" name="product" required>
+  </div>
+  <div class="form-group">
+    <label>Quantity</label>
+    <input type="number" name="quantity" min="1" required>
+  </div>
+  <div class="form-group">
+    <label>Unit Price (₱)</label>
+    <input type="number" step="0.01" name="unit_price" required>
   </div>
 
-  <div class="order-item" data-status="delivered">
-    <div class="order-item__body">
-      <div class="order-item__id">O001</div>
-      <h4 class="order-item__customer">Maria Santos (C001)</h4>
-      <p class="text-muted">5-Gal Distilled — 2 units</p>
-      <p class="text-muted" style="font-size:0.8rem;">2026-09-30</p>
-    </div>
-    <div style="text-align:right; min-width:100px;">
-      <p class="order-item__price">₱ 90.00</p>
-      <span class="status-badge status-badge--delivered">Delivered</span>
-    </div>
-    <div class="order-item__actions">
-      <button class="btn btn--sm btn--outline">Receipt</button>
-    </div>
-  </div>
-</div>
-{% endblock %}
+  <button type="submit" id="submitBtn">
+    <span id="btnText">Create Order</span>
+    <span id="btnSpinner" style="display:none;">Saving...</span>
+  </button>
+</form>
+
+<div id="formErrors" class="error-box" style="color:red; margin:1rem 0;"></div>
+<div id="ordersList"></div>
