@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from flask import Blueprint, render_template, request, jsonify
 import os
 from dotenv import load_dotenv
@@ -108,3 +109,12 @@ def acquaflow_submit():
     except Exception as e:
         print("[SERVER ERROR]", str(e))
         return server_error(f"Error: {str(e)}")
+=======
+from flask import Blueprint, render_template
+
+bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
+
+@bp.route('/')
+def main():
+    return render_template('dashboard.html')
+>>>>>>> a9e222e (Flask base server working)

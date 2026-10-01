@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from datetime import datetime
@@ -104,3 +105,38 @@ def update_meters():
 if __name__ == "__main__":
     print("💧 AquaFlow Backend Starting...")
     app.run(debug=True, port=5000)
+=======
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "<h1 style='color:green;'>✅ Garbusa IS WORKING!</h1><p>Go to <a href='/dashboard'>/dashboard</a></p>"
+
+@app.route('/dashboard')
+def dashboard():
+    return """
+    <h1>💧 Acquaflow Tracking Dashboard</h1>
+    <p>If you see this, your setup is correct!</p>
+    <form method='POST'>
+      <div>
+        <label>Location:</label>
+        <input type='text' name='location'>
+      </div>
+      <div>
+        <label>Water Level:</label>
+        <input type='number' step='0.01' name='water_level'>
+      </div>
+      <button type='submit'>Submit</button>
+    </form>
+    """
+
+@app.route('/dashboard', methods=['POST'])
+def dashboard_submit():
+    loc = request.form.get('location')
+    level = request.form.get('water_level')
+    return f"<h3>✅ Saved!</h3><p>Location: {loc}<br>Level: {level}m</p>"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", debug=True, use_reloader=False, port=5000)
+>>>>>>> a9e222e (Flask base server working)
