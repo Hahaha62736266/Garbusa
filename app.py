@@ -1,4 +1,39 @@
 from flask import Flask, render_template_string, request, jsonify
+import streamlit as st
+import pandas as pd
+import streamlit as st
+import pandas as pd
+import datetime
+
+# ↓ PASTE THE BLOCK HERE ↓
+
+# rest of your code below...
+...
+
+# ==================================================
+# PROJECT IDENTITY — AQUAFLOW TRACKER
+# ==================================================
+st.header("💧 Aquaflow Tracker")
+st.subheader("Water Refilling Station Management System")
+
+st.markdown("""
+A lightweight web application designed to **digitalize daily operations** for local water refilling stations.
+
+### ✅ What We Track
+- 🧑‍🤝‍🧑 **Customer Records** – profiles, contact details, and container balances
+- 📋 **Orders & Deliveries** – order queue, status tracking, and payment logs
+- 🫙 **Gallon Inventory** – real-time stock and loaned-out container counts
+- 💰 **Daily Sales & Collections** – revenue, returns, and container exchange records
+
+### ❌ Not What It Is
+This system is **not** a water flow sensor or hydrology monitoring tool — it manages the *business and inventory* side of water refilling operations.
+""")
+
+st.divider()
+# ==================================================
+# END OF IDENTITY SECTION
+# ==================================================
+
 
 app = Flask(__name__)
 
