@@ -24,3 +24,93 @@
 
 <div id="formErrors" class="error-box" style="color:red; margin:1rem 0;"></div>
 <div id="ordersList"></div>
+
+<script>
+const form = document.getElementById('createOrderForm');
+const submitBtn = document.getElementById('submitBtn');
+const btnText = document.getElementById('btnText');
+const btnSpinner = document.getElementById('btnSpinner');
+const errorsBox = document.getElementById('formErrors');
+const ordersList = document.getElementById('ordersList');
+
+function setLoading(isLoading) {
+  submitBtn.disabled = isLoading;
+  btnText.style.display = isLoading ? 'none' : 'inline';
+  btnSpinner.style.display = isLoading ? 'inline' : 'none';
+}
+
+function collectFormData() {
+  return {
+    farmer_name: form.farmer_name.value.trim(),
+    product: form.product.value.trim(),
+    quantity: parseInt(form.quantity.value),
+    unit_price: parseFloat(form.unit_price.value)
+  };
+}
+
+function resetForm() {
+  form.reset();
+  errorsBox.textContent = '';
+}
+
+function showFieldErrors(errorObj) {
+  errorsBox.innerHTML = '';
+  if (errorObj.errors) {
+    for (const [field, messages] of Object.entries(errorObj.errors)) {
+      messages.forEach(msg => {
+        errorsBox.innerHTML += `<p><strong>${field}:</strong> ${msg}</p>`;
+      });
+    }
+  } else {
+    errorsBox.textContent = errorObj.message || 'Validation failed';
+  }
+}
+
+function addToList(item) {
+  const card = document.createElement('div');
+  card.className = 'order-card';
+  card.innerHTML = `
+    <h4>${item.product}</h4>
+    <p>Farmer: ${item.farmer_name}</p>
+    <p>Qty: ${item.quantity} @ ₱${item.unit_price}</p>
+    <p>Total: ₱${(item.quantity * item.unit_price).toFixed(2)}</p>
+    <hr>
+  `;
+  ordersList.prepend(card);
+}
+
+form.addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const data = collectFormData();
+  setLoading(true);
+  errorsBox.textContent = '';
+
+  try {
+    const response = await fetch('/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (response.status === 201) {
+      addToList(result.data || result);
+      resetForm();
+    } else if (response.status === 422) {
+      showFieldErrors(result);
+    } else {
+      errorsBox.textContent = result.message || 'Unexpected error';
+    }
+  } catch (err) {
+    errorsBox.textContent = 'Network error — try again';
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+});
+</script>
+</body>
