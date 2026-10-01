@@ -116,3 +116,125 @@ form.addEventListener('submit', async function (e) {
 });
 </script>
 </body>
+
+// === EDIT / UPDATE SYSTEM ===
+const editFormContainer = document.getElementById('editFormContainer');
+const editForm = document.getElementById('editOrderForm');
+const editSubmitBtn = document.getElementById('editSubmitBtn');
+const editBtnText = document.getElementById('editBtnText');
+const editBtnSpinner = document.getElementById('editBtnSpinner');
+const editErrorsBox = document.getElementById('editFormErrors');
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+// Show/hide loading state
+function setEditLoading(isLoading) {
+  editSubmitBtn.disabled = isLoading;
+  editBtnText.style.display = isLoading ? 'none' : 'inline';
+  editBtnSpinner.style.display = isLoading ? 'inline' : 'none';
+}
+
+// Open form and fill with existing data
+function openEditForm(item) {
+  document.getElementById('edit_id').value = item.id;
+  document.getElementById('edit_farmer_name').value = item.farmer_name;
+  document.getElementById('edit_product').value = item.product;
+  document.getElementById('edit_quantity').value = item.quantity;
+  document.getElementById('edit_unit_price').value = item.unit_price;
+  editErrorsBox.textContent = '';
+  editFormContainer.style.display = 'block';
+  editFormContainer.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Hide and reset form
+function closeEditForm() {
+  editForm.reset();
+  editErrorsBox.textContent = '';
+  editFormContainer.style.display = 'none';
+}
+
+// Replace old card with updated one
+function updateListItem(updatedItem) {
+  const oldCard = document.querySelector(`.order-card[data-id="${updatedItem.id}"]`);
+  if (!oldCard) return;
+
+  const newCard = document.createElement('div');
+  newCard.className = 'order-card';
+  newCard.dataset.id = updatedItem.id;
+  newCard.innerHTML = `
+    <h4>${updatedItem.product}</h4>
+    <p>Farmer: ${updatedItem.farmer_name}</p>
+    <p>Qty: ${updatedItem.quantity} @ ₱${updatedItem.unit_price}</p>
+    <p>Total: ₱${(updatedItem.quantity * updatedItem.unit_price).toFixed(2)}</p>
+    <button class="edit-btn" data-id="${updatedItem.id}">Edit</button>
+    <hr>
+  `;
+  oldCard.replaceWith(newCard);
+}
+
+// Click Edit button → open form with data
+document.addEventListener('click', function (e) {
+  if (e.target.classList.contains('edit-btn')) {
+    const card = e.target.closest('.order-card');
+    openEditForm({
+      id: parseInt(card.dataset.id),
+      farmer_name: card.querySelector('p:nth-of-type(1)').textContent.replace('Farmer: ', ''),
+      product: card.querySelector('h4').textContent,
+      quantity: parseInt(card.querySelector('p:nth-of-type(2)').textContent.match(/\d+/)[0]),
+      unit_price: parseFloat(card.querySelector('p:nth-of-type(2)').textContent.match(/[\d.]+$/)[0])
+    });
+  }
+});
+
+// Cancel button
+cancelEditBtn.addEventListener('click', closeEditForm);
+
+// Submit update
+editForm.addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const recordId = document.getElementById('edit_id').value;
+  const data = {
+    farmer_name: document.getElementById('edit_farmer_name').value.trim(),
+    product: document.getElementById('edit_product').value.trim(),
+    quantity: parseInt(document.getElementById('edit_quantity').value),
+    unit_price: parseFloat(document.getElementById('edit_unit_price').value)
+  };
+
+  setEditLoading(true);
+  editErrorsBox.textContent = '';
+
+  try {
+    const response = await fetch(`/orders/${recordId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (response.status === 200) {
+      updateListItem(result.data || result);
+      closeEditForm();
+    } else if (response.status === 422) {
+      if (result.errors) {
+        for (const [field, messages] of Object.entries(result.errors)) {
+          messages.forEach(msg => {
+            editErrorsBox.innerHTML += `<p><strong>${field}:</strong> ${msg}</p>`;
+          });
+        }
+      } else {
+        editErrorsBox.textContent = result.message || 'Validation failed';
+      }
+    } else {
+      editErrorsBox.textContent = result.message || 'Unexpected error';
+    }
+  } catch (err) {
+    editErrorsBox.textContent = 'Network error — try again';
+    console.error(err);
+  } finally {
+    setEditLoading(false);
+  }
+});
