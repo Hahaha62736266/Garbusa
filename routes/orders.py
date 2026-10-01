@@ -116,4 +116,29 @@ def DELETE_order_by_id(request):
     # ✅ Step 2: Allowed → proceed to delete
     return deleteOrder(request)
 
+@app.route("/orders", methods=["POST"])
+def create_order():
+    data = request.get_json()
+
+    if not data.get("farmer_name"):
+        return jsonify({
+            "message": "Validation failed",
+            "errors": {"farmer_name": ["This field is required"]}
+        }), 422
+
+    new_order = OrderModel(**data)
+    db.session.add(new_order)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Created successfully",
+        "data": {
+            "id": new_order.id,
+            "farmer_name": new_order.farmer_name,
+            "product": new_order.product,
+            "quantity": new_order.quantity,
+            "unit_price": new_order.unit_price
+        }
+    }), 201
+
 app.py
