@@ -69,11 +69,13 @@ function showFieldErrors(errorObj) {
 function addToList(item) {
   const card = document.createElement('div');
   card.className = 'order-card';
+  card.dataset.id = item.id;
   card.innerHTML = `
     <h4>${item.product}</h4>
     <p>Farmer: ${item.farmer_name}</p>
     <p>Qty: ${item.quantity} @ ₱${item.unit_price}</p>
     <p>Total: ₱${(item.quantity * item.unit_price).toFixed(2)}</p>
+    <button class="edit-btn" data-id="${item.id}">Edit</button>
     <hr>
   `;
   ordersList.prepend(card);
