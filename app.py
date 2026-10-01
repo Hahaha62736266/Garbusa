@@ -1,34 +1,33 @@
-from flask import Flask, redirect, url_for
-import os
-from dotenv import load_dotenv
 from flask import Flask, render_template
 
 app = Flask(__name__)
 
+# Landing Page
 @app.route('/')
 def home():
     return render_template('index.html')
 
+# Full Dashboard Page
 @app.route('/dashboard')
 def dashboard():
-    return "<h1 style='padding:2rem; color:#2e7d32;'>🚧 Dashboard coming soon — connected successfully!</h1>"
+    # Sample farmer data — replace with real DB queries later
+    farmers = [
+        {"id": "F001", "name": "Maria Santos", "location": "Cagayan de Oro", "crop": "Rice", "status": "Active"},
+        {"id": "F002", "name": "Juan Dela Cruz", "location": "Misamis Oriental", "crop": "Corn", "status": "Active"},
+        {"id": "F003", "name": "Elena Reyes", "location": "Villanueva", "crop": "Vegetables", "status": "Pending"},
+        {"id": "F004", "name": "Pedro Lim", "location": "Tagoloan", "crop": "Coconut", "status": "Active"},
+        {"id": "F005", "name": "Ana Garcia", "location": "Opol", "crop": "Banana", "status": "Inactive"},
+    ]
+    
+    # Statistics
+    stats = {
+        "total_farmers": 248,
+        "active": 215,
+        "crops_listed": 38,
+        "market_connected": 189
+    }
+    
+    return render_template('dashboard.html', farmers=farmers, stats=stats)
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-load_dotenv()
-
-app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key")
-
-# Register Dashboard Blueprint
-from routes import dashboard
-app.register_blueprint(dashboard.bp, url_prefix='/dashboard')
-
-# Root → go straight to Dashboard
-@app.route('/')
-def home():
-    return redirect(url_for('dashboard.main'))
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True, use_reloader=False, port=5000)
