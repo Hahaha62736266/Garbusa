@@ -3,76 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Garbusa | Farmer Support System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Garbusa — Farmer Support</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f4; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #2c3e50; color: white; }
+        .btn { display: inline-block; padding: 8px 16px; background: #27ae60; color: white; text-decoration: none; border-radius: 4px; }
+        .flash { padding: 10px; background: #d4edda; color: #155724; margin-bottom: 15px; border-radius: 4px; }
+    </style>
 </head>
 <body>
-    <div class="page-container">
-        <main class="hero-section">
-            <div class="status-card">
-                <div class="status-icon">
-                    <i class="fas fa-check"></i>
-                </div>
-                <h1 class="main-heading">Garbusa IS WORKING!</h1>
-                <p class="subtext">Your system is online and ready to serve</p>
-                <a href="/dashboard" class="dashboard-link">
-                    <i class="fas fa-chart-pie"></i>
-                    Go to Dashboard
-                </a>
-            </div>
-        </main>
-
-        <footer class="footer">
-            <p>© 2026 Garbusa — Empowering Local Farmers</p>
-        </footer>
+    <div class="container">
+        <h1>Farmer Information System</h1>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for msg in messages %}<p class="flash">{{ msg }}</p>{% endfor %}
+          {% endif %}
+        {% endwith %}
+        <a href="{{ url_for('add_farmer') }}" class="btn">Add New Farmer</a>
+        <table>
+            <tr><th>Name</th><th>Main Crop</th><th>Contact</th></tr>
+            {% for f in farmers %}
+            <tr><td>{{ f.name }}</td><td>{{ f.crop }}</td><td>{{ f.contact }}</td></tr>
+            {% endfor %}
+        </table>
     </div>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Farm Records</title>
-  <style>
-    .flash-success { color: green; }
-    .flash-error { color: red; }
-    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
-    th, td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
-    th { background: #f5f5f5; }
-  </style>
-</head>
-<body>
-  <h1>Farm Records</h1>
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for cat, msg in messages %}<p class="flash-{{cat}}">{{ msg }}</p>{% endfor %}
-    {% endif %}
-  {% endwith %}
-
-  <p><a href="{{ url_for('create') }}">➕ Create New Record</a></p>
-
-  {% if records %}
-  <table>
-    <tr>
-      <th>Name</th><th>Type</th><th>Location</th><th>Area (ha)</th><th>Crop</th><th>Actions</th>
-    </tr>
-    {% for rec in records %}
-    <tr>
-      <td>{{ rec.name }}</td>
-      <td>{{ rec.record_type }}</td>
-      <td>{{ rec.location }}</td>
-      <td>{{ rec.area_ha }}</td>
-      <td>{{ rec.primary_crop or '-' }}</td>
-      <td>
-        <a href="{{ url_for('edit', record_id=rec.id) }}">Edit</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
-  {% else %}
-  <p>No records yet — create one above!</p>
-  {% endif %}
 </body>
 </html>
