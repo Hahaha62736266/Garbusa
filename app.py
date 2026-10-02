@@ -1,25 +1,23 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
-# ------------------------------
-# Initialize App ONCE
-# ------------------------------
+# ==============================================
+# ONE Single App Initialization — NO DUPLICATES
+# ==============================================
 app = Flask(__name__)
 app.secret_key = "dev_only_replace_in_production"
 
-# ------------------------------
-# Database Configuration
-# ------------------------------
+# Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///aqua_flow.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # ==============================================
-# FARM RECORDS (from original first section)
+# FARM RECORDS — In-Memory Store
 # ==============================================
 class FarmRecord:
-    def __init__(self, id, name, record_type, location, area_ha, primary_crop, notes):
-        self.id = id
+    def __init__(self, rid, name, record_type, location, area_ha, primary_crop, notes):
+        self.id = rid
         self.name = name
         self.record_type = record_type
         self.location = location
@@ -27,17 +25,14 @@ class FarmRecord:
         self.primary_crop = primary_crop
         self.notes = notes
 
-# In‑memory storage
 records_db = []
 record_counter = 1
 
-# Validation helper
 def validate_record(data):
     errors = {}
     name = data.get("name", "").strip()
     location = data.get("location", "").strip()
     area_raw = data.get("area_ha", "").strip()
-
     if not name:
         errors["name"] = "Name is required"
     if len(location) < 6:
@@ -54,7 +49,7 @@ def validate_record(data):
     return errors
 
 # ==============================================
-# AQUA FLOW RECORDS (from second section)
+# AQUA FLOW — Database Model (Only ONE Definition)
 # ==============================================
 class AquaFlowRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -78,17 +73,14 @@ class AquaFlowRecord(db.Model):
             "recorded_at": self.recorded_at.strftime('%Y-%m-%d %H:%M:%S')
         }
 
-# ------------------------------
-# Create Database Tables
-# ------------------------------
 with app.app_context():
     db.create_all()
 
 # ==============================================
-# ROUTES — No Duplicates
+# ROUTES — All Unique Paths & Function Names
 # ==============================================
 
-# --- Farm Record Routes ---
+# Farm Records
 @app.route("/")
 def index():
     return render_template("index.html", records=records_db)
@@ -100,9 +92,8 @@ def create():
         errors = validate_record(request.form)
         if errors:
             return render_template("create.html", errors=errors, form_data=request.form), 422
-
         rec = FarmRecord(
-            id=str(record_counter),
+            rid=str(record_counter),
             name=request.form["name"],
             record_type=request.form.get("record_type", ""),
             location=request.form["location"],
@@ -114,7 +105,6 @@ def create():
         records_db.append(rec)
         flash("Record created successfully!", "success")
         return redirect(url_for("index"))
-
     return render_template("create.html", errors={}, form_data={})
 
 @app.route("/edit/<record_id>", methods=["GET", "POST"])
@@ -123,12 +113,10 @@ def edit(record_id):
     if not rec:
         flash("Record not found", "error")
         return redirect(url_for("index"))
-
     if request.method == "POST":
         errors = validate_record(request.form)
         if errors:
             return render_template("edit.html", errors=errors, record=rec, form_data=request.form), 422
-
         rec.name = request.form["name"]
         rec.record_type = request.form.get("record_type", "")
         rec.location = request.form["location"]
@@ -137,7 +125,6 @@ def edit(record_id):
         rec.notes = request.form.get("notes", "")
         flash("Record updated successfully!", "success")
         return redirect(url_for("index"))
-
     form_defaults = {
         "name": rec.name,
         "record_type": rec.record_type,
@@ -155,41 +142,28 @@ def delete(record_id):
     flash("Record deleted", "info")
     return redirect(url_for("index"))
 
-# --- Aqua Flow Routes ---
-@app.route('/home')
-def home():
-    return render_template('index.html')
-
+# Aqua Flow — Dashboard
 @app.route('/dashboard')
 def dashboard():
-    # Get all AquaFlow records for display
     records = AquaFlowRecord.query.all()
-
-    total = len(records)
-    normal_count = sum(1 for r in records if r.status == 'normal')
-    low_flow_count = sum(1 for r in records if r.status == 'low_flow')
-    high_flow_count = sum(1 for r in records if r.status == 'high_flow')
-    alert_count = sum(1 for r in records if r.status == 'alert')
-
     stats = {
-        "total_records": total,
-        "normal": normal_count,
-        "low_flow": low_flow_count,
-        "high_flow": high_flow_count,
-        "alert": alert_count
+        "total_records": len(records),
+        "normal": sum(1 for r in records if r.status == 'normal'),
+        "low_flow": sum(1 for r in records if r.status == 'low_flow'),
+        "high_flow": sum(1 for r in records if r.status == 'high_flow'),
+        "alert": sum(1 for r in records if r.status == 'alert')
     }
-
     return render_template('dashboard.html', records=records, stats=stats)
 
 @app.route('/dashboard/stats')
 def dashboard_stats():
     return render_template('stats.html')
 
+# Aqua Flow — API (Only ONE definition)
 @app.route('/api/aqua-flow', methods=['POST'])
 def create_aqua_record():
     data = request.get_json() or {}
     errors = {}
-
     if not data.get('device_id'):
         errors['device_id'] = ["Device ID is required"]
     if not data.get('flow_rate'):
@@ -202,14 +176,8 @@ def create_aqua_record():
         errors['water_level'] = ["Water level must be a valid number"]
     if not data.get('status'):
         errors['status'] = ["Status is required"]
-
     if errors:
-        return jsonify({
-            "success": False,
-            "message": "Please fix the errors below",
-            "errors": errors
-        }), 422
-
+        return jsonify({"success": False, "message": "Please fix the errors below", "errors": errors}), 422
     try:
         new_record = AquaFlowRecord(
             device_id=data.get('device_id', ''),
@@ -221,21 +189,13 @@ def create_aqua_record():
         )
         db.session.add(new_record)
         db.session.commit()
-
-        return jsonify({
-            "success": True,
-            "message": "Aqua Flow record saved successfully!",
-            "data": new_record.to_dict()
-        }), 201
-    except Exception as e:
+        return jsonify({"success": True, "message": "Aqua Flow record saved!", "data": new_record.to_dict()}), 201
+    except Exception:
         db.session.rollback()
-        return jsonify({
-            "success": False,
-            "message": "System error. Could not save record. Please try again."
-        }), 500
+        return jsonify({"success": False, "message": "System error. Could not save record."}), 500
 
-# ------------------------------
-# Run App
-# ------------------------------
+# ==============================================
+# ONE Single Entry Point
+# ==============================================
 if __name__ == '__main__':
     app.run(debug=True)
