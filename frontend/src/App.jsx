@@ -1,15 +1,3 @@
-import React from 'react';
-import WRSMSDashboard from './components/WRSMSDashboard'; // Adjust path if located elsewhere
-
-function App() {
-  return (
-    <div>
-      <WRSMSDashboard />
-    </div>
-  );
-}
-
-export default App;
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 
 // --- INITIAL MOCK DATA ---
@@ -17,7 +5,7 @@ const INITIAL_CUSTOMERS = [
   { id: 'CUST-001', name: 'Maria Santos', phone: '0917-123-4567', address: 'Poblacion Zone 3, Maramag', borrowedSlim: 4, borrowedRound: 2, totalOrders: 38, balance: 0 },
   { id: 'CUST-002', name: 'Barangay Health Center', phone: '0928-888-9911', address: 'Main St, Maramag', borrowedSlim: 12, borrowedRound: 0, totalOrders: 112, balance: 350 },
   { id: 'CUST-003', name: 'Juan Dela Cruz', phone: '0905-555-2233', address: 'Subdivision Phase 2, Maramag', borrowedSlim: 2, borrowedRound: 1, totalOrders: 14, balance: 0 },
-  { id: 'CUST-004', name: 'Garbusa Eatery', phone: '0919-777-3344', address: 'Public Market Site, Maramag', borrowedSlim: 8, borrowedRound: 5, totalOrders: 85, balance: 120 },
+  { id: 'CUST-004', name: 'Station Eatery', phone: '0919-777-3344', address: 'Public Market Site, Maramag', borrowedSlim: 8, borrowedRound: 5, totalOrders: 85, balance: 120 },
 ];
 
 const INITIAL_ORDERS = [
@@ -42,7 +30,7 @@ const INITIAL_ORDERS = [
   },
   {
     id: 'ORD-1093',
-    customerName: 'Garbusa Eatery',
+    customerName: 'Station Eatery',
     phone: '0919-777-3344',
     address: 'Public Market Site, Maramag',
     orderType: 'Delivery',
@@ -172,7 +160,7 @@ export default function App() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400">
-                GARBUSA WATER REFILLING STATION
+                WATER REFILLING STATION MANAGEMENT SYSTEM
               </h1>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
                 WRSMS v3.2
@@ -502,7 +490,7 @@ function PosCounterView({ isDark, cardBg, subText, orders, customers, onOpenNewO
         <div className={`lg:col-span-1 p-6 rounded-2xl border ${cardBg} space-y-4`}>
           <div className="flex justify-between items-center">
             <h2 className="font-bold text-sm">Container Refill Rates</h2>
-            <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">Garbusa Standard</span>
+            <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">Station Standard</span>
           </div>
 
           <div className="space-y-3">
@@ -1207,7 +1195,7 @@ function ReceiptModal({ isDark, cardBg, subText, order, onClose }) {
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
       <div className={`w-full max-w-sm rounded-2xl border ${cardBg} p-6 space-y-4 shadow-2xl font-mono text-xs`}>
         <div className="text-center space-y-1 border-b border-dashed border-slate-700 pb-4">
-          <h2 className="font-bold text-base text-cyan-400">GARBUSA WATER REFILLING</h2>
+          <h2 className="font-bold text-base text-cyan-400">WATER REFILLING STATION</h2>
           <p className={subText}>Poblacion, Maramag, Bukidnon</p>
           <p className={subText}>Tel: 0917-000-WATER</p>
         </div>
@@ -1234,7 +1222,7 @@ function ReceiptModal({ isDark, cardBg, subText, order, onClose }) {
         </div>
 
         <div className="text-center pt-2 space-y-3">
-          <p className="text-[10px] text-slate-400">Thank you for trusting Garbusa Purified Water! Clean & Safe Drinking Water Always.</p>
+          <p className="text-[10px] text-slate-400">Thank you for trusting Purified Water! Clean & Safe Drinking Water Always.</p>
           <button
             onClick={onClose}
             className="w-full py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold"
