@@ -13,6 +13,29 @@ db = SQLAlchemy(app)
 # ------------------------------
 # Aqua Flow Record Model
 # ------------------------------
+
+class AquaFlowRecord(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    device_id = db.Column(db.String(50), nullable=False)
+    location = db.Column(db.String(100), nullable=True)  # ← Your original field
+    flow_rate = db.Column(db.Float, nullable=False)
+    water_level = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(30), nullable=False)
+    notes = db.Column(db.Text, nullable=True)
+    recorded_at = db.Column(db.DateTime, default=db.func.now())
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "device_id": self.device_id,
+            "location": self.location,  # ← Included
+            "flow_rate": self.flow_rate,
+            "water_level": self.water_level,
+            "status": self.status,
+            "notes": self.notes,
+            "recorded_at": self.recorded_at.strftime('%Y-%m-%d %H:%M:%S')
+        }
+
 class AquaFlowRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     device_id = db.Column(db.String(50), nullable=False)
