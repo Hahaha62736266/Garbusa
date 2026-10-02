@@ -3,6 +3,38 @@ from flask import jsonify, request
 from flask import Flask, jsonify, request
 from your_app import db  # import your SQLAlchemy instance
 
+# ------------------------------
+# Get All Records Route
+# ------------------------------
+@app.route('/api/aqua-flow/records', methods=['GET'])
+def get_aqua_records():
+    try:
+        # Get newest first
+        records = AquaFlowRecord.query.order_by(AquaFlowRecord.recorded_at.desc()).all()
+        
+        return jsonify({
+            "success": True,
+            "count": len(records),
+            "data": [
+                {
+                    "id": r.id,
+                    "device_id": r.device_id,
+                    "flow_rate": r.flow_rate,
+                    "water_level": r.water_level,
+                    "status": r.status,
+                    "notes": r.notes,
+                    "recorded_at": r.recorded_at.strftime('%Y-%m-%d %H:%M:%S')
+                }
+                for r in records
+            ]
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": "Failed to load records"
+        }), 500
+
 # Aqua Flow Record Model (if not already defined)
 class AquaFlowRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
