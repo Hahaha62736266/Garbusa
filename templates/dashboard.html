@@ -1,642 +1,275 @@
-<style>
-/* ---------- Aqua Flow Dashboard Styles ---------- */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: system-ui, sans-serif; background: #f0f9ff; padding: 2rem; }
-.container { max-width: 1200px; margin: 0 auto; }
-h1 { color: #0c4a6e; margin-bottom: 0.5rem; }
-h2 { color: #0891b2; margin: 1.2rem 0; font-size: 1.1rem; }
-.grid { display: grid; grid-template-columns: 380px 1fr; gap: 2rem; }
-@media(max-width: 900px) { .grid { grid-template-columns: 1fr; } }
-
-/* Form Styles */
-.card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.form-group { margin-bottom: 1rem; }
-label { display: block; margin-bottom: 0.3rem; font-weight: 500; color: #334155; }
-input, select, textarea { 
-  width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; 
-  border-radius: 6px; font-size: 0.95rem;
-}
-button { 
-  padding: 0.7rem 1.5rem; background: #0891b2; color: white; border: none; 
-  border-radius: 6px; cursor: pointer; font-size: 1rem; width: 100%;
-}
-button:hover:not(:disabled) { background: #0e7490; }
-button:disabled { opacity: 0.6; cursor: not-allowed; }
-.field-error { color: #dc2626; font-size: 0.85em; margin-top: 4px; display: block; }
-.message-area { margin: 1rem 0; padding: 0.75rem 1rem; border-radius: 6px; display: none; }
-.message-area.success { background: #ecfdf5; color: #065f46; display: block; }
-.message-area.error { background: #fef2f2; color: #991b1b; display: block; }
-.spinner { 
-  display: inline-block; width: 14px; height: 14px; border: 2px solid #ddd; 
-  border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; 
-  margin-right: 6px; vertical-align: middle;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Table Styles */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
-th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
-th { background: #f0f9ff; color: #0c4a6e; font-weight: 600; }
-tr:hover { background: #f8fafc; }
-
-/* Status Badges */
-.badge { 
-  padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 500; 
-  display: inline-block;
-}
-.badge.normal { background: #dcfce7; color: #166534; }
-.badge.low_flow { background: #fef3c7; color: #92400e; }
-.badge.high_flow { background: #fed7aa; color: #c2410c; }
-.badge.alert { background: #fecaca; color: #b91c1c; }
-
-/* Search */
-.search-bar { margin-bottom: 1rem; }
-.search-bar input { max-width: 300px; }
-.empty-state { text-align: center; padding: 2rem; color: #64748b; }
-.loading-row { text-align: center; padding: 1.5rem; color: #64748b; }
-</style>
-
-<div class="container">
-  <h1>💧 Aqua Flow Tracking System</h1>
-  <p style="color:#64748b; margin-bottom:2rem;">Monitor and record water flow & device status</p>
-
-  <div class="grid">
-    <!-- ===== FORM PANEL ===== -->
-    <div class="card">
-      <h2>📝 Add New Record</h2>
-      <form id="aquaFlowForm">
-        <div class="form-group">
-          <label>Device ID</label>
-          <input type="text" name="device_id" id="field_device_id" placeholder="e.g. AQF-001">
-          <span class="field-error" id="err_device_id"></span>
-        </div>
-
-        <div class="form-group">
-          <label>Flow Rate (L/s)</label>
-          <input type="number" step="0.01" name="flow_rate" id="field_flow_rate" placeholder="e.g. 12.50">
-          <span class="field-error" id="err_flow_rate"></span>
-        </div>
-
-        <div class="form-group">
-          <label>Water Level (m)</label>
-          <input type="number" step="0.01" name="water_level" id="field_water_level" placeholder="e.g. 4.20">
-          <span class="field-error" id="err_water_level"></span>
-        </div>
-
-        <div class="form-group">
-          <label>Status</label>
-          <select name="status" id="field_status">
-            <option value="">-- Select Status --</option>
-            <option value="normal">Normal</option>
-            <option value="low_flow">Low Flow</option>
-            <option value="high_flow">High Flow</option>
-            <option value="alert">Alert</option>
-          </select>
-          <span class="field-error" id="err_status"></span>
-        </div>
-
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea name="notes" id="field_notes" rows="2" placeholder="Optional details..."></textarea>
-        </div>
-
-        <button type="submit" id="submitBtn">
-          <span class="btn-text">Save Record</span>
-          <span class="btn-spinner" style="display:none;">
-            <span class="spinner"></span> Saving...
-          </span>
-        </button>
-
-        <div id="globalMessage" class="message-area"></div>
-      </form>
-    </div>
-
-    <!-- ===== RECORDS / DASHBOARD PANEL ===== -->
-    <div class="card">
-      <h2>📊 Flow Records</h2>
-      <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search by Device ID...">
-      </div>
-      <div class="table-wrap">
-        <table id="recordsTable">
-          <thead>
-            <tr>
-              <th>Device</th>
-              <th>Flow (L/s)</th>
-              <th>Level (m)</th>
-              <th>Status</th>
-              <th>Time</th>
-            </tr>
-          </thead>
-          <tbody id="recordsBody">
-            <tr><td colspan="5" class="loading-row">Loading records...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-// ===== GLOBAL STATE =====
-let allRecords = [];
-
-// ===== FORM HANDLING =====
-const form = document.getElementById('aquaFlowForm');
-const submitBtn = document.getElementById('submitBtn');
-const btnText = submitBtn.querySelector('.btn-text');
-const btnSpinner = submitBtn.querySelector('.btn-spinner');
-const globalMessage = document.getElementById('globalMessage');
-const recordsBody = document.getElementById('recordsBody');
-const searchInput = document.getElementById('searchInput');
-
-function clearAllErrors() {
-  document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
-  globalMessage.style.display = 'none';
-}
-
-function setLoading(isLoading) {
-  submitBtn.disabled = isLoading;
-  btnText.style.display = isLoading ? 'none' : 'inline';
-  btnSpinner.style.display = isLoading ? 'inline-flex' : 'none';
-}
-
-function showSuccess(msg) {
-  globalMessage.textContent = msg;
-  globalMessage.className = 'message-area success';
-}
-
-function showFieldErrors(errors) {
-  for (const [field, messages] of Object.entries(errors)) {
-    const el = document.getElementById(`err_${field}`);
-    if (el) el.textContent = messages.join(' ');
-  }
-}
-
-function showGlobalError(msg) {
-  globalMessage.textContent = msg;
-  globalMessage.className = 'message-area error';
-}
-
-// ===== RENDER RECORDS =====
-function renderRecords(records) {
-  if (!records.length) {
-    recordsBody.innerHTML = `<tr><td colspan="5" class="empty-state">No records yet. Add your first record above.</td></tr>`;
-    return;
-  }
-
-  recordsBody.innerHTML = records.map(r => `
-    <tr>
-      <td><strong>${escapeHtml(r.device_id)}</strong></td>
-      <td>${r.flow_rate}</td>
-      <td>${r.water_level}</td>
-      <td><span class="badge ${r.status}">${formatStatus(r.status)}</span></td>
-      <td style="font-size:0.85rem; color:#64748b;">${r.recorded_at}</td>
-    </tr>
-  `).join('');
-}
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function formatStatus(s) {
-  return {
-    normal: 'Normal',
-    low_flow: 'Low Flow',
-    high_flow: 'High Flow',
-    alert: 'Alert'
-  }[s] || s;
-}
-
-// ===== LOAD RECORDS =====
-async function loadRecords() {
-  try {
-    const res = await fetch('/api/aqua-flow/records');
-    const result = await res.json();
-    
-    if (result.success) {
-      allRecords = result.data;
-      renderRecords(allRecords);
-    }
-  } catch (err) {
-    recordsBody.innerHTML = `<tr><td colspan="5" class="empty-state" style="color:#dc2626;">Failed to load records</td></tr>`;
-  }
-}
-
-// ===== SEARCH / FILTER =====
-searchInput.addEventListener('input', (e) => {
-  const q = e.target.value.toLowerCase().trim();
-  if (!q) return renderRecords(allRecords);
-  const filtered = allRecords.filter(r => 
-    r.device_id.toLowerCase().includes(q)
-  );
-  renderRecords(filtered);
-});
-
-// ===== SUBMIT HANDLER =====
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  clearAllErrors();
-  setLoading(true);
-
-  try {
-    const formData = new FormData(form);
-    const payload = Object.fromEntries(formData);
-
-    const res = await fetch('/api/aqua-flow', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const result = await res.json();
-
-    // 🔴 422 Validation Errors
-    if (res.status === 422 && result.errors) {
-      showFieldErrors(result.errors);
-      if (result.message) showGlobalError(result.message);
-      return;
-    }
-
-    // 🔴 Other HTTP Errors
-    if (!res.ok) throw new Error(result.message || `Request failed (${res.status})`);
-
-    // ✅ SUCCESS — Refresh list automatically
-    if (result.success) {
-      showSuccess(result.message);
-      form.reset();
-      await loadRecords(); // ← List updates instantly!
-      searchInput.value = ''; // Clear search filter
-      return;
-    }
-
-    showGlobalError(result.message || 'Could not save record.');
-
-  } catch (err) {
-    // 🔴 Network / 500 — Never crash UI
-    console.error('Submit error:', err);
-    showGlobalError(
-      !navigator.onLine || err.message.includes('fetch')
-        ? 'Network disconnected. Check your connection and try again.'
-        : err.message || 'Unexpected error. Please refresh and retry.'
-    );
-  } finally {
-    setLoading(false);
-  }
-});
-
-// ===== INIT ON PAGE LOAD =====
-document.addEventListener('DOMContentLoaded', loadRecords);
-</script>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — Garbusa</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <div class="dashboard-wrapper">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <i class="fas fa-seedling"></i>
-                <span>Garbusa</span>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="/dashboard" class="nav-link active">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="fas fa-users"></i>
-                    <span>Farmers</span>
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="fas fa-leaf"></i>
-                    <span>Crops</span>
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="fas fa-store"></i>
-                    <span>Market</span>
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Reports</span>
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <a href="/" class="nav-link">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Back to Home</span>
-                </a>
-            </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <!-- Top Bar -->
-            <header class="top-bar">
-                <div class="top-bar-left">
-                    <h1>Dashboard Overview</h1>
-                    <p>Welcome back! Here's what's happening with Garbusa today.</p>
-                </div>
-                <div class="top-bar-right">
-                    <div class="user-profile">
-                        <i class="fas fa-user-circle"></i>
-                        <span>Admin</span>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Stats Cards -->
-            <section class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon farmers">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ stats.total_farmers }}</h3>
-                        <p>Total Farmers</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon active">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ stats.active }}</h3>
-                        <p>Active Accounts</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon crops">
-                        <i class="fas fa-seedling"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ stats.crops_listed }}</h3>
-                        <p>Crop Types</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon market">
-                        <i class="fas fa-handshake"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ stats.market_connected }}</h3>
-                        <p>Market Connected</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Charts Section -->
-            <section class="charts-grid">
-                <div class="chart-card">
-                    <h3>Crop Distribution</h3>
-                    <canvas id="cropChart"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>Farmer Status</h3>
-                    <canvas id="statusChart"></canvas>
-                </div>
-            </section>
-
-            <!-- Farmers Data Table -->
-            <section class="table-section">
-                <div class="table-header">
-                    <h3>Registered Farmers</h3>
-                    <a href="#" class="btn-primary">
-                        <i class="fas fa-plus"></i> Add Farmer
-                    </a>
-                </div>
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Location</th>
-                                <th>Primary Crop</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for farmer in farmers %}
-                            <tr>
-                                <td><strong>{{ farmer.id }}</strong></td>
-                                <td>{{ farmer.name }}</td>
-                                <td>{{ farmer.location }}</td>
-                                <td>{{ farmer.crop }}</td>
-                                <td>
-                                    <span class="status-badge {{ farmer.status|lower }}">
-                                        {{ farmer.status }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="#" class="action-icon"><i class="fas fa-eye"></i></a>
-                                    <a href="#" class="action-icon edit"><i class="fas fa-edit"></i></a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-</body>
-</html>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Garbusa — Dashboard</title>
+  <title>Aqua Flow Tracking Dashboard</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
-    body { background: #f0f4f8; padding: 2rem; max-width: 900px; margin: 0 auto; }
-    h1 { color: #1e293b; margin-bottom: 2rem; }
-    .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    h2 { color: #334155; margin-bottom: 1.5rem; font-size: 1.25rem; }
-    .form-group { margin-bottom: 1.25rem; }
-    label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #475569; }
-    input, select {
-      width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px;
-      font-size: 1rem; transition: border-color 0.2s;
-    }
-    input:disabled, select:disabled { background: #f1f5f9; cursor: not-allowed; }
-    .input-error { border-color: #dc2626; box-shadow: 0 0 0 2px rgba(220,38,38,0.15); }
-    button {
-      background: #2563eb; color: white; border: none; padding: 0.75rem 1.5rem;
-      border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer;
-      transition: background 0.2s;
-    }
-    button:hover:not(:disabled) { background: #1d4ed8; }
-    button:disabled { opacity: 0.7; cursor: not-allowed; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f0f9ff; padding: 2rem; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { color: #0c4a6e; margin-bottom: 0.5rem; }
+    h2 { color: #0891b2; margin: 1.2rem 0; font-size: 1.1rem; }
+    .grid { display: grid; grid-template-columns: 380px 1fr; gap: 2rem; }
+    @media(max-width: 900px) { .grid { grid-template-columns: 1fr; } }
 
-    /* Spinner */
-    .spinner {
-      display: inline-block; width: 14px; height: 14px; border: 2px solid transparent;
-      border-top-color: currentColor; border-radius: 50%; animation: spin 0.8s linear infinite;
-      margin-right: 8px; vertical-align: middle;
+    .card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; margin-bottom: 0.3rem; font-weight: 500; color: #334155; }
+    input, select, textarea { 
+      width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; 
+      border-radius: 6px; font-size: 0.95rem;
+    }
+    button { 
+      padding: 0.7rem 1.5rem; background: #0891b2; color: white; border: none; 
+      border-radius: 6px; cursor: pointer; font-size: 1rem; width: 100%;
+    }
+    button:hover:not(:disabled) { background: #0e7490; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    
+    .field-error { color: #dc2626; font-size: 0.85em; margin-top: 4px; display: block; }
+    .message-area { margin: 1rem 0; padding: 0.75rem 1rem; border-radius: 6px; display: none; }
+    .message-area.success { background: #ecfdf5; color: #065f46; display: block; }
+    .message-area.error { background: #fef2f2; color: #991b1b; display: block; }
+    
+    .spinner { 
+      display: inline-block; width: 14px; height: 14px; border: 2px solid #ddd; 
+      border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; 
+      margin-right: 6px; vertical-align: middle;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Messages */
-    .alert {
-      padding: 0.875rem 1rem; border-radius: 6px; margin: 1rem 0; font-weight: 500;
+    .table-wrap { overflow-x: auto; margin-top: 0.5rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+    th { background: #f0f9ff; color: #0c4a6e; font-weight: 600; }
+    tr:hover { background: #f8fafc; }
+
+    .badge { 
+      padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 500; 
+      display: inline-block;
     }
-    .alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-    .alert-danger  { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-    .field-error-text { color: #dc2626; font-size: 0.85rem; margin-top: 0.3rem; display: block; }
+    .badge.normal { background: #dcfce7; color: #166534; }
+    .badge.low_flow { background: #fef3c7; color: #92400e; }
+    .badge.high_flow { background: #fed7aa; color: #c2410c; }
+    .badge.alert { background: #fecaca; color: #b91c1c; }
+    
+    .search-bar { margin-bottom: 1rem; }
+    .search-bar input { max-width: 300px; }
+    .empty-state { text-align: center; padding: 2rem; color: #64748b; }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>💧 Aqua Flow Tracking Dashboard</h1>
+    <p style="color:#64748b; margin-bottom:2rem;">Monitor and record water flow & device status</p>
 
-  <h1>Garbusa Dashboard</h1>
+    <div class="grid">
+      <!-- FORM PANEL -->
+      <div class="card">
+        <h2>📝 Add New Record</h2>
+        <form id="aquaFlowForm">
+          <div class="form-group">
+            <label>Device ID</label>
+            <input type="text" name="device_id" id="field_device_id" placeholder="e.g. AQF-001">
+            <span class="field-error" id="err_device_id"></span>
+          </div>
 
-  <div class="card">
-    <h2>💧 Acquaflow Tracking</h2>
+          <div class="form-group">
+            <label>Flow Rate (L/s)</label>
+            <input type="number" step="0.01" name="flow_rate" id="field_flow_rate" placeholder="e.g. 12.50">
+            <span class="field-error" id="err_flow_rate"></span>
+          </div>
 
-    <form id="acquaflow-form">
-      <div class="form-group">
-        <label for="location">Location</label>
-        <input type="text" id="location" name="location" placeholder="e.g. Cagayan de Oro — Station A">
+          <div class="form-group">
+            <label>Water Level (m)</label>
+            <input type="number" step="0.01" name="water_level" id="field_water_level" placeholder="e.g. 4.20">
+            <span class="field-error" id="err_water_level"></span>
+          </div>
+
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status" id="field_status">
+              <option value="">-- Select Status --</option>
+              <option value="normal">Normal</option>
+              <option value="low_flow">Low Flow</option>
+              <option value="high_flow">High Flow</option>
+              <option value="alert">Alert</option>
+            </select>
+            <span class="field-error" id="err_status"></span>
+          </div>
+
+          <div class="form-group">
+            <label>Notes / Observations</label>
+            <textarea name="notes" id="field_notes" rows="2" placeholder="Optional details..."></textarea>
+          </div>
+
+          <button type="submit" id="submitBtn">
+            <span class="btn-text">Save Record</span>
+            <span class="btn-spinner" style="display:none;">
+              <span class="spinner"></span> Saving...
+            </span>
+          </button>
+
+          <div id="globalMessage" class="message-area"></div>
+        </form>
       </div>
 
-      <div class="form-group">
-        <label for="water_level">Water Level (meters)</label>
-        <input type="number" step="0.01" id="water_level" name="water_level" placeholder="e.g. 2.45">
+      <!-- RECORDS PANEL -->
+      <div class="card">
+        <h2>📊 Flow Records</h2>
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search by Device ID...">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Device</th>
+                <th>Flow (L/s)</th>
+                <th>Level (m)</th>
+                <th>Status</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="recordsBody">
+              <tr><td colspan="5" class="empty-state">Loading records...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      <div class="form-group">
-        <label for="status">Status</label>
-        <select id="status" name="status">
-          <option value="normal">Normal</option>
-          <option value="warning">Warning</option>
-          <option value="critical">Critical</option>
-        </select>
-      </div>
-
-      <button type="submit" id="submit-btn">Submit Reading</button>
-    </form>
+    </div>
   </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('acquaflow-form');
-  const submitBtn = document.getElementById('submit-btn');
-  const btnOriginalText = submitBtn.innerHTML;
+  <script>
+    let allRecords = [];
+    const form = document.getElementById('aquaFlowForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnSpinner = submitBtn.querySelector('.btn-spinner');
+    const globalMessage = document.getElementById('globalMessage');
+    const recordsBody = document.getElementById('recordsBody');
+    const searchInput = document.getElementById('searchInput');
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    clearAllMessages();
+    function clearAllErrors() {
+      document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+      globalMessage.style.display = 'none';
+    }
 
-    // ─── 1. LOADING STATE ───
-    setLoading(true);
+    function setLoading(isLoading) {
+      submitBtn.disabled = isLoading;
+      btnText.style.display = isLoading ? 'none' : 'inline';
+      btnSpinner.style.display = isLoading ? 'inline-flex' : 'none';
+    }
 
-    try {
-      const formData = new FormData(form);
-      const response = await fetch('/dashboard/acquaflow/submit', {
-        method: 'POST',
-        body: formData,
-        headers: { 'Accept': 'application/json' }
-      });
+    function showSuccess(msg) {
+      globalMessage.textContent = msg;
+      globalMessage.className = 'message-area success';
+    }
 
-      const data = await response.json();
+    function showFieldErrors(errors) {
+      for (const [field, messages] of Object.entries(errors)) {
+        const el = document.getElementById(`err_${field}`);
+        if (el) el.textContent = messages.join(' ');
+      }
+    }
 
-      if (!response.ok) {
-        // ─── 2. ERROR HANDLING ───
-        if (response.status === 422 && data.errors) {
-          Object.entries(data.errors).forEach(([field, message]) => {
-            const input = form.querySelector(`[name="${field}"]`);
-            if (input) {
-              input.classList.add('input-error');
-              showFieldError(input, message);
-            }
-          });
-          showGlobalError(data.message || "Please fix the errors below.");
-        }
-        else if (response.status >= 500) {
-          showGlobalError("Server error. Please try again later.");
-        }
-        else {
-          showGlobalError(data.message || "Something went wrong.");
-        }
+    function showGlobalError(msg) {
+      globalMessage.textContent = msg;
+      globalMessage.className = 'message-area error';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatStatus(s) {
+      return {
+        normal: 'Normal', low_flow: 'Low Flow', high_flow: 'High Flow', alert: 'Alert'
+      }[s] || s;
+    }
+
+    function renderRecords(records) {
+      if (!records.length) {
+        recordsBody.innerHTML = `<tr><td colspan="5" class="empty-state">No records yet. Add your first record above.</td></tr>`;
         return;
       }
-
-      // ─── 3. SUCCESS STATE ───
-      showSuccess(data.message || "Saved successfully!");
-      form.reset();
-
-    } catch (err) {
-      // Network / fetch crash
-      showGlobalError("Connection failed. Check your internet and try again.");
-      console.error("Submit error:", err);
-    } finally {
-      setLoading(false);
+      recordsBody.innerHTML = records.map(r => `
+        <tr>
+          <td><strong>${escapeHtml(r.device_id)}</strong></td>
+          <td>${r.flow_rate}</td>
+          <td>${r.water_level}</td>
+          <td><span class="badge ${r.status}">${formatStatus(r.status)}</span></td>
+          <td style="font-size:0.85rem; color:#64748b;">${r.recorded_at}</td>
+        </tr>
+      `).join('');
     }
-  });
 
-  // ─── UI Helpers ───
-  function setLoading(isLoading) {
-    const inputs = form.querySelectorAll('input, select');
-    if (isLoading) {
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `<span class="spinner"></span> Processing...`;
-      inputs.forEach(el => el.disabled = true);
-    } else {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = btnOriginalText;
-      inputs.forEach(el => el.disabled = false);
+    async function loadRecords() {
+      try {
+        const res = await fetch('/api/aqua-flow/records');
+        const result = await res.json();
+        if (result.success) {
+          allRecords = result.data;
+          renderRecords(allRecords);
+        }
+      } catch (err) {
+        recordsBody.innerHTML = `<tr><td colspan="5" class="empty-state" style="color:#dc2626;">Failed to load records</td></tr>`;
+      }
     }
-  }
 
-  function showSuccess(text) {
-    const el = document.createElement('div');
-    el.className = 'alert alert-success';
-    el.textContent = text;
-    form.prepend(el);
-    setTimeout(() => el.remove(), 5000);
-  }
+    searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      renderRecords(q ? allRecords.filter(r => r.device_id.toLowerCase().includes(q)) : allRecords);
+    });
 
-  function showGlobalError(text) {
-    const el = document.createElement('div');
-    el.className = 'alert alert-danger';
-    el.textContent = text;
-    form.prepend(el);
-  }
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearAllErrors();
+      setLoading(true);
 
-  function showFieldError(input, text) {
-    const el = document.createElement('span');
-    el.className = 'field-error-text';
-    el.textContent = text;
-    input.parentNode.appendChild(el);
-  }
+      try {
+        const formData = new FormData(form);
+        const payload = Object.fromEntries(formData);
 
-  function clearAllMessages() {
-    form.querySelectorAll('.alert, .field-error-text').forEach(el => el.remove());
-    form.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
-  }
-});
-</script>
+        const res = await fetch('/api/aqua-flow', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+
+        if (res.status === 422 && result.errors) {
+          showFieldErrors(result.errors);
+          if (result.message) showGlobalError(result.message);
+          return;
+        }
+        if (!res.ok) throw new Error(result.message || `Request failed (${res.status})`);
+
+        if (result.success) {
+          showSuccess(result.message);
+          form.reset();
+          searchInput.value = '';
+          await loadRecords();
+          return;
+        }
+        showGlobalError(result.message || 'Could not save record.');
+
+      } catch (err) {
+        showGlobalError(
+          !navigator.onLine || err.message.includes('fetch')
+            ? 'Network disconnected. Check your connection and try again.'
+            : err.message || 'Unexpected error. Please refresh and retry.'
+        );
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadRecords);
+  </script>
 </body>
 </html>
