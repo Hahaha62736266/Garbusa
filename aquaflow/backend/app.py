@@ -3,6 +3,13 @@ from flask_cors import CORS
 import mysql.connector
 from config import Config
 
+from app import create_app
+
+app = create_app()
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
+
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": Config.CORS_ORIGIN}})
 
