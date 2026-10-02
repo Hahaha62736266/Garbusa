@@ -3,70 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aqua Flow Tracking Dashboard</title>
-
-  <!-- ============================================== -->
-  <!-- YOUR ORIGINAL STYLES — KEPT EXACTLY AS YOU HAD -->
-  <!-- ============================================== -->
+  <title>Acquaflow Tracking Dashboard</title>
   <style>
-    /* ✅ Your existing styles remain here — nothing removed */
-    h1 { color: #0c4a6e; }
-    /* Add any extra styling from your original file here */
-
-    /* ---------- New functional styles (no design changes) ---------- */
-    .field-error    { color: #dc2626; font-size: 0.85em; margin-top: 4px; display: block; }
-    .message-area   { margin: 1rem 0; padding: 0.75rem 1rem; border-radius: 6px; display: none; }
+    body { font-family: serif; padding: 2rem; }
+    h1 { font-size: 2.5rem; color: #000; margin-bottom: 0.5rem; }
+    .field-error { color: #dc2626; font-size: 0.85em; margin-top: 4px; display: block; }
+    .message-area { margin: 1rem 0; padding: 0.75rem; border-radius: 6px; display: none; }
     .message-area.success { background: #ecfdf5; color: #065f46; display: block; }
-    .message-area.error   { background: #fef2f2; color: #991b1b; display: block; }
+    .message-area.error { background: #fef2f2; color: #991b1b; display: block; }
     button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .spinner        { display: inline-block; width: 14px; height: 14px; border: 2px solid #ddd; border-top-color: #0891b2; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 6px; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #ddd; border-top-color: #0891b2; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 6px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .badge          { padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 500; display: inline-block; }
-    .badge.normal   { background: #dcfce7; color: #166534; }
+    .badge { padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 500; display: inline-block; }
+    .badge.normal { background: #dcfce7; color: #166534; }
     .badge.low_flow { background: #fef3c7; color: #92400e; }
-    .badge.high_flow{ background: #fed7aa; color: #c2410c; }
-    .badge.alert    { background: #fecaca; color: #b91c1c; }
+    .badge.high_flow { background: #fed7aa; color: #c2410c; }
+    .badge.alert { background: #fecaca; color: #b91c1c; }
+    table { margin-top: 2rem; border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    th { background: #f0f9ff; }
+    input, select, textarea { margin: 0.3rem 0; padding: 0.4rem; width: 300px; }
+    .form-group { margin: 0.8rem 0; }
   </style>
 </head>
 <body>
 
-  <!-- ============================================== -->
-  <!-- YOUR ORIGINAL HEADER & MESSAGE — FULLY KEPT -->
-  <!-- ============================================== -->
-  <h1>💧 Aquaflow Tracking Dashboard</h1>
+  <!-- ✅ YOUR ORIGINAL HEADER — KEPT EXACTLY -->
+  <h1>💧 Acquaflow Tracking Dashboard</h1>
   <p>If you see this, your setup is correct!</p>
 
-  <!-- ============================================== -->
-  <!-- YOUR ORIGINAL FORM — EXTENDED, NOT REPLACED -->
-  <!-- ============================================== -->
+  <!-- ✅ FORM — Your original fields + new fields added -->
   <form id="aquaFlowForm">
-    <!-- Your original fields kept -->
-    <div>
+    <div class="form-group">
       <label>Location:</label>
-      <input type="text" name="location" id="field_location" placeholder="Your location">
+      <input type="text" name="location" id="field_location">
       <span class="field-error" id="err_location"></span>
     </div>
 
-    <div>
-      <label>Water Level:</label>
+    <div class="form-group">
+      <label>Water Level (m):</label>
       <input type="number" step="0.01" name="water_level" id="field_water_level">
       <span class="field-error" id="err_water_level"></span>
     </div>
 
-    <!-- ✅ New fields added — your old ones stay -->
-    <div>
+    <!-- NEW FIELDS ADDED — your old ones stay above -->
+    <div class="form-group">
       <label>Device ID:</label>
       <input type="text" name="device_id" id="field_device_id" placeholder="e.g. AQF-001">
       <span class="field-error" id="err_device_id"></span>
     </div>
 
-    <div>
+    <div class="form-group">
       <label>Flow Rate (L/s):</label>
-      <input type="number" step="0.01" name="flow_rate" id="field_flow_rate">
+      <input type="number" step="0.01" name="flow_rate" id="field_flow_rate" placeholder="e.g. 12.50">
       <span class="field-error" id="err_flow_rate"></span>
     </div>
 
-    <div>
+    <div class="form-group">
       <label>Status:</label>
       <select name="status" id="field_status">
         <option value="">-- Select Status --</option>
@@ -78,12 +71,11 @@
       <span class="field-error" id="err_status"></span>
     </div>
 
-    <div>
+    <div class="form-group">
       <label>Notes:</label>
       <textarea name="notes" id="field_notes" rows="2" placeholder="Optional details..."></textarea>
     </div>
 
-    <!-- Your original Submit button upgraded with spinner -->
     <button type="submit" id="submitBtn">
       <span class="btn-text">Submit</span>
       <span class="btn-spinner" style="display:none;">
@@ -94,34 +86,27 @@
     <div id="globalMessage" class="message-area"></div>
   </form>
 
-  <!-- ============================================== -->
-  <!-- NEW: Records List — Added Below Your Original -->
-  <!-- ============================================== -->
-  <div style="margin-top: 2rem;">
-    <h2>📊 Saved Records</h2>
-    <input type="text" id="searchInput" placeholder="Search by Device ID..." style="margin-bottom: 1rem; padding: 0.5rem;">
-    
-    <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-      <thead>
-        <tr style="background: #f0f9ff;">
-          <th>Device ID</th>
-          <th>Location</th>
-          <th>Flow Rate (L/s)</th>
-          <th>Water Level (m)</th>
-          <th>Status</th>
-          <th>Notes</th>
-          <th>Recorded At</th>
-        </tr>
-      </thead>
-      <tbody id="recordsBody">
-        <tr><td colspan="7" style="text-align:center; padding: 1rem;">Loading records...</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <!-- ✅ NEW: Records Table -->
+  <h2 style="margin-top: 2rem;">📊 Saved Records</h2>
+  <input type="text" id="searchInput" placeholder="Search by Device ID..." style="margin-bottom: 1rem;">
+  
+  <table>
+    <thead>
+      <tr>
+        <th>Device ID</th>
+        <th>Location</th>
+        <th>Flow Rate (L/s)</th>
+        <th>Water Level (m)</th>
+        <th>Status</th>
+        <th>Notes</th>
+        <th>Recorded At</th>
+      </tr>
+    </thead>
+    <tbody id="recordsBody">
+      <tr><td colspan="7" style="text-align:center;">Loading records...</td></tr>
+    </tbody>
+  </table>
 
-  <!-- ============================================== -->
-  <!-- WORKING CONNECTION SCRIPT -->
-  <!-- ============================================== -->
   <script>
     let allRecords = [];
     const form = document.getElementById('aquaFlowForm');
@@ -145,7 +130,7 @@
 
     function showSuccess(msg) {
       globalMessage.textContent = msg;
-      globalMessage.className = 'message-area success';
+      globalMessage.className = 'message-area.success';
     }
 
     function showFieldErrors(errors) {
@@ -153,11 +138,6 @@
         const el = document.getElementById(`err_${field}`);
         if (el) el.textContent = messages.join(' ');
       }
-    }
-
-    function showGlobalError(msg) {
-      globalMessage.textContent = msg;
-      globalMessage.className = 'message-area error';
     }
 
     function escapeHtml(text) {
@@ -172,18 +152,18 @@
 
     function renderRecords(records) {
       if (!records.length) {
-        recordsBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem; color: #64748b;">No records yet. Submit your first record above.</td></tr>`;
+        recordsBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 1rem;">No records yet. Submit your first record above.</td></tr>`;
         return;
       }
       recordsBody.innerHTML = records.map(r => `
         <tr>
           <td><strong>${escapeHtml(r.device_id)}</strong></td>
-          <td>${escapeHtml(r.location || r.notes)}</td>
+          <td>${escapeHtml(r.location)}</td>
           <td>${r.flow_rate}</td>
           <td>${r.water_level}</td>
           <td><span class="badge ${r.status}">${formatStatus(r.status)}</span></td>
           <td>${escapeHtml(r.notes)}</td>
-          <td style="font-size:0.85rem; color:#64748b;">${r.recorded_at}</td>
+          <td style="font-size:0.85rem; color:#666;">${r.recorded_at}</td>
         </tr>
       `).join('');
     }
@@ -197,13 +177,13 @@
           renderRecords(allRecords);
         }
       } catch (err) {
-        recordsBody.innerHTML = `<tr><td colspan="7" style="color:#dc2626; text-align:center;">Failed to load records</td></tr>`;
+        recordsBody.innerHTML = `<tr><td colspan="7" style="color:red; text-align:center;">Failed to load records</td></tr>`;
       }
     }
 
     searchInput.addEventListener('input', (e) => {
       const q = e.target.value.toLowerCase().trim();
-      renderRecords(q ? allRecords.filter(r => (r.device_id || '').toLowerCase().includes(q)) : allRecords);
+      renderRecords(q ? allRecords.filter(r => r.device_id.toLowerCase().includes(q)) : allRecords);
     });
 
     form.addEventListener('submit', async (e) => {
