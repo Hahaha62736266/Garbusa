@@ -1,3 +1,8 @@
+@app.route('/dashboard')
+def dashboard():
+    from flask import render_template
+    return render_template('aqua_flow/dashboard.html')
+
 <style>
 /* ---------- Aqua Flow Dashboard Styles ---------- */
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -292,3 +297,4 @@ form.addEventListener('submit', async (e) => {
 // ===== INIT ON PAGE LOAD =====
 document.addEventListener('DOMContentLoaded', loadRecords);
 </script>
+
