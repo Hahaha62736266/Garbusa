@@ -274,6 +274,21 @@ def validateCollectionUpdate(request):
     return None
 
 
+def validate_customer_data(data, is_update=False):
+    """Bridge function for Flask routes (accepts dict and is_update flag)"""
+    class _Req:
+        def __init__(self, d):
+            self.body = d if isinstance(d, dict) else {}
+            self.params = {"customer_id": d.get("customer_id", "")} if isinstance(d, dict) else {}
+            self.validatedBody = None
+
+    req = _Req(data)
+    if is_update:
+        return validateCustomerUpdate(req)
+    else:
+        return validateCustomerCreate(req)
+
+
 # ==========================================================
 # AUTHORIZATION GUARD — Permission Checks
 # Returns 403 if user is NOT ALLOWED (distinct from 422)
@@ -285,7 +300,18 @@ def checkOwnership(request, recordOwnerId):
     Current logged-in user must match the record owner ID.
     Return None if allowed, or 403 error dict if forbidden.
     """
-    currentUserId = request.auth.get("user_id") if request.auth else None
+    currentUserId = None
+    if hasattr(request, 'auth') and isinstance(request.auth, dict):
+        currentUserId = request.auth.get("user_id")
+    
+    if not currentUserId:
+        headers = getattr(request, 'headers', {})
+        if isinstance(headers, dict):
+            currentUserId = headers.get("X-User-ID")
+        elif hasattr(headers, 'get'):
+            currentUserId = headers.get("X-User-ID")
+        else:
+            currentUserId = getattr(headers, "X-User-ID", None)
 
     if not currentUserId:
         return {
@@ -310,14 +336,16 @@ def checkOwnership(request, recordOwnerId):
 
 def authorizeDeleteCustomer(request):
     """DELETE /customers/:customer_id — Only the owner can delete"""
-    from models.customer_model import Customer
-    customerId = request.params.get("customer_id")
-    existing = Customer.find(customerId)
+    from controllers.customer_controller import showCustomer
+    customerId = getattr(request, 'params', {}).get("customer_id")
+    if not customerId and isinstance(request, str):
+        customerId = request
+    existing = showCustomer(customerId)
 
-    if not existing:
+    if existing.get("status") == 404 or not existing.get("data"):
         return {"status": 404, "error": "Record not found", "field": None}
 
-    ownerId = existing.get("owned_by_user_id", "admin")
+    ownerId = existing["data"].get("owned_by_user_id") or existing["data"].get("customer_id", "admin")
     return checkOwnership(request, ownerId)
 
 
@@ -328,6 +356,8 @@ def authorizeDeleteOrder(request):
     """
     # Get order_id from URL params
     order_id = getattr(request, 'params', {}).get("order_id", "")
+    if not order_id and isinstance(request, str):
+        order_id = request
     
     # ✅ Import HERE to avoid circular import
     from controllers.order_controller import showOrder
@@ -341,14 +371,24 @@ def authorizeDeleteOrder(request):
     
     # Step 3: Order EXISTS → NOW CHECK OWNERSHIP
     order_data = lookup_result["data"]
-    owner_id = order_data.get("owned_by_user_id")
+    owner_id = order_data.get("owned_by_user_id") or order_data.get("customer_id")
     
-    # Get requester ID from headers
-    headers = getattr(request, 'headers', {})
-    current_user_id = headers.get("X-User-ID", "") if isinstance(headers, dict) else getattr(headers, "X-User-ID", "")
+    # Get requester ID from auth OR headers
+    current_user_id = None
+    if hasattr(request, 'auth') and isinstance(request.auth, dict):
+        current_user_id = request.auth.get("user_id")
+    
+    if not current_user_id:
+        headers = getattr(request, 'headers', {})
+        if isinstance(headers, dict):
+            current_user_id = headers.get("X-User-ID")
+        elif hasattr(headers, 'get'):
+            current_user_id = headers.get("X-User-ID")
+        else:
+            current_user_id = getattr(headers, "X-User-ID", None)
     
     # ✅ OWNERSHIP CHECK
-    if owner_id != current_user_id:
+    if not current_user_id or str(owner_id) != str(current_user_id):
         return {
             "status": 403,
             "error": "Forbidden: you do not own this order"

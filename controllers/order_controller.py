@@ -4,16 +4,39 @@ from datetime import date
 # In-memory "database"
 orders_db = {}
 
-def listOrders():
+def _extract_payload(data):
+    if hasattr(data, 'validatedBody') and data.validatedBody is not None:
+        return data.validatedBody
+    if hasattr(data, 'body') and data.body is not None:
+        return data.body
+    if hasattr(data, 'get_json') and callable(data.get_json):
+        j = data.get_json()
+        if j is not None:
+            return j
+    if hasattr(data, 'json') and data.json is not None:
+        return data.json
+    if isinstance(data, dict):
+        return data
+    if hasattr(data, '__dict__'):
+        d = data.__dict__
+        if 'validatedBody' in d and d['validatedBody']:
+            return d['validatedBody']
+        if 'body' in d and d['body']:
+            return d['body']
+        return d
+    return {}
+
+def listOrders(request=None):
     return {
         "status": 200,
         "message": "Orders retrieved successfully",
         "data": list(orders_db.values())
     }
 
+list_orders = listOrders
+
 def showOrder(order_id):
     """Get single order by ID — accepts string ID OR request object"""
-    # Handle BOTH: string ID from middleware, OR request object from routes
     if not isinstance(order_id, str):
         order_id = getattr(order_id, 'params', {}).get("order_id", "")
     
@@ -25,24 +48,21 @@ def showOrder(order_id):
         "data": orders_db[order_id]
     }
 
+show_order = showOrder
+
 def createOrder(data):
     """Create a new order"""
-    # Extract payload from request object or dict
-    if hasattr(data, '__dict__'):
-        payload = data.__dict__
-    elif hasattr(data, 'json') and data.json is not None:
-        payload = data.json
-    else:
-        payload = data if isinstance(data, dict) else {}
+    payload = _extract_payload(data)
     
-    new_id = f"O{len(orders_db)+1:03d}"
+    new_id = payload.get("order_id") or f"O{len(orders_db)+1:03d}"
+    customer_id = payload.get("customer_id")
     order = {
         "order_id": new_id,
-        "customer_id": payload.get("customer_id"),
+        "customer_id": customer_id,
         "product_id": payload.get("product_id"),
         "quantity": payload.get("quantity", 1),
         "status": payload.get("status", "Pending"),
-        "owned_by_user_id": payload.get("owned_by_user_id", "admin")
+        "owned_by_user_id": payload.get("owned_by_user_id") or customer_id or "admin"
     }
     orders_db[new_id] = order
     
@@ -59,24 +79,23 @@ def createOrder(data):
         }
     }
 
-def updateOrder(order_id, data):
-    """Update an existing order — matches app.py import"""
-    # Resolve order_id (handle request object or string)
+create_order = createOrder
+
+def updateOrder(order_id, data=None):
+    """Update an existing order"""
+    if data is None and hasattr(order_id, 'params'):
+        req = order_id
+        order_id = req.params.get("order_id", "")
+        data = req
+
     if not isinstance(order_id, str):
         order_id = getattr(order_id, 'params', {}).get("order_id", "")
     
     if order_id not in orders_db:
         return {"status": 404, "error": "Not Found", "message": "Order not found"}
     
-    # Extract payload
-    if hasattr(data, '__dict__'):
-        payload = data.__dict__
-    elif hasattr(data, 'json') and data.json is not None:
-        payload = data.json
-    else:
-        payload = data if isinstance(data, dict) else {}
+    payload = _extract_payload(data)
     
-    # Update fields
     for k, v in payload.items():
         if k != "order_id":
             orders_db[order_id][k] = v
@@ -86,6 +105,8 @@ def updateOrder(order_id, data):
         "message": "Order updated",
         "data": orders_db[order_id]
     }
+
+update_order = updateOrder
 
 def deleteOrder(order_id):
     """Delete an order by ID"""
@@ -101,3 +122,5 @@ def deleteOrder(order_id):
         "message": "Order deleted",
         "data": deleted
     }
+
+delete_order = deleteOrder

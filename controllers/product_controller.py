@@ -2,38 +2,56 @@
 
 products_db = {}
 
-def listProducts():
+def _extract_payload(data):
+    if hasattr(data, 'validatedBody') and data.validatedBody is not None:
+        return data.validatedBody
+    if hasattr(data, 'body') and data.body is not None:
+        return data.body
+    if hasattr(data, 'get_json') and callable(data.get_json):
+        j = data.get_json()
+        if j is not None:
+            return j
+    if hasattr(data, 'json') and data.json is not None:
+        return data.json
+    if isinstance(data, dict):
+        return data
+    if hasattr(data, '__dict__'):
+        d = data.__dict__
+        if 'validatedBody' in d and d['validatedBody']:
+            return d['validatedBody']
+        if 'body' in d and d['body']:
+            return d['body']
+        return d
+    return {}
+
+def listProducts(request=None):
     return {
         "status": 200,
         "message": "Products retrieved successfully",
         "data": list(products_db.values())
     }
 
+list_products = listProducts
+
 def showProduct(product_id):
+    if not isinstance(product_id, str):
+        product_id = getattr(product_id, 'params', {}).get("product_id", "")
     if product_id not in products_db:
         return {"status": 404, "error": "Not Found", "message": "Product not found"}
     return {"status": 200, "message": "Product retrieved", "data": products_db[product_id]}
 
-def createProduct(data):
-    # ✅ FORCE extract JSON — NO fallback to MockRequest object
-    if hasattr(data, 'json') and data.json is not None:
-        payload = data.json
-    else:
-        # LAST RESORT — convert MANUALLY to dictionary
-        payload = {
-            "product_name": getattr(data, "product_name", None),
-            "price_per_unit": getattr(data, "price_per_unit", 0.0),
-            "description": getattr(data, "description", ""),
-            "stock_available": getattr(data, "stock_available", 0)
-        }
+show_product = showProduct
 
-    new_id = f"P{len(products_db)+1:03d}"
+def createProduct(data):
+    payload = _extract_payload(data)
+
+    new_id = payload.get("product_id") or f"P{len(products_db)+1:03d}"
     product = {
         "product_id": new_id,
         "product_name": payload.get("product_name"),
-        "price_per_unit": payload.get("price_per_unit", 0.0),
+        "price_per_unit": float(payload.get("price_per_unit", 0.0)),
         "description": payload.get("description", ""),
-        "stock_available": payload.get("stock_available", 0)
+        "stock_available": int(payload.get("stock_available", 0))
     }
     products_db[new_id] = product
     return {
@@ -48,11 +66,18 @@ def createProduct(data):
         }
     }
 
-def updateProduct(product_id, data):
-    if hasattr(data, 'json'):
-        payload = data.json
-    else:
-        payload = data
+create_product = createProduct
+
+def updateProduct(product_id, data=None):
+    if data is None and hasattr(product_id, 'params'):
+        req = product_id
+        product_id = req.params.get("product_id", "")
+        data = req
+
+    if not isinstance(product_id, str):
+        product_id = getattr(product_id, 'params', {}).get("product_id", "")
+
+    payload = _extract_payload(data)
     if product_id not in products_db:
         return {"status": 404, "error": "Not Found", "message": "Product not found"}
     for k, v in payload.items():
@@ -60,8 +85,14 @@ def updateProduct(product_id, data):
             products_db[product_id][k] = v
     return {"status": 200, "message": "Product updated", "data": products_db[product_id]}
 
+update_product = updateProduct
+
 def deleteProduct(product_id):
+    if not isinstance(product_id, str):
+        product_id = getattr(product_id, 'params', {}).get("product_id", "")
     if product_id not in products_db:
         return {"status": 404, "error": "Not Found", "message": "Product not found"}
     deleted = products_db.pop(product_id)
     return {"status": 200, "message": "Product deleted", "data": deleted}
+
+delete_product = deleteProduct

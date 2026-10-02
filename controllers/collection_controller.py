@@ -3,33 +3,50 @@ from datetime import date
 
 collections_db = {}
 
-def listCollections():
+def _extract_payload(data):
+    if hasattr(data, 'validatedBody') and data.validatedBody is not None:
+        return data.validatedBody
+    if hasattr(data, 'body') and data.body is not None:
+        return data.body
+    if hasattr(data, 'get_json') and callable(data.get_json):
+        j = data.get_json()
+        if j is not None:
+            return j
+    if hasattr(data, 'json') and data.json is not None:
+        return data.json
+    if isinstance(data, dict):
+        return data
+    if hasattr(data, '__dict__'):
+        d = data.__dict__
+        if 'validatedBody' in d and d['validatedBody']:
+            return d['validatedBody']
+        if 'body' in d and d['body']:
+            return d['body']
+        return d
+    return {}
+
+def listCollections(request=None):
     return {
         "status": 200,
         "message": "Collections retrieved successfully",
         "data": list(collections_db.values())
     }
 
+list_collections = listCollections
+
 def showCollection(collection_id):
+    if not isinstance(collection_id, str):
+        collection_id = getattr(collection_id, 'params', {}).get("collection_id", "")
     if collection_id not in collections_db:
         return {"status": 404, "error": "Not Found", "message": "Collection not found"}
     return {"status": 200, "message": "Collection retrieved", "data": collections_db[collection_id]}
 
-def createCollection(data):
-    if hasattr(data, 'json') and data.json is not None:
-        payload = data.json
-    else:
-        payload = {
-            "customer_id": getattr(data, "customer_id", None),
-            "order_id": getattr(data, "order_id", None),
-            "empty_jugs_returned": getattr(data, "empty_jugs_returned", 0),
-            "filled_jugs_released": getattr(data, "filled_jugs_released", 0),
-            "container_balance": getattr(data, "container_balance", 0),
-            "collected_by": getattr(data, "collected_by", "Staff")
-        }
+show_collection = showCollection
 
-    new_id = f"CL{len(collections_db)+1:03d}"
-    # ✅ SAVE to variable 'collection'
+def createCollection(data):
+    payload = _extract_payload(data)
+
+    new_id = payload.get("collection_id") or f"CL{len(collections_db)+1:03d}"
     collection = {
         "collection_id": new_id,
         "customer_id": payload.get("customer_id"),
@@ -55,11 +72,18 @@ def createCollection(data):
         }
     }
 
-def updateCollection(collection_id, data):
-    if hasattr(data, 'json'):
-        payload = data.json
-    else:
-        payload = data
+create_collection = createCollection
+
+def updateCollection(collection_id, data=None):
+    if data is None and hasattr(collection_id, 'params'):
+        req = collection_id
+        collection_id = req.params.get("collection_id", "")
+        data = req
+
+    if not isinstance(collection_id, str):
+        collection_id = getattr(collection_id, 'params', {}).get("collection_id", "")
+
+    payload = _extract_payload(data)
     if collection_id not in collections_db:
         return {"status": 404, "error": "Not Found", "message": "Collection not found"}
     for k, v in payload.items():
@@ -67,8 +91,14 @@ def updateCollection(collection_id, data):
             collections_db[collection_id][k] = v
     return {"status": 200, "message": "Collection updated", "data": collections_db[collection_id]}
 
+update_collection = updateCollection
+
 def deleteCollection(collection_id):
+    if not isinstance(collection_id, str):
+        collection_id = getattr(collection_id, 'params', {}).get("collection_id", "")
     if collection_id not in collections_db:
         return {"status": 404, "error": "Not Found", "message": "Collection not found"}
     deleted = collections_db.pop(collection_id)
     return {"status": 200, "message": "Collection deleted", "data": deleted}
+
+delete_collection = deleteCollection

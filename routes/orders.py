@@ -1,6 +1,6 @@
 """Order Routes — Validation → Authorization → Controller pipeline"""
 import re
-from flask import request, jsonify
+from flask import request
 # In-memory "database" — shared with controller or use controller functions
 orders_db = {}
 
@@ -116,67 +116,3 @@ def DELETE_order_by_id(request):
     # ✅ Step 2: Allowed → proceed to delete
     return deleteOrder(request)
 
-@app.route("/orders", methods=["POST"])
-def create_order():
-    data = request.get_json()
-
-    if not data.get("farmer_name"):
-        return jsonify({
-            "message": "Validation failed",
-            "errors": {"farmer_name": ["This field is required"]}
-        }), 422
-
-    new_order = OrderModel(**data)
-    db.session.add(new_order)
-    db.session.commit()
-
-    return jsonify({
-        "message": "Created successfully",
-        "data": {
-            "id": new_order.id,
-            "farmer_name": new_order.farmer_name,
-            "product": new_order.product,
-            "quantity": new_order.quantity,
-            "unit_price": new_order.unit_price
-        }
-    }), 201
-@app.route("/orders/<int:order_id>", methods=["PUT"])
-def update_order(order_id):
-    # Find the record
-    order = OrderModel.query.get(order_id)
-    
-    if not order:
-        return jsonify({
-            "message": "Record not found"
-        }), 404
-
-    data = request.get_json()
-
-    # Validation
-    if not data.get("farmer_name"):
-        return jsonify({
-            "message": "Validation failed",
-            "errors": {"farmer_name": ["This field is required"]}
-        }), 422
-
-    # Update fields
-    order.farmer_name = data.get("farmer_name", order.farmer_name)
-    order.product = data.get("product", order.product)
-    order.quantity = data.get("quantity", order.quantity)
-    order.unit_price = data.get("unit_price", order.unit_price)
-
-    # Save to database
-    db.session.commit()
-
-    # Return updated record
-    return jsonify({
-        "message": "Updated successfully",
-        "data": {
-            "id": order.id,
-            "farmer_name": order.farmer_name,
-            "product": order.product,
-            "quantity": order.quantity,
-            "unit_price": order.unit_price
-        }
-    }), 200
-app.py
