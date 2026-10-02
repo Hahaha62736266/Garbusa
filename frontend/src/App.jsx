@@ -1,3 +1,9 @@
+import WRSMDashboard from './components/WRSMDashboard'
+
+export default function Home() {
+  return <WRSMDashboard />
+}
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 
 // --- INITIAL MOCK DATA ---
