@@ -23,6 +23,53 @@
             </div>
         </main>
 
+        <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Farm Records</title>
+  <style>
+    .flash-success { color: green; }
+    .flash-error { color: red; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
+    th { background: #f5f5f5; }
+  </style>
+</head>
+<body>
+  <h1>Farm Records</h1>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}<p class="flash-{{cat}}">{{ msg }}</p>{% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <p><a href="{{ url_for('create') }}">➕ Create New Record</a></p>
+
+  {% if records %}
+  <table>
+    <tr>
+      <th>Name</th><th>Type</th><th>Location</th><th>Area (ha)</th><th>Crop</th><th>Actions</th>
+    </tr>
+    {% for rec in records %}
+    <tr>
+      <td>{{ rec.name }}</td>
+      <td>{{ rec.record_type }}</td>
+      <td>{{ rec.location }}</td>
+      <td>{{ rec.area_ha }}</td>
+      <td>{{ rec.primary_crop or '-' }}</td>
+      <td>
+        <a href="{{ url_for('edit', record_id=rec.id) }}">Edit</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p>No records yet — create one above!</p>
+  {% endif %}
+</body>
+</html>
+
         <footer class="footer">
             <p>© 2026 Garbusa — Empowering Local Farmers</p>
         </footer>
