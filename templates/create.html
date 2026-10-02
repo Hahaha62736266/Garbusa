@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Create Record</title>
+  <style>
+    .error { color: #d32f2f; font-size: 0.9em; margin: 0.25rem 0 0.5rem; display: block; }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-weight: 500; }
+    input, textarea { width: 100%; padding: 0.5rem; margin-top: 0.25rem; }
+    input.invalid { border: 1px solid #d32f2f; }
+  </style>
+</head>
+<body>
+  <h1>Create Farm Record</h1>
+  <p><a href="{{ url_for('index') }}">← Back</a></p>
+
+  <form method="POST">
+    <div class="form-group">
+      <label>Name *</label>
+      <input type="text" name="name" value="{{ form_data.name | default('') }}"
+             class="{{ 'invalid' if errors.name else '' }}">
+      {% if errors.name %}<span class="error">{{ errors.name }}</span>{% endif %}
+    </div>
+
+    <div class="form-group">
+      <label>Type</label>
+      <input type="text" name="record_type" value="{{ form_data.record_type | default('') }}">
+    </div>
+
+    <div class="form-group">
+      <label>Location *</label>
+      <input type="text" name="location" value="{{ form_data.location | default('') }}"
+             class="{{ 'invalid' if errors.location else '' }}">
+      {% if errors.location %}<span class="error">{{ errors.location }}</span>{% endif %}
+    </div>
+
+    <div class="form-group">
+      <label>Area (hectares) *</label>
+      <input type="text" name="area_ha" value="{{ form_data.area_ha | default('') }}"
+             class="{{ 'invalid' if errors.area_ha else '' }}">
+      {% if errors.area_ha %}<span class="error">{{ errors.area_ha }}</span>{% endif %}
+    </div>
+
+    <div class="form-group">
+      <label>Primary Crop</label>
+      <input type="text" name="primary_crop" value="{{ form_data.primary_crop | default('') }}">
+    </div>
+
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea name="notes" rows="3">{{ form_data.notes | default('') }}</textarea>
+    </div>
+
+    <button type="submit">Create Record</button>
+  </form>
+</body>
+</html>
