@@ -2,18 +2,17 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 
 # ==============================================
-# ONE Single App Initialization — NO DUPLICATES
+# ONE App — Only One Place
 # ==============================================
 app = Flask(__name__)
 app.secret_key = "dev_only_replace_in_production"
 
-# Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///aqua_flow.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # ==============================================
-# FARM RECORDS — In-Memory Store
+# Farm Records
 # ==============================================
 class FarmRecord:
     def __init__(self, rid, name, record_type, location, area_ha, primary_crop, notes):
@@ -49,7 +48,7 @@ def validate_record(data):
     return errors
 
 # ==============================================
-# AQUA FLOW — Database Model (Only ONE Definition)
+# AquaFlow Model — Only One Definition
 # ==============================================
 class AquaFlowRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -77,10 +76,9 @@ with app.app_context():
     db.create_all()
 
 # ==============================================
-# ROUTES — All Unique Paths & Function Names
+# ROUTES — All Unique, No Duplicates
 # ==============================================
 
-# Farm Records
 @app.route("/")
 def index():
     return render_template("index.html", records=records_db)
@@ -142,7 +140,7 @@ def delete(record_id):
     flash("Record deleted", "info")
     return redirect(url_for("index"))
 
-# Aqua Flow — Dashboard
+# --- DASHBOARD — ONLY ONE ---
 @app.route('/dashboard')
 def dashboard():
     records = AquaFlowRecord.query.all()
@@ -156,10 +154,10 @@ def dashboard():
     return render_template('dashboard.html', records=records, stats=stats)
 
 @app.route('/dashboard/stats')
-def dashboard_stats():
+def dashboard_stats_page():  # ✅ Unique name — NO conflict
     return render_template('stats.html')
 
-# Aqua Flow — API (Only ONE definition)
+# --- API — Only One ---
 @app.route('/api/aqua-flow', methods=['POST'])
 def create_aqua_record():
     data = request.get_json() or {}
@@ -195,7 +193,7 @@ def create_aqua_record():
         return jsonify({"success": False, "message": "System error. Could not save record."}), 500
 
 # ==============================================
-# ONE Single Entry Point
+# ONE Run — Only At Bottom
 # ==============================================
 if __name__ == '__main__':
     app.run(debug=True)
