@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaFlow Tracking System - Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        ocean: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#030712',
+                        },
+                        cyan: {
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'flow-wave': 'flowWave 4s linear infinite',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { opacity: '1', boxShadow: '0 0 15px rgba(6, 182, 212, 0.6)' },
+                            '50%': { opacity: '0.6', boxShadow: '0 0 5px rgba(6, 182, 212, 0.2)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-panel-hover:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(6, 182, 212, 0.15);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(8, 145, 178, 0.5);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(6, 182, 212, 0.8);
+        }
+
+        /* Pulse Animations */
+        .status-dot-active {
+            box-shadow: 0 0 10px #10b981;
+        }
+        .status-dot-alert {
+            box-shadow: 0 0 10px #ef4444;
+        }
+        .status-dot-warning {
+            box-shadow: 0 0 10px #f59e0b;
+        }
+
+        /* Custom Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #06b6d4;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #0891b2;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between">
+
+    <div>
+        <!-- Emergency Alert Banner -->
+        <div id="emergency-banner" class="bg-gradient-to-r from-amber-600 via-red-600 to-amber-600 text-white px-4 py-2.5 shadow-lg flex items-center justify-between transition-all duration-300">
+            <div class="flex items-center space-x-3 max-w-7xl mx-auto w-full justify-between">
+                <div class="flex items-center space-x-2 text-sm md:text-base font-medium">
+                    <i class="fa-solid fa-triangle-exclamation animate-bounce text-yellow-200 text-lg"></i>
+                    <span><strong>CRITICAL ALERT:</strong> Main Pipeline Pressure Spike Detected - Station 04 (Sector B). High burst risk.</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="overrideEmergency()" class="bg-white/20 hover:bg-white/30 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition backdrop-blur-sm border border-white/20">
+                        Quick Valve Relief
+                    </button>
+                    <button onclick="dismissBanner()" class="text-white/80 hover:text-white text-lg px-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- App Header / Top Navigation -->
+        <header class="glass-panel sticky top-0 z-40 border-b border-cyan-500/20 px-4 md:px-8 py-4">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+                
+                <!-- Brand Title & Status -->
+                <div class="flex items-center space-x-4 w-full md:w-auto justify-between md:justify-start">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30">
+                            <i class="fa-solid fa-droplet text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                                AquaFlow <span class="text-cyan-400 font-light text-sm bg-cyan-950/60 border border-cyan-500/30 px-2 py-0.5 rounded-full">v3.2</span>
+                            </h1>
+                            <p class="text-xs text-slate-400">Real-Time Distribution & Quality Monitor</p>
+                        </div>
+                    </div>
+
+                    <!-- System Operational Indicator -->
+                    <div class="flex items-center space-x-2 bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-800">
+                        <span id="system-status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 status-dot-active"></span>
+                        <span id="system-status-text" class="text-xs font-semibold text-emerald-400">Operational</span>
+                        <span class="text-slate-600">|</span>
+                        <span class="text-[10px] text-slate-400 flex items-center gap-1">
+                            <i class="fa-solid fa-arrows-rotate animate-spin text-cyan-400"></i> Live Sync
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Right Controls: Time Selector & Global Actions -->
+                <div class="flex items-center justify-between md:justify-end w-full md:w-auto gap-3">
+                    
+                    <!-- Timeframe Filter -->
+                    <div class="bg-slate-900/90 p-1 rounded-xl border border-slate-800 flex text-xs">
+                        <button onclick="setTimeframe('live')" id="btn-live" class="px-3 py-1.5 rounded-lg font-medium transition bg-cyan-600 text-white shadow">Live</button>
+                        <button onclick="setTimeframe('24h')" id="btn-24h" class="px-3 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white">24h</button>
+                        <button onclick="setTimeframe('7d')" id="btn-7d" class="px-3 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white">7d</button>
+                        <button onclick="setTimeframe('30d')" id="btn-30d" class="px-3 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white">30d</button>
+                    </div>
+
+                    <!-- Action Quick Buttons -->
+                    <button onclick="triggerSimulationTick()" title="Force Refresh Data" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-300 hover:text-cyan-400 transition">
+                        <i class="fa-solid fa-rotate text-sm"></i>
+                    </button>
+                    <button onclick="showToast('Exporting Flow & Quality Reports (PDF)...', 'info')" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-300 hover:text-cyan-400 transition flex items-center gap-2 text-xs px-3">
+                        <i class="fa-solid fa-file-export"></i> <span class="hidden sm:inline">Export</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 md:px-8 py-6 space-y-6">
+            
+            <!-- KPI Summary Cards Grid -->
+            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- Card 1: Total Flow Rate -->
+                <div class="glass-panel glass-panel-hover p-5 rounded-2xl transition duration-300 relative overflow-hidden group">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl group-hover:bg-cyan-500/20 transition"></div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Volume Flow</span>
+                        <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+                            <i class="fa-solid fa-water-ladder text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="kpi-flow-rate" class="text-3xl font-bold tracking-tight text-white">4,280</span>
+                        <span class="text-xs text-slate-400 font-medium">L/min</span>
+                    </div>
+                    <div class="mt-3 flex items-center text-xs space-x-1.5">
+                        <span class="text-emerald-400 font-medium flex items-center gap-0.5">
+                            <i class="fa-solid fa-arrow-trend-up text-[10px]"></i> +3.4%
+                        </span>
+                        <span class="text-slate-500">vs target baseline</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: System Pressure -->
+                <div class="glass-panel glass-panel-hover p-5 rounded-2xl transition duration-300 relative overflow-hidden group">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition"></div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">System Pressure</span>
+                        <div id="kpi-pressure-icon-bg" class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                            <i class="fa-solid fa-gauge-high text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="kpi-pressure" class="text-3xl font-bold tracking-tight text-white">68.4</span>
+                        <span class="text-xs text-slate-400 font-medium">PSI</span>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between text-xs">
+                        <span id="kpi-pressure-status" class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            High Pressure Alert
+                        </span>
+                        <span class="text-slate-400">Max: 75 PSI</span>
+                    </div>
+                </div>
+
+                <!-- Card 3: Water Quality Index -->
+                <div class="glass-panel glass-panel-hover p-5 rounded-2xl transition duration-300 relative overflow-hidden group">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition"></div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Water Quality (WQI)</span>
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                            <i class="fa-solid fa-flask text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="kpi-wqi" class="text-3xl font-bold tracking-tight text-white">96.2</span>
+                        <span class="text-xs text-emerald-400 font-medium">/ 100</span>
+                    </div>
+                    <div class="mt-3 flex items-center text-xs justify-between">
+                        <span class="text-slate-400">pH: <strong class="text-slate-200" id="kpi-ph">7.3</strong></span>
+                        <span class="text-slate-400">Turbidity: <strong class="text-slate-200" id="kpi-turb">0.4 NTU</strong></span>
+                    </div>
+                </div>
+
+                <!-- Card 4: Leak Detection Risk -->
+                <div class="glass-panel glass-panel-hover p-5 rounded-2xl transition duration-300 relative overflow-hidden group">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition"></div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Active Leak Alerts</span>
+                        <div class="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                            <i class="fa-solid fa-shield-virus text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="kpi-leaks-count" class="text-3xl font-bold tracking-tight text-amber-400">2</span>
+                        <span class="text-xs text-slate-400 font-medium">Nodes Flagged</span>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between text-xs">
+                        <span class="text-slate-400">Risk Score: <strong class="text-amber-400">Moderate</strong></span>
+                        <span class="text-cyan-400 hover:underline cursor-pointer" onclick="scrollToAlerts()">Inspect Log &rarr;</span>
+                    </div>
+                </div>
+
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Main Real-Time Flow Chart (2 cols wide) -->
+                <div class="glass-panel p-5 rounded-2xl lg:col-span-2 flex flex-col justify-between">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                        <div>
+                            <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-line text-cyan-400"></i> Real-Time Discharge vs Baseline Flow
+                            </h3>
+                            <p class="text-xs text-slate-400">Continuous telemetry update every 2.5 seconds</p>
+                        </div>
+                        <div class="flex items-center space-x-4 text-xs">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block"></span>
+                                <span class="text-slate-300">Actual Discharge</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-0.5 bg-slate-500 inline-block border border-dashed border-slate-400"></span>
+                                <span class="text-slate-400">Target Line</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Chart -->
+                    <div class="relative w-full h-64 md:h-72">
+                        <canvas id="flowRateChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Water Quality Radar Chart (1 col wide) -->
+                <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between">
+                    <div class="mb-2">
+                        <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-vial-circle-check text-emerald-400"></i> Water Composition Profile
+                        </h3>
+                        <p class="text-xs text-slate-400">Safety thresholds normalization</p>
+                    </div>
+
+                    <div class="relative w-full h-60 flex items-center justify-center">
+                        <canvas id="qualityRadarChart"></canvas>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                        <div>Chlorine: <span class="text-slate-200 font-semibold">1.2 mg/L</span></div>
+                        <div>DO Index: <span class="text-slate-200 font-semibold">8.5 mg/L</span></div>
+                        <div>TDS: <span class="text-slate-200 font-semibold">140 ppm</span></div>
+                        <div>Temp: <span class="text-slate-200 font-semibold">18.4 °C</span></div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Sector Pressure Gauges & Regional Heatmap -->
+            <section class="glass-panel p-5 rounded-2xl space-y-4">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                    <div>
+                        <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-network-wired text-cyan-400"></i> Regional Sector Pressure Heatmap
+                        </h3>
+                        <p class="text-xs text-slate-400">Real-time distribution node status across main pipeline sectors</p>
+                    </div>
+                    <span class="text-xs bg-slate-900 border border-slate-800 text-slate-300 px-3 py-1 rounded-lg">
+                        Total Active Nodes: <strong class="text-cyan-400">12/12 Online</strong>
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="sector-grid">
+                    <!-- Sector Cards populated dynamically or hardcoded -->
+                    
+                    <!-- Sector A -->
+                    <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 hover:border-cyan-500/30 transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-slate-300">Sector A - Residential</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-medium">Optimal</span>
+                        </div>
+                        <div class="flex items-baseline justify-between mb-2">
+                            <span class="text-2xl font-extrabold text-white" id="sec-a-val">52.1</span>
+                            <span class="text-xs text-slate-400">PSI</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div class="bg-emerald-500 h-2 rounded-full transition-all duration-500" id="sec-a-bar" style="width: 65%;"></div>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-2">Flow: <span class="text-slate-200">1,420 L/min</span></p>
+                    </div>
+
+                    <!-- Sector B -->
+                    <div class="bg-slate-900/80 border border-amber-500/30 rounded-xl p-4 hover:border-amber-500/50 transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-slate-300">Sector B - Industrial</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-medium">Overpressure</span>
+                        </div>
+                        <div class="flex items-baseline justify-between mb-2">
+                            <span class="text-2xl font-extrabold text-amber-400" id="sec-b-val">74.8</span>
+                            <span class="text-xs text-slate-400">PSI</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div class="bg-amber-500 h-2 rounded-full transition-all duration-500" id="sec-b-bar" style="width: 92%;"></div>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-2">Flow: <span class="text-slate-200">1,890 L/min</span></p>
+                    </div>
+
+                    <!-- Sector C -->
+                    <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 hover:border-cyan-500/30 transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-slate-300">Sector C - Commercial</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-medium">Optimal</span>
+                        </div>
+                        <div class="flex items-baseline justify-between mb-2">
+                            <span class="text-2xl font-extrabold text-white" id="sec-c-val">48.3</span>
+                            <span class="text-xs text-slate-400">PSI</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div class="bg-emerald-500 h-2 rounded-full transition-all duration-500" id="sec-c-bar" style="width: 60%;"></div>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-2">Flow: <span class="text-slate-200">810 L/min</span></p>
+                    </div>
+
+                    <!-- Sector D -->
+                    <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 hover:border-cyan-500/30 transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-slate-300">Sector D - Reserve Facility</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 font-medium">Standby</span>
+                        </div>
+                        <div class="flex items-baseline justify-between mb-2">
+                            <span class="text-2xl font-extrabold text-white" id="sec-d-val">34.0</span>
+                            <span class="text-xs text-slate-400">PSI</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div class="bg-cyan-500 h-2 rounded-full transition-all duration-500" id="sec-d-bar" style="width: 42%;"></div>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-2">Flow: <span class="text-slate-200">160 L/min</span></p>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Interactive Flow Valve Regulation Panel (1 col) -->
+                <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-sliders text-cyan-400"></i> Valve Remote Control
+                            </h3>
+                            <span class="text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800 px-2 py-0.5 rounded">SCADA Connected</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4">Regulate motorized gate valves or switch actuation modes.</p>
+
+                        <!-- Valve 1 Control -->
+                        <div class="space-y-4">
+                            <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-semibold text-slate-200">Main Intake Gate Valve (V-01)</span>
+                                    <span id="valve-1-status" class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">OPEN (85%)</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <input type="range" min="0" max="100" value="85" id="valve-1-slider" oninput="updateValve(1, this.value)" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+                                    <span id="valve-1-val" class="text-xs font-mono text-cyan-400 w-8 text-right">85%</span>
+                                </div>
+                            </div>
+
+                            <!-- Valve 2 Control (Relief) -->
+                            <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-semibold text-slate-200">Sector B Relief Valve (V-04)</span>
+                                    <span id="valve-2-status" class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">PARTIAL (25%)</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <input type="range" min="0" max="100" value="25" id="valve-2-slider" oninput="updateValve(2, this.value)" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-400">
+                                    <span id="valve-2-val" class="text-xs font-mono text-amber-400 w-8 text-right">25%</span>
+                                </div>
+                            </div>
+
+                            <!-- Valve Mode Toggle -->
+                            <div class="flex items-center justify-between pt-2">
+                                <span class="text-xs text-slate-300">Automated Pressure Balancing</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="auto-valve-toggle" class="sr-only peer" checked onchange="toggleAutoValves(this.checked)">
+                                    <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="emergencyReliefTrigger()" class="mt-4 w-full bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 hover:border-red-500 text-xs py-2.5 rounded-xl font-bold transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-circle-exclamation"></i> Trigger Sector B Emergency Pressure Relief
+                    </button>
+                </div>
+
+                <!-- Live Alert Log / Telemetry Feed (2 cols) -->
+                <div id="alert-feed-section" class="glass-panel p-5 rounded-2xl lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                            <div>
+                                <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                                    <i class="fa-solid fa-bell text-amber-400"></i> Live Security & Anomaly Feed
+                                </h3>
+                                <p class="text-xs text-slate-400">Automatic event detection & sensor anomaly logging</p>
+                            </div>
+
+                            <!-- Alert Filter Tabs -->
+                            <div class="flex bg-slate-900 border border-slate-800 rounded-lg p-1 text-[11px]">
+                                <button onclick="filterAlerts('all')" id="tab-all" class="px-2.5 py-1 rounded-md text-white bg-slate-800 font-medium">All</button>
+                                <button onclick="filterAlerts('critical')" id="tab-critical" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white">Critical</button>
+                                <button onclick="filterAlerts('warning')" id="tab-warning" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white">Warnings</button>
+                            </div>
+                        </div>
+
+                        <!-- Alert Container Scroll -->
+                        <div class="space-y-2.5 max-h-64 overflow-y-auto pr-1" id="alerts-container">
+                            <!-- Alert Items rendered via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-800/80 flex justify-between items-center text-xs text-slate-400">
+                        <span>Showing real-time diagnostic logs</span>
+                        <button onclick="clearResolvedAlerts()" class="text-cyan-400 hover:underline">Clear Resolved</button>
+                    </div>
+                </div>
+
+            </section>
+
+            <section class="glass-panel p-5 rounded-2xl space-y-4">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-server text-cyan-400"></i> Active Water Station & Node Directory
+                        </h3>
+                        <p class="text-xs text-slate-400">Manage connected IoT sensors, pump stations, and valve nodes</p>
+                    </div>
+
+                    <!-- Search and Filter Bar -->
+                    <div class="flex items-center gap-3 w-full md:w-auto">
+                        <div class="relative w-full md:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-500"></i>
+                            <input type="text" id="station-search" oninput="filterStations()" placeholder="Search station or sector..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-4 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500 transition">
+                        </div>
+                        <select id="station-sector-filter" onchange="filterStations()" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-cyan-500">
+                            <option value="ALL">All Sectors</option>
+                            <option value="Sector A">Sector A</option>
+                            <option value="Sector B">Sector B</option>
+                            <option value="Sector C">Sector C</option>
+                            <option value="Sector D">Sector D</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-800">
+                            <tr>
+                                <th class="py-3 px-4">Station Code</th>
+                                <th class="py-3 px-4">Location / Sector</th>
+                                <th class="py-3 px-4">Flow Rate</th>
+                                <th class="py-3 px-4">Pressure</th>
+                                <th class="py-3 px-4">Valve Status</th>
+                                <th class="py-3 px-4">Power / Battery</th>
+                                <th class="py-3 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stations-table-body" class="divide-y divide-slate-800/60">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="max-w-7xl mx-auto px-4 md:px-8 py-6 text-center text-xs text-slate-500 border-t border-slate-800/60 mt-8">
+            <p>© 2026 AquaFlow Environmental Monitoring Systems. Real-Time Telemetry Operational.</p>
+        </footer>
+    </div>
+
+    <!-- Notification Toast Element -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none glass-panel border border-cyan-500/40 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3">
+        <i id="toast-icon" class="fa-solid fa-circle-info text-cyan-400 text-base"></i>
+        <span id="toast-msg" class="text-xs font-medium">Notification message</span>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           1. MOCK DATA & GLOBAL STATE
+           ========================================================================== */
+        const state = {
+            timeframe: 'live',
+            autoValves: true,
+            alerts: [
+                { id: 101, type: 'critical', title: 'Main Pressure Spike', location: 'Station 04 (Sector B)', time: '2 mins ago', status: 'unresolved' },
+                { id: 102, type: 'warning', title: 'Flow Rate Fluctuation', location: 'Station 02 (Sector A)', time: '14 mins ago', status: 'unresolved' },
+                { id: 103, type: 'info', title: 'Filter Maintenance Scheduled', location: 'Station 08 (Sector C)', time: '1 hour ago', status: 'resolved' },
+                { id: 104, type: 'warning', title: 'Minor Chlorine Deviation', location: 'Station 01 (Sector A)', time: '3 hours ago', status: 'resolved' }
+            ],
+            stations: [
+                { id: 'ST-01', name: 'Intake Pump Station', sector: 'Sector A', flow: 1420, pressure: 52.1, valve: 'Open (85%)', power: '98% (Solar)', status: 'normal' },
+                { id: 'ST-02', name: 'North Residential Loop', sector: 'Sector A', flow: 890, pressure: 50.4, valve: 'Open (100%)', power: '100% (Grid)', status: 'normal' },
+                { id: 'ST-04', name: 'Industrial Hub Main', sector: 'Sector B', flow: 1890, pressure: 74.8, valve: 'Partial (25%)', power: '92% (Grid)', status: 'critical' },
+                { id: 'ST-07', name: 'Commercial Plaza Node', sector: 'Sector C', flow: 810, pressure: 48.3, valve: 'Open (70%)', power: '85% (Battery)', status: 'normal' },
+                { id: 'ST-09', name: 'East Reserve Reservoir', sector: 'Sector D', flow: 160, pressure: 34.0, valve: 'Closed (0%)', power: '99% (Grid)', status: 'standby' },
+                { id: 'ST-12', name: 'West Outflow Regulator', sector: 'Sector C', flow: 640, pressure: 46.2, valve: 'Open (60%)', power: '78% (Battery)', status: 'normal' }
+            ]
+        };
+
+        // Chart References
+        let flowChart = null;
+        let radarChart = null;
+
+        /* ==========================================================================
+           2. CHART INITIALIZATION
+           ========================================================================== */
+        window.onload = function() {
+            initFlowChart();
+            initRadarChart();
+            renderAlerts();
+            renderStationsTable();
+            
+            // Start Continuous Live Data Simulation Ticks (every 2.5 seconds)
+            setInterval(triggerSimulationTick, 2500);
+        };
+
+        function initFlowChart() {
+            const ctx = document.getElementById('flowRateChart').getContext('2d');
+            
+            // Gradient fill for chart
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(6, 182, 212, 0.4)');
+            gradient.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+
+            const initialLabels = ['10:00', '10:05', '10:10', '10:15', '10:20', '10:25', '10:30', '10:35', '10:40', '10:45'];
+            const initialData = [4100, 4150, 4200, 4180, 4300, 4250, 4280, 4310, 4260, 4280];
+            const targetBaseline = Array(10).fill(4200);
+
+            flowChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: initialLabels,
+                    datasets: [
+                        {
+                            label: 'Actual Flow (L/min)',
+                            data: initialData,
+                            borderColor: '#22d3ee',
+                            borderWidth: 3,
+                            backgroundColor: gradient,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#06b6d4',
+                            pointRadius: 3,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Target Baseline',
+                            data: targetBaseline,
+                            borderColor: '#64748b',
+                            borderWidth: 1.5,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            borderColor: '#0891b2',
+                            borderWidth: 1,
+                            titleColor: '#f8fafc',
+                            bodyColor: '#22d3ee',
+                            padding: 10,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            suggestedMin: 3800,
+                            suggestedMax: 4600
+                        }
+                    }
+                }
+            });
+        }
+
+        function initRadarChart() {
+            const ctx = document.getElementById('qualityRadarChart').getContext('2d');
+            
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['pH Level', 'Dissolved O2', 'Chlorine', 'Turbidity', 'Mineral/TDS', 'Temp Index'],
+                    datasets: [{
+                        label: 'Current Reading',
+                        data: [95, 90, 88, 98, 92, 85],
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#34d399',
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(51, 65, 85, 0.4)' },
+                            grid: { color: 'rgba(51, 65, 85, 0.4)' },
+                            pointLabels: { color: '#94a3b8', font: { size: 10 } },
+                            ticks: { display: false, backdropColor: 'transparent' },
+                            suggestedMin: 50,
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        /* ==========================================================================
+           3. SIMULATION & DYNAMIC TELEMETRY TICKS
+           ========================================================================== */
+        function triggerSimulationTick() {
+            // Random micro-variations
+            const flowDelta = Math.floor(Math.random() * 41) - 20; // -20 to +20
+            const currentFlow = Math.max(3900, Math.min(4600, 4280 + flowDelta));
+            document.getElementById('kpi-flow-rate').innerText = currentFlow.toLocaleString();
+
+            // Update Chart
+            if (flowChart) {
+                const now = new Date();
+                const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0') + ':' + now.getSeconds().toString().padStart(2, '0');
+                
+                flowChart.data.labels.shift();
+                flowChart.data.labels.push(timeString);
+
+                flowChart.data.datasets[0].data.shift();
+                flowChart.data.datasets[0].data.push(currentFlow);
+
+                flowChart.update('none'); // smooth update
+            }
+
+            // Fluctuate Sector Pressures
+            const pressureSecB = (74.0 + (Math.random() * 1.8 - 0.9)).toFixed(1);
+            document.getElementById('sec-b-val').innerText = pressureSecB;
+            
+            const mainPressure = (68.0 + (Math.random() * 0.8 - 0.4)).toFixed(1);
+            document.getElementById('kpi-pressure').innerText = mainPressure;
+        }
+
+        /* ==========================================================================
+           4. INTERACTIVE CONTROLS & EVENT HANDLERS
+           ========================================================================== */
+        
+        // Timeframe selector switch
+        function setTimeframe(tf) {
+            state.timeframe = tf;
+            ['live', '24h', '7d', '30d'].forEach(t => {
+                const btn = document.getElementById(`btn-${t}`);
+                if (t === tf) {
+                    btn.className = "px-3 py-1.5 rounded-lg font-medium transition bg-cyan-600 text-white shadow";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white";
+                }
+            });
+            showToast(`Timeframe updated to ${tf.toUpperCase()}`, 'info');
+        }
+
+        // Valve Slider controls
+        function updateValve(id, value) {
+            const statusEl = document.getElementById(`valve-${id}-status`);
+            const valEl = document.getElementById(`valve-${id}-val`);
+            valEl.innerText = `${value}%`;
+
+            if (value == 0) {
+                statusEl.innerText = 'CLOSED (0%)';
+                statusEl.className = 'text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded';
+            } else if (value > 80) {
+                statusEl.innerText = `OPEN (${value}%)`;
+                statusEl.className = 'text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded';
+            } else {
+                statusEl.innerText = `PARTIAL (${value}%)`;
+                statusEl.className = 'text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded';
+            }
+
+            if (id === 2 && value > 60) {
+                // Relieving sector B pressure
+                document.getElementById('sec-b-val').innerText = '58.2';
+                document.getElementById('sec-b-bar').style.width = '68%';
+                document.getElementById('sec-b-val').className = 'text-2xl font-extrabold text-white';
+            }
+        }
+
+        function toggleAutoValves(enabled) {
+            state.autoValves = enabled;
+            showToast(`Automated Balancing ${enabled ? 'Enabled' : 'Disabled'}`, enabled ? 'success' : 'warning');
+        }
+
+        function emergencyReliefTrigger() {
+            document.getElementById('valve-2-slider').value = 90;
+            updateValve(2, 90);
+            
+            // Adjust Emergency Banner State
+            const banner = document.getElementById('emergency-banner');
+            banner.className = "bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 text-white px-4 py-2.5 shadow-lg flex items-center justify-between transition-all duration-300";
+            banner.innerHTML = `
+                <div class="flex items-center space-x-3 max-w-7xl mx-auto w-full justify-between">
+                    <div class="flex items-center space-x-2 text-sm md:text-base font-medium">
+                        <i class="fa-solid fa-circle-check text-white text-lg"></i>
+                        <span><strong>PRESSURE RELIEVED:</strong> Sector B relief valve opened to 90%. Pressure stabilized.</span>
+                    </div>
+                    <button onclick="dismissBanner()" class="text-white/80 hover:text-white text-lg px-1"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `;
+            showToast("Emergency Relief Valve V-04 Engaged!", "success");
+        }
+
+        function overrideEmergency() {
+            emergencyReliefTrigger();
+        }
+
+        function dismissBanner() {
+            const banner = document.getElementById('emergency-banner');
+            banner.style.display = 'none';
+        }
+
+        /* ==========================================================================
+           5. ALERT FEED RENDER & FILTERING
+           ========================================================================== */
+        let currentAlertFilter = 'all';
+
+        function renderAlerts() {
+            const container = document.getElementById('alerts-container');
+            container.innerHTML = '';
+
+            const filtered = state.alerts.filter(a => {
+                if (currentAlertFilter === 'all') return true;
+                return a.type === currentAlertFilter;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">No alerts matching filter.</div>`;
+                return;
+            }
+
+            filtered.forEach(alert => {
+                const isCritical = alert.type === 'critical';
+                const isWarning = alert.type === 'warning';
+                
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border flex items-center justify-between gap-3 text-xs transition ${
+                    alert.status === 'resolved' 
+                        ? 'bg-slate-900/40 border-slate-800 opacity-60' 
+                        : isCritical 
+                            ? 'bg-red-500/10 border-red-500/30' 
+                            : isWarning 
+                                ? 'bg-amber-500/10 border-amber-500/30' 
+                                : 'bg-slate-900 border-slate-800'
+                }`;
+
+                const badgeColor = isCritical ? 'text-red-400 bg-red-500/20' : isWarning ? 'text-amber-400 bg-amber-500/20' : 'text-cyan-400 bg-cyan-500/20';
+                const icon = isCritical ? 'fa-triangle-exclamation' : isWarning ? 'fa-circle-exclamation' : 'fa-info-circle';
+
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${badgeColor}">
+                            <i class="fa-solid ${icon}"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-slate-200">${alert.title}</div>
+                            <div class="text-[11px] text-slate-400">${alert.location} • <span class="text-slate-500">${alert.time}</span></div>
+                        </div>
+                    </div>
+                    <div>
+                        ${alert.status === 'unresolved' 
+                            ? `<button onclick="resolveAlert(${alert.id})" class="bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 text-[11px] px-2.5 py-1 rounded-lg transition font-medium">Acknowledge</button>`
+                            : `<span class="text-[11px] text-emerald-400 flex items-center gap-1 font-medium"><i class="fa-solid fa-check"></i> Resolved</span>`
+                        }
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function filterAlerts(type) {
+            currentAlertFilter = type;
+            ['all', 'critical', 'warning'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === type) {
+                    btn.className = "px-2.5 py-1 rounded-md text-white bg-slate-800 font-medium";
+                } else {
+                    btn.className = "px-2.5 py-1 rounded-md text-slate-400 hover:text-white";
+                }
+            });
+            renderAlerts();
+        }
+
+        function resolveAlert(id) {
+            const item = state.alerts.find(a => a.id === id);
+            if (item) {
+                item.status = 'resolved';
+                renderAlerts();
+                showToast(`Alert "${item.title}" acknowledged & resolved.`, 'success');
+            }
+        }
+
+        function clearResolvedAlerts() {
+            state.alerts = state.alerts.filter(a => a.status === 'unresolved');
+            renderAlerts();
+            showToast("Resolved alerts cleared from log.", "info");
+        }
+
+        function scrollToAlerts() {
+            document.getElementById('alert-feed-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        /* ==========================================================================
+           6. STATION DIRECTORY & FILTERING
+           ========================================================================== */
+        function renderStationsTable() {
+            const tbody = document.getElementById('stations-table-body');
+            const search = document.getElementById('station-search').value.toLowerCase();
+            const sectorFilter = document.getElementById('station-sector-filter').value;
+
+            tbody.innerHTML = '';
+
+            const filtered = state.stations.filter(s => {
+                const matchesSearch = s.name.toLowerCase().includes(search) || s.id.toLowerCase().includes(search);
+                const matchesSector = sectorFilter === 'ALL' || s.sector === sectorFilter;
+                return matchesSearch && matchesSector;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-500">No water stations found.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/60 transition";
+
+                const isCrit = s.status === 'critical';
+                const statusBadge = isCrit 
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] bg-red-500/20 text-red-400 border border-red-500/30">High Pressure</span>` 
+                    : s.status === 'standby' 
+                        ? `<span class="px-2 py-0.5 rounded text-[10px] bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Standby</span>`
+                        : `<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Normal</span>`;
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono font-semibold text-cyan-400">${s.id}</td>
+                    <td class="py-3 px-4">
+                        <div class="font-medium text-slate-200">${s.name}</div>
+                        <div class="text-[10px] text-slate-500">${s.sector}</div>
+                    </td>
+                    <td class="py-3 px-4 font-mono">${s.flow} L/min</td>
+                    <td class="py-3 px-4 font-mono ${isCrit ? 'text-red-400 font-bold' : ''}">${s.pressure} PSI</td>
+                    <td class="py-3 px-4">${s.valve}</td>
+                    <td class="py-3 px-4 text-slate-400">${s.power}</td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="pingStation('${s.id}')" class="text-cyan-400 hover:text-cyan-300 bg-slate-900 border border-slate-800 hover:border-cyan-500 px-2.5 py-1 rounded text-[11px] transition">
+                            Ping Node
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterStations() {
+            renderStationsTable();
+        }
+
+        function pingStation(id) {
+            showToast(`Pinged station node [${id}] - Latency: 14ms (Optimal)`, 'success');
+        }
+
+        /* ==========================================================================
+           7. UTILITY TOAST SYSTEM
+           ========================================================================== */
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const text = document.getElementById('toast-msg');
+
+            text.innerText = msg;
+
+            if (type === 'success') {
+                icon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+            } else if (type === 'warning') {
+                icon.className = "fa-solid fa-triangle-exclamation text-amber-400 text-base";
+            } else {
+                icon.className = "fa-solid fa-circle-info text-cyan-400 text-base";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
