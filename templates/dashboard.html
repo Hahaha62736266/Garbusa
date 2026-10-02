@@ -1040,5 +1040,86 @@
             }, 3000);
         }
     </script>
+    
+// ==============================================
+// BACKEND CONNECTION — SAVE & LOAD RECORDS
+// ==============================================
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('aquaFlowForm');
+    if (!form) return;
+
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnSpinner = submitBtn.querySelector('.btn-spinner');
+    const globalMessage = document.getElementById('globalMessage');
+
+    function clearAllErrors() {
+        document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+        globalMessage.innerHTML = '';
+    }
+
+    function setLoading(isLoading) {
+        submitBtn.disabled = isLoading;
+        btnText.style.display = isLoading ? 'none' : 'inline';
+        btnSpinner.classList.toggle('hidden', !isLoading);
+    }
+
+    function showSuccess(msg) {
+        globalMessage.innerHTML = `<span class="text-emerald-400 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> ${msg}</span>`;
+    }
+
+    function showFieldErrors(errors) {
+        for (const [field, messages] of Object.entries(errors)) {
+            const el = document.getElementById(`err_${field}`);
+            if (el) el.textContent = messages.join(' ');
+        }
+    }
+
+    function showGlobalError(msg) {
+        globalMessage.innerHTML = `<span class="text-red-400 flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> ${msg}</span>`;
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearAllErrors();
+        setLoading(true);
+
+        try {
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData);
+
+            const res = await fetch('/api/aqua-flow', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await res.json();
+
+            if (res.status === 422 && result.errors) {
+                showFieldErrors(result.errors);
+                if (result.message) showGlobalError(result.message);
+                return;
+            }
+            if (!res.ok) throw new Error(result.message || `Request failed (${res.status})`);
+
+            if (result.success) {
+                showSuccess(result.message);
+                form.reset();
+                return;
+            }
+            showGlobalError(result.message || 'Could not save record.');
+
+        } catch (err) {
+            showGlobalError(
+                !navigator.onLine || err.message.includes('fetch')
+                    ? 'Network disconnected. Check your connection.'
+                    : err.message || 'Unexpected error. Please retry.'
+            );
+        } finally {
+            setLoading(false);
+        }
+    });
+});
 </body>
 </html>
