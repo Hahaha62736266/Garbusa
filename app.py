@@ -1,37 +1,27 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-import mysql.connector
-from mysql.connector import Error
+from supabase import create_client, Client
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
-app.secret_key = 'your_secure_secret_key_here'  # Replace with your own
+app.secret_key = os.getenv("SECRET_KEY", "change_this_to_secure_key")
 
-# Database configuration (XAMPP default)
-DB_CONFIG = {
-    'host': 'localhost',
-    'database': 'garbusa_db',
-    'user': 'root',
-    'password': '',  # Leave blank for XAMPP default
-}
+# Supabase Config
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-def get_db_connection():
-    try:
-        conn = mysql.connector.connect(**DB_CONFIG)
-        return conn
-    except Error as e:
-        print(f"Database connection error: {e}")
-        return None
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @app.route('/')
 def home():
-    conn = get_db_connection()
-    if conn:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM farmers")
-        farmers = cursor.fetchall()
-        cursor.close()
-        conn.close()
+    try:
+        res = supabase.table("garbusa_farmers").select("*").order("id", desc=True).execute()
+        farmers = res.data
         return render_template('index.html', farmers=farmers)
-    return "Database connection failed"
+    except Exception as e:
+        flash(f"Error loading data: {str(e)}")
+        return render_template('index.html', farmers=[])
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_farmer():
@@ -40,20 +30,26 @@ def add_farmer():
         crop = request.form['crop']
         contact = request.form['contact']
         
-        conn = get_db_connection()
-        if conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO farmers (name, crop, contact) VALUES (%s, %s, %s)",
-                (name, crop, contact)
-            )
-            conn.commit()
-            cursor.close()
-            conn.close()
+        try:
+            supabase.table("garbusa_farmers").insert({
+                "name": name,
+                "crop": crop,
+                "contact": contact
+            }).execute()
             flash("Farmer added successfully!")
             return redirect(url_for('home'))
-        flash("Connection error")
+        except Exception as e:
+            flash(f"Save failed: {str(e)}")
     return render_template('add.html')
+
+@app.route('/delete/<int:farmer_id>', methods=['POST'])
+def delete_farmer(farmer_id):
+    try:
+        supabase.table("garbusa_farmers").delete().eq("id", farmer_id).execute()
+        flash("Deleted successfully!")
+    except Exception as e:
+        flash(f"Delete failed: {str(e)}")
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True)
