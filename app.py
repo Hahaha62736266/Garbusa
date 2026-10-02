@@ -56,10 +56,28 @@ def logout():
 def home():
     try:
         res = supabase.table("garbusa_farmers").select("*").order("created_at", desc=True).execute()
-        return render_template('index.html', farmers=res.data, user=get_current_user())
+        farmers = res.data
+        
+        # Calculate dashboard stats
+        crop_set = set(f['crop'] for f in farmers if f.get('crop'))
+        crops_count = len(crop_set)
+        
+        from datetime import datetime, timedelta
+        one_month_ago = datetime.now() - timedelta(days=30)
+        recent_count = sum(
+            1 for f in farmers 
+            if f.get('created_at') and f['created_at'] > one_month_ago.isoformat()
+        )
+        
+        return render_template('index.html', 
+            farmers=farmers, 
+            user=get_current_user(),
+            crops_count=crops_count,
+            recent_count=recent_count
+        )
     except Exception as e:
-        flash(f"Error: {str(e)}")
-        return render_template('index.html', farmers=[], user=get_current_user())
+        flash(f"Error loading data: {str(e)}", "error")
+        return render_template('index.html', farmers=[], user=get_current_user(), crops_count=0, recent_count=0)
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_farmer():
