@@ -1,9 +1,15 @@
-import WRSMDashboard from './components/WRSMDashboard'
+import React from 'react';
+import WRSMSDashboard from './components/WRSMSDashboard'; // Adjust path if located elsewhere
 
-export default function Home() {
-  return <WRSMDashboard />
+function App() {
+  return (
+    <div>
+      <WRSMSDashboard />
+    </div>
+  );
 }
 
+export default App;
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 
 // --- INITIAL MOCK DATA ---
