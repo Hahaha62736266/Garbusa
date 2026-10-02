@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if action == 'edit' %}Edit{% else %}Add{% endif %} Farmer — Garbusa</title>
+    <style>
+        body{font-family:Arial,sans-serif;max-width:600px;margin:2rem auto;padding:0 1rem;}
+        form{background:#fff;padding:2rem;border-radius:8px;box-shadow:0 2px 8px #0001;}
+        label{display:block;margin-top:1rem;font-weight:bold;}
+        input,textarea{width:100%;padding:.6rem;margin-top:.3rem;border:1px solid #ddd;border-radius:4px;}
+        button{margin-top:1.5rem;padding:.7rem 1.2rem;background:#27ae60;color:#fff;border:none;border-radius:4px;cursor:pointer;}
+        .hint{color:#666;font-size:.9rem;}
+    </style>
+</head><body>
+    <h1>{% if action == 'edit' %}Edit Farmer{% else %}Register Farmer{% endif %}</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <label>Full Name</label>
+        <input type="text" name="name" required value="{{ farmer.name if farmer else '' }}">
+        
+        <label>Main Crop</label>
+        <input type="text" name="crop" required value="{{ farmer.crop if farmer else '' }}">
+        
+        <label>Contact Number</label>
+        <input type="text" name="contact" required value="{{ farmer.contact if farmer else '' }}">
+        
+        <label>Location / Address</label>
+        <input type="text" name="location" value="{{ farmer.location if farmer else '' }}">
+        
+        <label>Photo</label>
+        <input type="file" name="image" accept="image/*">
+        {% if farmer and farmer.image_url %}
+            <p class="hint">Current photo: <img src="{{ farmer.image_url }}" width="100"></p>
+        {% endif %}
+        
+        <button type="submit">{% if action == 'edit' %}Update{% else %}Save{% endif %}</button>
+    </form>
+    <p><a href="{{ url_for('home') }}">← Back</a></p>
+</body></html>
