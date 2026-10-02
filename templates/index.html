@@ -1,70 +1,315 @@
 <!DOCTYPE html>
-<html><head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Garbusa — Farmer Directory</title>
+    <title>GARBUSA — Farmer Support System</title>
     <style>
-        *{box-sizing:border-box;margin:0;padding:0;}
-        body{font-family:Arial,sans-serif;background:#f8f9fa;line-height:1.6;}
-        .nav{background:#2c3e50;color:#fff;padding:1rem;display:flex;justify-content:space-between;align-items:center;}
-        .nav a{color:#fff;text-decoration:none;margin-left:1rem;}
-        .container{max-width:1200px;margin:2rem auto;padding:0 1rem;}
-        .flash{padding:.8rem;background:#d4edda;color:#155724;margin-bottom:1rem;border-radius:4px;}
-        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;margin-top:1.5rem;}
-        .card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px #0001;}
-        .card img{width:100%;height:180px;object-fit:cover;background:#eee;}
-        .card-body{padding:1rem;}
-        .btn{display:inline-block;padding:.5rem 1rem;border-radius:4px;text-decoration:none;font-size:.9rem;}
-        .btn-green{background:#27ae60;color:#fff;}
-        .btn-blue{background:#3498db;color:#fff;}
-        .btn-red{background:#e74c3c;color:#fff;border:none;cursor:pointer;}
-        .empty{text-align:center;color:#666;padding:3rem;}
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        :root {
+            --bg-main: #0b1020;
+            --bg-card: #141b30;
+            --bg-card-soft: #1a2342;
+            --accent: #00d4ff;
+            --accent-green: #22c55e;
+            --accent-blue: #3b82f6;
+            --accent-orange: #f59e0b;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --border: #1e2a4a;
+        }
+        body { background: var(--bg-main); color: var(--text-primary); min-height: 100vh; }
+
+        /* Header */
+        .top-header {
+            background: linear-gradient(180deg, #0f172a 0%, #0b1020 100%);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .header-row {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+        }
+        .brand { display: flex; align-items: center; gap: 0.75rem; }
+        .brand-icon {
+            width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #00d4ff, #3b82f6);
+            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;
+        }
+        .brand-text h1 { font-size: 1.1rem; font-weight: 600; }
+        .brand-text p { font-size: 0.75rem; color: var(--text-secondary); }
+        .header-stats { display: flex; gap: 2rem; align-items: center; }
+        .stat-item { text-align: center; }
+        .stat-label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-weight: 700; font-size: 1rem; }
+        .btn-primary {
+            background: linear-gradient(90deg, #00d4ff, #0099cc); color: white; border: none; padding: 0.6rem 1.2rem;
+            border-radius: 6px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block;
+        }
+        .btn-primary:hover { filter: brightness(1.1); }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            padding: 0.75rem 2rem; display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border); flex-wrap: wrap;
+        }
+        .tab {
+            padding: 0.6rem 1rem; background: transparent; border: none; color: var(--text-secondary); border-radius: 6px;
+            cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;
+        }
+        .tab.active { background: var(--bg-card); color: var(--accent); border-bottom: 2px solid var(--accent); }
+        .tab:hover { background: var(--bg-card-soft); }
+        .badge { background: var(--accent); color: #000; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 10px; font-weight: bold; }
+
+        /* Main Layout */
+        .container { padding: 1.5rem 2rem; max-width: 1400px; margin: 0 auto; }
+        .flash { padding: 0.8rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; }
+        .flash.success { background: rgba(34, 197, 94, 0.1); border: 1px solid var(--accent-green); color: #86efac; }
+        .flash.error { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #fca5a5; }
+
+        /* Stats Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card {
+            background: var(--bg-card); border-radius: 10px; padding: 1.25rem; border: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: flex-start;
+        }
+        .stat-card h3 { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 500; }
+        .stat-card .number { font-size: 1.8rem; font-weight: 700; }
+        .stat-card .sub { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; }
+        .stat-icon { width: 42px; height: 42px; border-radius: 8px; background: rgba(0, 212, 255, 0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .stat-card.green .stat-icon { background: rgba(34, 197, 94, 0.1); }
+        .stat-card.orange .stat-icon { background: rgba(245, 158, 11, 0.1); }
+        .stat-card.blue .stat-icon { background: rgba(59, 130, 246, 0.1); }
+        .action-card { background: linear-gradient(135deg, #0e2a38, #143548); border-color: var(--accent); text-align: center; cursor: pointer; }
+        .action-card .plus { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 0.5rem; }
+
+        /* Content Grid */
+        .content-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; }
+        @media (max-width: 900px) { .content-grid { grid-template-columns: 1fr; } }
+        .panel { background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+        .panel-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .panel-body { padding: 1.25rem; }
+
+        /* Farmer List */
+        .farmer-item {
+            display: flex; align-items: center; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--border);
+        }
+        .farmer-item:last-child { border-bottom: none; }
+        .farmer-avatar {
+            width: 48px; height: 48px; border-radius: 8px; background: var(--bg-card-soft); overflow: hidden; flex-shrink: 0;
+        }
+        .farmer-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .farmer-info { flex: 1; }
+        .farmer-name { font-weight: 600; font-size: 0.9rem; }
+        .farmer-meta { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.1rem; }
+        .farmer-crop { color: var(--accent-green); font-weight: 500; }
+        .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.75rem; border-radius: 4px; border: none; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-edit { background: var(--accent-blue); color: white; }
+        .btn-delete { background: #ef4444; color: white; }
+
+        /* Table Stream */
+        .stream-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .stream-table th { text-align: left; padding: 0.7rem 0.5rem; color: var(--text-secondary); font-weight: 500; border-bottom: 1px solid var(--border); text-transform: uppercase; font-size: 0.7rem; }
+        .stream-table td { padding: 0.7rem 0.5rem; border-bottom: 1px solid var(--border); }
+        .stream-table tr:last-child td { border-bottom: none; }
+        .status { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+        .status.active { background: rgba(34, 197, 94, 0.1); color: #86efac; }
+        .status.pending { background: rgba(245, 158, 11, 0.1); color: #fcd34d; }
+        .status.completed { background: rgba(59, 130, 246, 0.1); color: #93c5fd; }
+        .live-indicator { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--accent-green); }
+        .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .empty { text-align: center; color: var(--text-secondary); padding: 2rem; font-size: 0.9rem; }
+        .auth-links { display: flex; gap: 0.8rem; align-items: center; }
+        .auth-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; }
+        .auth-links a:hover { color: var(--accent); }
     </style>
-</head><body>
-    <nav class="nav">
-        <h2>🌾 Garbusa Farmer Support</h2>
-        <div>
+</head>
+<body>
+
+<!-- Top Header -->
+<header class="top-header">
+    <div class="header-row">
+        <div class="brand">
+            <div class="brand-icon">🌾</div>
+            <div class="brand-text">
+                <h1>GARBUSA — Farmer Support System</h1>
+                <p>Northern Mindanao · Cagayan de Oro</p>
+            </div>
+        </div>
+        <div class="header-stats">
+            <div class="stat-item">
+                <div class="stat-label">Total Farmers</div>
+                <div class="stat-value" style="color:var(--accent)">{{ farmers|length }}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Crops Registered</div>
+                <div class="stat-value" style="color:var(--accent-green)">{{ crops_count }}</div>
+            </div>
+            <div class="auth-links">
+                {% if user %}
+                    <span style="color:var(--accent-green);font-size:0.85rem;">✓ {{ user.email }}</span>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Register</a>
+                {% endif %}
+            </div>
             {% if user %}
-                <span>Welcome!</span>
-                <a href="{{ url_for('add_farmer') }}" class="btn btn-green">+ Add Farmer</a>
-                <a href="{{ url_for('logout') }}">Logout</a>
-            {% else %}
-                <a href="{{ url_for('login') }}">Login</a>
-                <a href="{{ url_for('register') }}">Register</a>
+                <a href="{{ url_for('add_farmer') }}" class="btn-primary">+ Register Farmer</a>
             {% endif %}
         </div>
-    </nav>
-    <div class="container">
-        {% with messages = get_flashed_messages() %}{% if messages %}
-            {% for m in messages %}<p class="flash">{{ m }}</p>{% endfor %}
-        {% endif %}{% endwith %}
-        
-        {% if farmers %}
-        <div class="grid">
-            {% for f in farmers %}
-            <div class="card">
-                {% if f.image_url %}
-                    <img src="{{ f.image_url }}" alt="{{ f.name }}">
-                {% else %}
-                    <div style="height:180px;background:#eee;display:flex;align-items:center;justify-content:center;color:#888;">No photo</div>
-                {% endif %}
-                <div class="card-body">
-                    <h3>{{ f.name }}</h3>
-                    <p><strong>Crop:</strong> {{ f.crop }}</p>
-                    <p><strong>Contact:</strong> {{ f.contact }}</p>
-                    {% if f.location %}<p><strong>Location:</strong> {{ f.location }}</p>{% endif %}
-                    {% if user and user.id == f.user_id %}
-                        <a href="{{ url_for('edit_farmer', farmer_id=f.id) }}" class="btn btn-blue">Edit</a>
-                        <form action="{{ url_for('delete_farmer', farmer_id=f.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this record?');">
-                            <button type="submit" class="btn btn-red">Delete</button>
-                        </form>
-                    {% endif %}
-                </div>
-            </div>
+    </div>
+</header>
+
+<!-- Navigation Tabs -->
+<nav class="nav-tabs">
+    <button class="tab active">📋 Farmer Directory</button>
+    <button class="tab">📊 Overview</button>
+    <button class="tab">📍 Locations</button>
+    <button class="tab">📈 Reports</button>
+</nav>
+
+<!-- Main Content -->
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for cat, msg in messages %}
+                <div class="flash {{ cat }}">{{ msg }}</div>
             {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div>
+                <h3>Registered Farmers</h3>
+                <div class="number">{{ farmers|length }}</div>
+                <div class="sub">Active records</div>
+            </div>
+            <div class="stat-icon">👨‍🌾</div>
         </div>
+        <div class="stat-card green">
+            <div>
+                <h3>Crop Types</h3>
+                <div class="number">{{ crops_count }}</div>
+                <div class="sub">Unique varieties</div>
+            </div>
+            <div class="stat-icon">🌿</div>
+        </div>
+        <div class="stat-card orange">
+            <div>
+                <h3>This Month</h3>
+                <div class="number">{{ recent_count }}</div>
+                <div class="sub">New registrations</div>
+            </div>
+            <div class="stat-icon">📅</div>
+        </div>
+        {% if user %}
+        <a href="{{ url_for('add_farmer') }}" class="stat-card action-card" style="text-decoration:none;color:inherit;">
+            <div>
+                <div class="plus">+</div>
+                <h3>Register New Farmer</h3>
+                <div class="sub">Add to directory</div>
+            </div>
+        </a>
         {% else %}
-        <p class="empty">No farmers registered yet. {% if user %}<a href="{{ url_for('add_farmer') }}">Add the first one!</a>{% else %}<a href="{{ url_for('login') }}">Log in to add records.</a>{% endif %}</p>
+        <div class="stat-card action-card" style="opacity:0.8;">
+            <div>
+                <div class="plus">🔒</div>
+                <h3>Login to Add</h3>
+                <div class="sub">Sign in required</div>
+            </div>
+        </div>
         {% endif %}
     </div>
-</body></html>
+
+    <!-- Two-Column Content -->
+    <div class="content-grid">
+        <!-- Farmer Directory Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>Farmer Directory</span>
+                <span style="font-size:0.75rem;color:var(--text-secondary);">{{ farmers|length }} entries</span>
+            </div>
+            <div class="panel-body" style="max-height: 500px; overflow-y: auto;">
+                {% if farmers %}
+                    {% for f in farmers %}
+                    <div class="farmer-item">
+                        <div class="farmer-avatar">
+                            {% if f.image_url %}
+                                <img src="{{ f.image_url }}" alt="{{ f.name }}">
+                            {% else %}
+                                <span style="font-size:24px;display:flex;align-items:center;justify-content:center;height:100%;">👤</span>
+                            {% endif %}
+                        </div>
+                        <div class="farmer-info">
+                            <div class="farmer-name">{{ f.name }}</div>
+                            <div class="farmer-meta">
+                                <span class="farmer-crop">{{ f.crop }}</span> · {{ f.contact }}
+                                {% if f.location %}<br>📍 {{ f.location }}{% endif %}
+                            </div>
+                        </div>
+                        {% if user and user.id == f.user_id %}
+                        <div style="display:flex;gap:0.3rem;">
+                            <a href="{{ url_for('edit_farmer', farmer_id=f.id) }}" class="btn-sm btn-edit">Edit</a>
+                            <form action="{{ url_for('delete_farmer', farmer_id=f.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this record?');">
+                                <button class="btn-sm btn-delete" type="submit">Delete</button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty">
+                        No farmers registered yet.<br>
+                        {% if user %}<a href="{{ url_for('add_farmer') }}" style="color:var(--accent);">Be the first to register →</a>
+                        {% else %}<a href="{{ url_for('login') }}" style="color:var(--accent);">Login to add records →</a>{% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Live Feed Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>Live Registration Stream</span>
+                <div class="live-indicator"><span class="live-dot"></span> Live Feed</div>
+            </div>
+            <div class="panel-body">
+                <table class="stream-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Farmer</th>
+                            <th>Primary Crop</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in farmers[:8] %}
+                        <tr>
+                            <td style="color:var(--text-secondary);font-family:monospace;">#{{ f.id }}</td>
+                            <td style="font-weight:500;">{{ f.name }}</td>
+                            <td>{{ f.crop }}</td>
+                            <td><span class="status active">Registered</span></td>
+                            <td>
+                                <a href="{{ url_for('edit_farmer', farmer_id=f.id) }}" style="color:var(--accent);text-decoration:none;">View</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align:center;color:var(--text-secondary);padding:1.5rem;">
+                                Waiting for first registration...
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
