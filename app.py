@@ -170,10 +170,15 @@ def home():
 # ------------------------------
 # Dashboard Page
 # ------------------------------
+# First route
 @app.route('/dashboard')
 def dashboard():
-    # Get all records from DB (newest first)
-    records = AquaFlowRecord.query.order_by(AquaFlowRecord.recorded_at.desc()).all()
+    return render_template('dashboard.html')
+
+# Second route — change function name
+@app.route('/dashboard/stats')
+def dashboard_stats():  # ✅ Unique name
+    return render_template('stats.html')
     
     # Statistics
     total = len(records)
