@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — Garbusa</title>
+    <style>
+        body{font-family:Arial,sans-serif;max-width:400px;margin:3rem auto;padding:0 1rem;}
+        form{background:#fff;padding:2rem;border-radius:8px;box-shadow:0 2px 8px #0001;}
+        label{display:block;margin-top:1rem;font-weight:bold;}
+        input{width:100%;padding:.6rem;margin-top:.3rem;border:1px solid #ddd;border-radius:4px;}
+        button{margin-top:1.5rem;padding:.7rem 1.2rem;background:#2980b9;color:#fff;border:none;border-radius:4px;width:100%;cursor:pointer;}
+        .flash{padding:.8rem;background:#d1e7dd;color:#0f5132;margin-bottom:1rem;border-radius:4px;}
+    </style>
+</head><body>
+    <h1>Create Account</h1>
+    {% with messages = get_flashed_messages() %}{% if messages %}
+        {% for m in messages %}<p class="flash">{{ m }}</p>{% endfor %}
+    {% endif %}{% endwith %}
+    <form method="POST">
+        <label>Email</label><input type="email" name="email" required>
+        <label>Password</label><input type="password" name="password" required>
+        <button type="submit">Register</button>
+    </form>
+    <p>Already registered? <a href="{{ url_for('login') }}">Login</a></p>
+</body></html>
