@@ -27,9 +27,6 @@ class FarmRecord:
 records_db = []
 record_counter = 1
 
-@app.route('/dashboard')
-def dashboard():
-    return render_template('dashboard.html')
 
 def validate_record(data):
     errors = {}
