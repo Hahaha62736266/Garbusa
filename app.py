@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key")
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY") or os.getenv("SUPABASE_PUBLISHABLE_KEY") or os.getenv("SUPABASE_SECRET_KEY")
 
 # Initialize Supabase client (will be None if keys are not set)
 supabase: Client = None
@@ -243,6 +243,37 @@ def dashboard():
 
 
 # ==================================================
+# AUTHENTICATION & USERS
+# ==================================================
+SYSTEM_USERS = {
+    "admin@aquaflow.com": {"name": "System Admin", "role": "admin", "password": "admin123"},
+    "delivery@aquaflow.com": {"name": "Delivery Team", "role": "delivery", "password": "staff123"},
+    "customer@aquaflow.com": {"name": "Juan Dela Cruz", "role": "customer", "customer_id": "C001", "password": "user123"}
+}
+
+
+@app.route("/api/login", methods=["POST"])
+def api_login():
+    data = request.get_json() or {}
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "").strip()
+
+    user = SYSTEM_USERS.get(email)
+    if user and user["password"] == password:
+        return jsonify({
+            "status": 200,
+            "message": "Login successful",
+            "user": {
+                "email": email,
+                "name": user["name"],
+                "role": user["role"],
+                "customer_id": user.get("customer_id")
+            }
+        })
+    return jsonify({"status": 401, "error": "Invalid email or password"}), 401
+
+
+# ==================================================
 # HEALTH CHECK
 # ==================================================
 @app.route("/api/health", methods=["GET"])
@@ -253,6 +284,7 @@ def health():
         "supabase_connected": supabase is not None,
         "version": "1.0.0"
     })
+
 
 
 # ==================================================
