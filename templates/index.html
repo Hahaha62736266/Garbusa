@@ -171,9 +171,12 @@
                     <button onclick="showToast('Exporting Flow & Quality Reports (PDF)...', 'info')" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-300 hover:text-cyan-400 transition flex items-center gap-2 text-xs px-3">
                         <i class="fa-solid fa-file-export"></i> <span class="hidden sm:inline">Export</span>
                     </button>
-                    <a href="/login" class="p-2 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/30 text-cyan-300 rounded-xl transition flex items-center gap-2 text-xs px-3 font-semibold">
-                        <i class="fa-solid fa-user-gear"></i> <span id="nav-user-label">Login / Switch Role</span>
-                    </a>
+                    <span class="p-2 bg-cyan-600/20 border border-cyan-500/30 text-cyan-300 rounded-xl flex items-center gap-2 text-xs px-3 font-semibold">
+                        <i class="fa-solid fa-user-gear"></i> <span id="nav-user-label">Signed in</span>
+                    </span>
+                    <button id="logout-btn" onclick="logout()" title="Sign out" class="p-2 bg-slate-900 hover:bg-red-500/10 border border-slate-800 hover:border-red-500/40 rounded-xl text-slate-300 hover:text-red-400 transition flex items-center gap-2 text-xs px-3">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Logout</span>
+                    </button>
                 </div>
             </div>
         </header>
@@ -987,14 +990,25 @@
             const statusText = document.getElementById('system-status-text');
             const userLabel = document.getElementById('nav-user-label');
 
-            // Render current logged in user role in header
-            const savedUser = localStorage.getItem('aqua_user');
-            if (savedUser && userLabel) {
-                try {
-                    const u = JSON.parse(savedUser);
-                    const roleBadge = u.role === 'admin' ? '👑 Admin' : u.role === 'delivery' ? '🚚 Delivery' : '👤 Customer';
-                    userLabel.innerText = `${roleBadge}: ${u.name.split(' ')[0]}`;
-                } catch(e) {}
+            // Render current logged in user role in header (server session is the source of truth)
+            try {
+                const meRes = await fetch('/api/me');
+                if (meRes.status === 401) {
+                    localStorage.removeItem('aqua_user');
+                    window.location.href = '/login';
+                    return;
+                }
+                const me = await meRes.json();
+                if (me.user) {
+                    localStorage.setItem('aqua_user', JSON.stringify(me.user));
+                    if (userLabel) {
+                        const u = me.user;
+                        const roleBadge = u.role === 'admin' ? '👑 Admin' : u.role === 'delivery' ? '🚚 Delivery' : '👤 Customer';
+                        userLabel.innerText = `${roleBadge}: ${u.name.split(' ')[0]}`;
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not load session user:', e);
             }
 
             try {
@@ -1010,6 +1024,16 @@
                 if (statusDot) statusDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500 status-dot-warning';
                 if (statusText) statusText.innerText = 'Static Mode';
             }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+            } catch (e) {
+                console.warn('Logout request failed:', e);
+            }
+            localStorage.removeItem('aqua_user');
+            window.location.href = '/login';
         }
 
         document.addEventListener('DOMContentLoaded', checkBackendHealth);

@@ -52,7 +52,7 @@
         <!-- Role Type Selector -->
         <div class="space-y-2 relative z-10">
             <label class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">Select Account Role</label>
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-2 gap-2">
                 <button type="button" id="role-customer-btn" onclick="selectRole('customer')" class="p-2.5 rounded-xl border border-cyan-500 bg-cyan-600/20 text-cyan-300 font-bold transition text-left flex flex-col items-center justify-center gap-1">
                     <i class="fa-solid fa-user text-sm"></i>
                     <span class="text-[11px]">Customer</span>
@@ -62,12 +62,8 @@
                     <i class="fa-solid fa-truck-ramp-box text-sm"></i>
                     <span class="text-[11px]">Collector</span>
                 </button>
-
-                <button type="button" id="role-admin-btn" onclick="selectRole('admin')" class="p-2.5 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 font-medium hover:text-white transition text-left flex flex-col items-center justify-center gap-1">
-                    <i class="fa-solid fa-crown text-sm"></i>
-                    <span class="text-[11px]">Admin</span>
-                </button>
             </div>
+            <p class="text-[10px] text-slate-500">Admin accounts are created by the system administrator.</p>
         </div>
 
         <!-- Registration Form -->
@@ -100,8 +96,8 @@
             </div>
 
             <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
-                <input type="password" id="password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition">
+                <label class="block text-xs font-medium text-slate-300 mb-1">Password <span class="text-slate-500">(min. 8 characters)</span></label>
+                <input type="password" id="password" required minlength="8" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition">
             </div>
 
             <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs py-3 rounded-xl font-bold transition shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2">
@@ -118,7 +114,7 @@
     <script>
         function selectRole(role) {
             document.getElementById('selectedRole').value = role;
-            ['customer', 'delivery', 'admin'].forEach(r => {
+            ['customer', 'delivery'].forEach(r => {
                 const btn = document.getElementById(`role-${r}-btn`);
                 if (r === role) {
                     btn.className = "p-2.5 rounded-xl border border-cyan-500 bg-cyan-600/20 text-cyan-300 font-bold transition text-left flex flex-col items-center justify-center gap-1";

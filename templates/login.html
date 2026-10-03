@@ -46,29 +46,24 @@
                 <i class="fa-solid fa-droplet text-2xl"></i>
             </div>
             <h1 class="text-2xl font-bold tracking-tight text-white">AquaFlow Tracking System</h1>
-            <p class="text-xs text-slate-400">Select your role or sign in with account credentials</p>
+            <p class="text-xs text-slate-400">Sign in with your account credentials</p>
         </div>
 
-        <!-- Role Quick-Fill Preset Buttons -->
+        {% if demo_accounts %}
+        <!-- Role Quick-Fill Preset Buttons (only shown when DEMO_MODE=true) -->
         <div class="space-y-2 relative z-10">
             <label class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">Quick Demo Role Login</label>
             <div class="grid grid-cols-3 gap-2">
-                <button type="button" onclick="fillCredentials('admin@aquaflow.com', 'admin123', 'admin')" class="p-2.5 rounded-xl border border-slate-800 hover:border-cyan-500/50 bg-slate-900/90 hover:bg-slate-800 transition text-left flex flex-col items-center justify-center gap-1">
-                    <i class="fa-solid fa-crown text-amber-400 text-sm"></i>
-                    <span class="text-[11px] font-bold text-slate-200">Admin</span>
+                {% set icons = {'admin': 'fa-crown text-amber-400', 'delivery': 'fa-truck-ramp-box text-cyan-400', 'customer': 'fa-user text-emerald-400'} %}
+                {% for demo in demo_accounts %}
+                <button type="button" id="preset-{{ demo.role }}-btn" data-email="{{ demo.email }}" data-password="{{ demo.password }}" onclick="fillCredentials(this.dataset.email, this.dataset.password)" class="p-2.5 rounded-xl border border-slate-800 hover:border-cyan-500/50 bg-slate-900/90 hover:bg-slate-800 transition text-left flex flex-col items-center justify-center gap-1">
+                    <i class="fa-solid {{ icons[demo.role] }} text-sm"></i>
+                    <span class="text-[11px] font-bold text-slate-200">{{ demo.label }}</span>
                 </button>
-
-                <button type="button" onclick="fillCredentials('delivery@aquaflow.com', 'staff123', 'delivery')" class="p-2.5 rounded-xl border border-slate-800 hover:border-cyan-500/50 bg-slate-900/90 hover:bg-slate-800 transition text-left flex flex-col items-center justify-center gap-1">
-                    <i class="fa-solid fa-truck-ramp-box text-cyan-400 text-sm"></i>
-                    <span class="text-[11px] font-bold text-slate-200">Collector</span>
-                </button>
-
-                <button type="button" onclick="fillCredentials('customer@aquaflow.com', 'user123', 'customer')" class="p-2.5 rounded-xl border border-slate-800 hover:border-cyan-500/50 bg-slate-900/90 hover:bg-slate-800 transition text-left flex flex-col items-center justify-center gap-1">
-                    <i class="fa-solid fa-user text-emerald-400 text-sm"></i>
-                    <span class="text-[11px] font-bold text-slate-200">Customer</span>
-                </button>
+                {% endfor %}
             </div>
         </div>
+        {% endif %}
 
         <!-- Login Form -->
         <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4 relative z-10">
@@ -96,13 +91,17 @@
             </button>
         </form>
 
+        <div class="text-center text-xs text-slate-400 relative z-10">
+            Don't have an account? <a href="/register" id="register-link" class="text-cyan-400 font-semibold hover:underline">Create one here</a>
+        </div>
+
         <div class="text-center pt-2 text-[11px] text-slate-500 border-t border-slate-800/80">
             © 2026 AquaFlow Environmental Systems | Security Level: TLS 1.3 Encrypted
         </div>
     </div>
 
     <script>
-        function fillCredentials(email, password, role) {
+        function fillCredentials(email, password) {
             document.getElementById('email').value = email;
             document.getElementById('password').value = password;
             document.getElementById('errorBox').classList.add('hidden');
