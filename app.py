@@ -247,6 +247,10 @@ def login_page():
     return render_template("login.html")
 
 
+@app.route("/register")
+def register_page():
+    return render_template("register.html")
+
 
 # ==================================================
 # AUTHENTICATION & USERS
@@ -277,6 +281,55 @@ def api_login():
             }
         })
     return jsonify({"status": 401, "error": "Invalid email or password"}), 401
+
+
+@app.route("/api/register", methods=["POST"])
+def api_register():
+    data = request.get_json() or {}
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "").strip()
+    full_name = data.get("full_name", "").strip()
+    role = data.get("role", "customer").strip().lower()
+    contact_number = data.get("contact_number", "").strip()
+    address = data.get("address", "").strip()
+
+    if not email or not password or not full_name:
+        return jsonify({"status": 422, "error": "Name, email, and password are required"}), 422
+
+    if email in SYSTEM_USERS:
+        return jsonify({"status": 409, "error": "Account with this email already exists"}), 409
+
+    customer_id = None
+    if role == "customer":
+        customer_id = get_next_id("customers", "C")
+        cust_record = {
+            "customer_id": customer_id,
+            "full_name": full_name,
+            "contact_number": contact_number,
+            "address": address,
+            "container_owned": 0,
+            "registration_date": str(datetime.date.today())
+        }
+        insert_record("customers", cust_record)
+
+    SYSTEM_USERS[email] = {
+        "name": full_name,
+        "role": role,
+        "password": password,
+        "customer_id": customer_id
+    }
+
+    return jsonify({
+        "status": 201,
+        "message": f"Account registered successfully as {role.upper()}",
+        "user": {
+            "email": email,
+            "name": full_name,
+            "role": role,
+            "customer_id": customer_id
+        }
+    }), 201
+
 
 
 # ==================================================
