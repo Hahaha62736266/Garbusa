@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 
 // --- INITIAL MOCK DATA ---
 const INITIAL_CUSTOMERS = [
