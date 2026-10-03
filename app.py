@@ -104,26 +104,42 @@ ID_FIELDS = {
 }
 
 
+# Track tables that do not exist in Supabase yet to suppress repeated log spam
+MISSING_TABLES = set()
+
+
+def _check_table_missing(table, err):
+    err_str = str(err)
+    if "PGRST205" in err_str or "Could not find the table" in err_str:
+        if table not in MISSING_TABLES:
+            MISSING_TABLES.add(table)
+            print(f"[!] Supabase table '{table}' unavailable (PGRST205) — using in-memory store. Run schema.sql in Supabase SQL Editor.")
+        return True
+    return False
+
+
 def fetch_all(table):
     """Get all records from a Supabase table (or mock store if disconnected)"""
-    if supabase:
+    if supabase and table not in MISSING_TABLES:
         try:
             res = supabase.table(table).select("*").execute()
             return res.data or []
         except Exception as e:
-            print(f"Error loading {table}: {e}")
+            if not _check_table_missing(table, e):
+                print(f"Error loading {table}: {e}")
             return MOCK_DB.get(table, [])
     return MOCK_DB.get(table, [])
 
 
 def insert_record(table, data):
     """Add a new record to a Supabase table (or mock store if disconnected)"""
-    if supabase:
+    if supabase and table not in MISSING_TABLES:
         try:
             supabase.table(table).insert(data).execute()
             return True
         except Exception as e:
-            print(f"Error saving to {table}: {e}")
+            if not _check_table_missing(table, e):
+                print(f"Error saving to {table}: {e}")
             return False
     MOCK_DB.setdefault(table, []).append(data)
     return True
@@ -227,23 +243,25 @@ def error(status, message):
 # ==================================================
 def find_user(email):
     """Look up a login account by email."""
-    if supabase:
+    if supabase and "users" not in MISSING_TABLES:
         try:
             res = supabase.table("users").select("*").eq("email", email).limit(1).execute()
             return res.data[0] if res.data else None
         except Exception as e:
-            print(f"[!] users table unavailable ({e}) — using in-memory accounts. Run schema.sql in Supabase.")
+            if not _check_table_missing("users", e):
+                print(f"[!] users table unavailable ({e}) — using in-memory accounts. Run schema.sql in Supabase.")
     return next((u for u in MOCK_DB["users"] if u["email"] == email), None)
 
 
 def save_user(record):
     """Store a login account (falls back to memory if the users table is missing)."""
-    if supabase:
+    if supabase and "users" not in MISSING_TABLES:
         try:
             supabase.table("users").insert(record).execute()
             return True
         except Exception as e:
-            print(f"[!] Could not save user to Supabase ({e}) — storing in memory.")
+            if not _check_table_missing("users", e):
+                print(f"[!] Could not save user to Supabase ({e}) — storing in memory.")
     MOCK_DB["users"].append(record)
     return True
 
@@ -431,7 +449,7 @@ def get_orders():
 
 
 @app.route("/api/orders", methods=["POST"])
-@roles_required("admin", "customer", "delivery")
+@roles_required("admin", "customer")
 def add_order():
     data = get_json_body()
     user = current_user()
