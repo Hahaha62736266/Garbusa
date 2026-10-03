@@ -1,151 +1,122 @@
-﻿import { useEffect, useState } from "react";
-import { aquaApi } from "./api/aquaApi";
+import { useState } from 'react'
+import heroImg from './assets/hero.png'
+import reactLogo from './assets/react.svg'
+import viteLogo from './assets/vite.svg'
+import './App.css'
 
 function App() {
-  const [connected, setConnected] = useState(false);
-  const [stations, setStations] = useState([]);
-  const [records, setRecords] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  const [form, setForm] = useState({
-    station_id: "",
-    volume_liters: "",
-    customer_name: "",
-    amount_paid: "",
-    payment_method: "cash"
-  });
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
-    try {
-      await aquaApi.getHealth().then(() => setConnected(true));
-      const [stationsData, recordsData] = await Promise.all([
-        aquaApi.getStations(),
-        aquaApi.getRecords()
-      ]);
-      setStations(stationsData);
-      setRecords(recordsData);
-    } catch (err) {
-      console.error("Load failed:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    try {
-      await aquaApi.addRecord({
-        ...form,
-        volume_liters: parseFloat(form.volume_liters),
-        amount_paid: parseFloat(form.amount_paid)
-      });
-      setForm({ station_id: "", volume_liters: "", customer_name: "", amount_paid: "", payment_method: "cash" });
-      await loadData();
-    } catch (err) {
-      alert("Failed to add record!");
-    }
-  }
-
-  async function handleDelete(id) {
-    if (!confirm("Delete this record?")) return;
-    await aquaApi.deleteRecord(id);
-    await loadData();
-  }
-
-  if (loading) return <div className="loading">Loading AquaFlow...</div>;
+  const [count, setCount] = useState(0)
 
   return (
-    <div className="app">
-      <header>
-        <h1>💧 AquaFlow — Water Refilling Management</h1>
-        <span className={`status ${connected ? "ok" : "err"}`}>
-          {connected ? "● Connected" : "○ Disconnected"}
-        </span>
-      </header>
+    <>
+      <section id="center">
+        <div className="hero">
+          <img src={heroImg} className="base" width="170" height="179" alt="" />
+          <img src={reactLogo} className="framework" alt="React logo" />
+          <img src={viteLogo} className="vite" alt="Vite logo" />
+        </div>
+        <div>
+          <h1>Get started</h1>
+          <p>
+            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+          </p>
+        </div>
+        <button
+          type="button"
+          className="counter"
+          onClick={() => setCount((count) => count + 1)}
+        >
+          Count is {count}
+        </button>
+      </section>
 
-      <main>
-        <section className="form-card">
-          <h2>New Refill Record</h2>
-          <form onSubmit={handleSubmit}>
-            <select
-              value={form.station_id}
-              onChange={(e) => setForm({...form, station_id: e.target.value})}
-              required
-            >
-              <option value="">Select Station</option>
-              {stations.map(s => (
-                <option key={s.id} value={s.id}>{s.name} — {s.location}</option>
-              ))}
-            </select>
+      <div className="ticks"></div>
 
-            <input
-              type="number" step="0.1" placeholder="Volume (Liters)"
-              value={form.volume_liters}
-              onChange={(e) => setForm({...form, volume_liters: e.target.value})}
-              required
-            />
-            <input
-              type="text" placeholder="Customer Name"
-              value={form.customer_name}
-              onChange={(e) => setForm({...form, customer_name: e.target.value})}
-            />
-            <input
-              type="number" step="0.01" placeholder="Amount Paid (₱)"
-              value={form.amount_paid}
-              onChange={(e) => setForm({...form, amount_paid: e.target.value})}
-              required
-            />
-            <select
-              value={form.payment_method}
-              onChange={(e) => setForm({...form, payment_method: e.target.value})}
-            >
-              <option value="cash">Cash</option>
-              <option value="gcash">GCash</option>
-              <option value="transfer">Bank Transfer</option>
-            </select>
+      <section id="next-steps">
+        <div id="docs">
+          <svg className="icon" role="presentation" aria-hidden="true">
+            <use href="/icons.svg#documentation-icon"></use>
+          </svg>
+          <h2>Documentation</h2>
+          <p>Your questions, answered</p>
+          <ul>
+            <li>
+              <a href="https://vite.dev/" target="_blank">
+                <img className="logo" src={viteLogo} alt="" />
+                Explore Vite
+              </a>
+            </li>
+            <li>
+              <a href="https://react.dev/" target="_blank">
+                <img className="button-icon" src={reactLogo} alt="" />
+                Learn more
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div id="social">
+          <svg className="icon" role="presentation" aria-hidden="true">
+            <use href="/icons.svg#social-icon"></use>
+          </svg>
+          <h2>Connect with us</h2>
+          <p>Join the Vite community</p>
+          <ul>
+            <li>
+              <a href="https://github.com/vitejs/vite" target="_blank">
+                <svg
+                  className="button-icon"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#github-icon"></use>
+                </svg>
+                GitHub
+              </a>
+            </li>
+            <li>
+              <a href="https://chat.vite.dev/" target="_blank">
+                <svg
+                  className="button-icon"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#discord-icon"></use>
+                </svg>
+                Discord
+              </a>
+            </li>
+            <li>
+              <a href="https://x.com/vite_js" target="_blank">
+                <svg
+                  className="button-icon"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#x-icon"></use>
+                </svg>
+                X.com
+              </a>
+            </li>
+            <li>
+              <a href="https://bsky.app/profile/vite.dev" target="_blank">
+                <svg
+                  className="button-icon"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#bluesky-icon"></use>
+                </svg>
+                Bluesky
+              </a>
+            </li>
+          </ul>
+        </div>
+      </section>
 
-            <button type="submit">Add Record</button>
-          </form>
-        </section>
-
-        <section className="records-card">
-          <h2>Refilling Records ({records.length})</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Station</th>
-                <th>Volume (L)</th>
-                <th>Customer</th>
-                <th>Amount</th>
-                <th>Method</th>
-                <th>Date/Time</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {records.map(r => (
-                <tr key={r.id}>
-                  <td>{r.station_name}</td>
-                  <td>{r.volume_liters}</td>
-                  <td>{r.customer_name || "—"}</td>
-                  <td>₱{r.amount_paid}</td>
-                  <td>{r.payment_method}</td>
-                  <td>{new Date(r.recorded_at).toLocaleString()}</td>
-                  <td>
-                    <button className="del-btn" onClick={() => handleDelete(r.id)}>Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      </main>
-    </div>
-  );
+      <div className="ticks"></div>
+      <section id="spacer"></section>
+    </>
+  )
 }
 
-export default App;
+export default App
