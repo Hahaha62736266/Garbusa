@@ -146,6 +146,24 @@ def update_order_status(order_id, new_status):
     return None
 
 
+def delete_record(table, record_id):
+    """Delete a record by ID."""
+    id_field = ID_FIELDS[table]
+    if supabase:
+        try:
+            res = supabase.table(table).delete().eq(id_field, record_id).execute()
+            return True if res.data else None
+        except Exception as e:
+            print(f"Error deleting from {table}: {e}")
+            return False
+    records = MOCK_DB.get(table, [])
+    for i, rec in enumerate(records):
+        if rec.get(id_field) == record_id:
+            del records[i]
+            return True
+    return None
+
+
 def get_next_id(table, prefix):
     """Generate the next sequential ID like C001, O002.
     Uses the HIGHEST existing number + 1, so deleting records never causes duplicates."""
@@ -413,7 +431,7 @@ def get_orders():
 
 
 @app.route("/api/orders", methods=["POST"])
-@roles_required("admin", "customer")
+@roles_required("admin", "customer", "delivery")
 def add_order():
     data = get_json_body()
     user = current_user()
@@ -469,6 +487,17 @@ def patch_order_status(order_id):
     return error(500, "Failed to update order")
 
 
+@app.route("/api/orders/<order_id>", methods=["DELETE"])
+@roles_required("admin")
+def delete_order(order_id):
+    result = delete_record("orders", order_id)
+    if result is None:
+        return error(404, f"Order {order_id} not found")
+    if result:
+        return jsonify({"status": 200, "message": f"Order {order_id} deleted"})
+    return error(500, "Failed to delete order")
+
+
 # ==================================================
 # ROUTES — COLLECTIONS
 # ==================================================
@@ -522,6 +551,13 @@ def dashboard():
     if not current_user():
         return redirect(url_for("login_page"))
     return render_template("index.html")
+
+
+@app.route("/orders")
+def orders_page():
+    if not current_user():
+        return redirect(url_for("login_page"))
+    return render_template("orders.html")
 
 
 @app.route("/login")
