@@ -1,25 +1,26 @@
-from app import app  # matches filename where app = Flask(...) is
-
-if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False, port=5000)
-
+# ==================================================
+# AQUAFLOW TRACKER — Water Refilling Station Management
+# ==================================================
 import streamlit as st
 import pandas as pd
 import datetime
 from supabase import create_client, Client
 import os
-import uuid
 from dotenv import load_dotenv
 
+# ==================================================
+# LOAD ENV & INITIALIZE
+# ==================================================
 load_dotenv()
-app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY")
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-supabase = init_supabase()
+if not SUPABASE_URL or not SUPABASE_KEY:
+    st.error("⚠️ Supabase credentials missing — check your .env file")
+    st.stop()
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # ==================================================
 # PAGE CONFIG
@@ -31,24 +32,20 @@ st.set_page_config(
 )
 
 # ==================================================
-# PROJECT IDENTITY
+# HEADER
 # ==================================================
 st.title("💧 Aquaflow Tracker")
 st.subheader("Water Refilling Station Management System")
-
 st.markdown("""
 A lightweight web application designed to **digitalize daily operations** for local water refilling stations.
-
 ### ✅ What We Track
 - 🧑‍🤝‍🧑 **Customer Records** – profiles, contact details, and container balances
 - 📋 **Orders & Deliveries** – order queue, status tracking, and payment logs
 - 🫙 **Gallon Inventory** – real-time stock and loaned-out container counts
 - 💰 **Daily Sales & Collections** – revenue, returns, and container exchange records
-
 ### ❌ Not What It Is
 This system is **not** a water flow sensor or hydrology monitoring tool — it manages the *business and inventory* side of water refilling operations.
 """)
-
 st.divider()
 
 # ==================================================
@@ -301,9 +298,3 @@ with tab4:
 # ==================================================
 st.divider()
 st.caption("💧 Aquaflow Tracker — Water Refilling Station Management System | Permanent Storage: Supabase")
-
-# Import the app instance — adjust the module name to match your project
-from Garbusa import app  # or from app import app
-
-if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False, port=5000)
