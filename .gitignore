@@ -1,3 +1,27 @@
+# Python
 __pycache__/
 *.pyc
 app_backup.py
+.pytest_cache/
+
+# Virtual environments
+.venv/
+.venv*/
+venv/
+
+# Secrets — never commit real keys (use .env.example as the template)
+.env
+.env.*
+!.env.example
+
+# Node / frontend builds
+node_modules/
+dist/
+
+# Local course material
+*.pdf
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
