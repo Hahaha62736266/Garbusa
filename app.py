@@ -23,53 +23,66 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 # Initialize Supabase client (will be None if keys are not set)
 supabase: Client = None
-if SUPABASE_URL and SUPABASE_KEY and "your-project" not in SUPABASE_URL:
+is_placeholder = any(p in (SUPABASE_URL or "").lower() for p in ["your-project", "your-anon", "your-service-role"])
+if SUPABASE_URL and SUPABASE_KEY and not is_placeholder:
     try:
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        print("✅ Supabase connected successfully.")
+        print("[+] Supabase connected successfully.")
     except Exception as e:
-        print(f"⚠️  Supabase connection failed: {e}")
+        print(f"[!] Supabase connection failed: {e}")
 else:
-    print("⚠️  Supabase not configured. Set SUPABASE_URL and SUPABASE_KEY in .env")
+    print("[!] Supabase not configured. Set real SUPABASE_URL and SUPABASE_KEY in .env")
 
 
-# ==================================================
-# DATABASE HELPER FUNCTIONS
-# ==================================================
+
+# In-memory storage fallback when Supabase is not connected
+MOCK_DB = {
+    "customers": [],
+    "products": [],
+    "orders": [],
+    "collections": []
+}
+
+
 def fetch_all(table):
-    """Get all records from a Supabase table"""
-    if not supabase:
-        return []
-    try:
-        res = supabase.table(table).select("*").execute()
-        return res.data or []
-    except Exception as e:
-        print(f"Error loading {table}: {e}")
-        return []
+    """Get all records from a Supabase table (or mock store if disconnected)"""
+    if supabase:
+        try:
+            res = supabase.table(table).select("*").execute()
+            return res.data or []
+        except Exception as e:
+            print(f"Error loading {table}: {e}")
+            return MOCK_DB.get(table, [])
+    return MOCK_DB.get(table, [])
 
 
 def insert_record(table, data):
-    """Add a new record to a Supabase table"""
-    if not supabase:
-        return False
-    try:
-        supabase.table(table).insert(data).execute()
-        return True
-    except Exception as e:
-        print(f"Error saving to {table}: {e}")
-        return False
+    """Add a new record to a Supabase table (or mock store if disconnected)"""
+    if supabase:
+        try:
+            supabase.table(table).insert(data).execute()
+            return True
+        except Exception as e:
+            print(f"Error saving to {table}: {e}")
+            return False
+    MOCK_DB.setdefault(table, []).append(data)
+    return True
 
 
 def update_order_status(order_id, new_status):
     """Update delivery status of an order"""
-    if not supabase:
-        return False
-    try:
-        supabase.table("orders").update({"status": new_status}).eq("order_id", order_id).execute()
-        return True
-    except Exception as e:
-        print(f"Error updating order: {e}")
-        return False
+    if supabase:
+        try:
+            supabase.table("orders").update({"status": new_status}).eq("order_id", order_id).execute()
+            return True
+        except Exception as e:
+            print(f"Error updating order: {e}")
+            return False
+    for order in MOCK_DB.get("orders", []):
+        if order.get("order_id") == order_id:
+            order["status"] = new_status
+            return True
+    return False
 
 
 def get_next_id(table, prefix):
@@ -77,6 +90,7 @@ def get_next_id(table, prefix):
     records = fetch_all(table)
     count = len(records) + 1
     return f"{prefix}{count:03d}"
+
 
 
 # ==================================================

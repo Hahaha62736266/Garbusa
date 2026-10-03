@@ -975,6 +975,29 @@
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 3000);
         }
+
+        /* ==========================================================================
+           8. BACKEND API INTEGRATION CHECK
+           ========================================================================== */
+        async function checkBackendHealth() {
+            const statusDot = document.getElementById('system-status-dot');
+            const statusText = document.getElementById('system-status-text');
+            try {
+                const res = await fetch('/api/health');
+                const data = await res.json();
+                if (data.status === 200) {
+                    if (statusDot) statusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 status-dot-active';
+                    if (statusText) statusText.innerText = data.supabase_connected ? 'API + Supabase Connected' : 'API Online (Local Store)';
+                    console.log('Backend API Health:', data);
+                }
+            } catch (err) {
+                console.warn('Backend API Offline:', err);
+                if (statusDot) statusDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500 status-dot-warning';
+                if (statusText) statusText.innerText = 'Static Mode';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', checkBackendHealth);
     </script>
 </body>
 </html>
