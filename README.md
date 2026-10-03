@@ -1,6 +1,7 @@
-# Garbusa
-# Aquaflow Tracker - Water Refilling Station Management System
-A lightweight, CRUD-shaped web application designed to digitalize daily sales, deliveries, and container balances for local water refilling stations.
+# Garbusa — Aquaflow Tracker
+### Water Refilling Station Management System
+
+A lightweight web application designed to digitalize daily sales, deliveries, and container balances for local water refilling stations.
 
 ---
 
@@ -18,234 +19,124 @@ A lightweight, CRUD-shaped web application designed to digitalize daily sales, d
 
 Local water refilling stations heavily rely on manual paper logbooks or loose whiteboards to track custom deliveries, walk-in orders, and customer-borrowed slim/round gallons. This manual approach leads to missing delivery windows, unaccounted-for container inventory, and inaccurate calculations of outstanding customer balances. 
 
-**Aquaflow Tracker** provides a lightweight management portal that digitalizes daily order queues, logs customer purchase profiles, and keeps a real-time count of containers currently out on loan, ensuring smoother logistics and zero lost inventory over a 12-week development scope.
+**Aquaflow Tracker** provides a management portal that digitalizes daily order queues, logs customer purchase profiles, and keeps a real-time count of containers currently out on loan, ensuring smoother logistics and zero lost inventory.
 
 ---
 
-## 🗄️ Core CRUD Entities & Record Types
+## 🏗️ Architecture & Project Structure
 
-The application manages data workflows across three tightly related record types:
+The project is built on **Flask** with **Supabase (PostgreSQL)** for database storage (with automatic fallback to an in-memory database when Supabase is disconnected).
 
-1.  **Customer Records (CRUD)**
-    *   *Fields:* Customer ID, Name, Delivery Address, Contact Number, Outstanding Gallon Balance.
-2.  **Order Logs (CRUD)**
-    *   *Fields:* Order ID, Customer ID (Foreign Key), Order Date, Delivery Status (`Pending` / `Delivered`), Total Price, Payment Status.
-3.  **Gallon Inventory Tracker (CRUD)**
-    *   *Fields:* Container ID, Type (`Slim 5-Gallon` / `Round 5-Gallon`), Physical Stock Available, Total Containers Loaned Out.
+```text
+Garbusa/
+├── app.py                  # Main Flask application (Routes, Auth, DB access)
+├── schema.sql              # Supabase database schema & RLS security policies
+├── Procfile                # Production deployment configuration (Gunicorn)
+├── requirements.txt        # Python dependencies
+├── .env.example            # Template for required environment variables
+├── test_pipeline.py        # Task 3 lab test pipeline script (Arrange / Act / Assert)
+├── controllers/            # Controller layer functions
+├── middleware/             # Validation and authorization middleware
+├── templates/              # HTML Frontend Templates (Jinja2)
+│   ├── index.html          # Operational Dashboard UI
+│   ├── login.html          # User Login page
+│   └── register.html       # Customer / Collector Registration page
+├── tests/                  # Automated Pytest suite
+│   ├── conftest.py         # Test configuration & fixtures
+│   ├── test_api.py         # Full API integration & auth test suite
+│   └── test_validation_pipeline.py  # Pytest pipeline cases
+├── .github/workflows/
+│   └── tests.yml           # GitHub Actions automated test workflow
+└── archive/                # Archived legacy frontends & experimental routes
+```
 
 ---
 
-## 🛠️ Tech Stack & Setup (To Be Updated in Week 3)
+## 🗄️ Core Data Entities
 
-> 💡 *Note: This project scaffolding is configured for a Python/Streamlit ecosystem (or your team's chosen alternative).*
+1. **Users (`users`)**
+   - Fields: `id`, `email`, `password_hash`, `full_name`, `role` (`admin` | `delivery` | `customer`), `customer_id` (FK).
+2. **Customers (`customers`)**
+   - Fields: `customer_id` (PK), `full_name`, `contact_number`, `address`, `container_owned`, `registration_date`.
+3. **Products (`products`)**
+   - Fields: `product_id` (PK), `product_name`, `price_per_unit`, `description`, `stock_available`.
+4. **Orders (`orders`)**
+   - Fields: `order_id` (PK), `customer_id` (FK), `product_id` (FK), `quantity`, `total_amount`, `order_date`, `status` (`Pending` | `Delivered`).
+5. **Collections (`collections`)**
+   - Fields: `collection_id` (PK), `customer_id` (FK), `order_id` (FK), `empty_jugs_returned`, `filled_jugs_released`, `container_balance`, `collection_date`, `collected_by`.
+
+---
+
+## 🔐 Authentication & Roles
+
+* **Sessions**: Signed HTTP-only session cookies managed by Flask.
+* **Passwords**: Password hashing using `werkzeug.security`.
+* **Role Permissions**:
+  - `Admin`: Full access to all endpoints and records. Creates products and customers.
+  - `Collector / Delivery`: Manages orders, updates delivery status (`Pending` -> `Delivered`), records gallon collections.
+  - `Customer`: Views own records and places orders for own account.
+  - **Self-registration**: Users can register as `Customer` or `Collector`. Admin accounts cannot be self-registered (created on startup via environment variables or by system admin).
+
+---
+
+## 🛠️ Local Development & Setup
 
 ### Prerequisites
-*   Python 3.10+
-*   Git
+* Python 3.10+
+* Git
 
-### Local Installation
+### Installation & Execution
 1. Clone the repository:
    ```bash
-   git clone <your-repository-url>
-   cd <repository-folder-name>
+   git clone <repository-url>
+   cd Garbusa
+   ```
 
-   # Customer Records
+2. Copy the environment template and set your configuration:
+   ```bash
+   cp .env.example .env
+   ```
+   *Fill in `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, and a random `SECRET_KEY`.*
 
-# Customers
-- customer_id (PK, unique)
-- full_name
-- contact_number
-- address
-- container_owned (empty 5gal jugs)
-- registration_date
+3. Set up database tables in your Supabase project:
+   - Run the contents of `schema.sql` in the **Supabase SQL Editor**.
 
-## Sample Records
-| customer_id | full_name       | contact      | address                  | container_owned | registration_date |
-|---|---|---|---|---|---|
-| C001        | Maria Santos    | 0917-123-4567 | Brgy. 25, CdeO           | 2               | 2026-01-10 |
-| C002        | Juan Dela Cruz  | 0918-987-6543 | Brgy. Lapasan, CdeO      | 3               | 2026-02-15 |
+4. Install Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# Products
-- product_id (PK, unique)
-- product_name
-- price_per_unit (PHP)
-- description
-- stock_available
+5. Run the application:
+   ```bash
+   python app.py
+   ```
+   *The server starts at `http://127.0.0.1:5000`.*
 
-## Sample Records
-| product_id | product_name       | price | description          | stock_available |
-|---|---|---|---|---|
-| P001       | 5-Gal Purified     | 35.00 | Refill only          | 120 |
-| P002       | 5-Gal Distilled    | 45.00 | Best for drinking    | 85 |
-| P003       | New 5-Gal Jug      | 180.00 | Empty plastic jug   | 40 |
+---
 
-# Orders
-- order_id (PK, unique)
-- customer_id (FK → Customers)
-- product_id (FK → Products)
-- quantity
-- total_amount
-- order_date
-- status
+## 🧪 Automated Testing
 
-## Sample Records
-| order_id | customer_id | product_id | quantity | total | order_date | status |
-|---|---|---|---|---|---|---|
-| O001     | C001        | P002       | 2        | 90.00 | 2026-07-03 | Delivered |
-| O002     | C002        | P001       | 3        | 105.00 | 2026-07-03 | Pending |
+Run the full automated test suite using `pytest`:
 
-
-# Collections
-- collection_id (PK, unique)
-- customer_id (FK → Customers)
-- order_id (FK → Orders, optional)
-- empty_jugs_returned
-- filled_jugs_released
-- container_balance
-- collection_date
-- collected_by
-
-## Sample Records
-| collection_id | customer_id | order_id | empty_jugs_returned | filled_jugs_released | container_balance | collection_date | collected_by |
-|---------------|-------------|----------|---------------------|----------------------|-------------------|-----------------|--------------|
-| CL001         | C001        | O001     | 2                   | 2                    | 2                 | 2026-07-03      | Staff A      |
-| CL002         | C002        | O002     | 3                   | 0                    | 3                 | 2026-07-03      | Staff B      
-import streamlit as st
-import pandas as pd
-import datetime
-
-# Mock database
-if "decision_logs_db" not in st.session_state:
-    st.session_state.decision_logs_db = []
-
-st.title("💧 Aquaflow Tracker - Decision Log Documentation")
-
-with st.form("add_decision_form", clear_on_submit=True):
-    st.subheader("New Decision Log")
-
-    decision_title = st.text_input("Decision Title")
-    description = st.text_area("Decision Description")
-    decided_by = st.text_input("Decided By")
-
-    submitted = st.form_submit_button("Save Decision")
-
-    if submitted:
-        new_decision_id = f"D{len(st.session_state.decision_logs_db)+1:03d}"
-
-        decision_payload = {
-            "decision_id": new_decision_id,
-            "title": decision_title,
-            "description": description,
-            "decided_by": decided_by,
-            "decision_date": str(datetime.date.today())
-        }
-
-        st.session_state.decision_logs_db.append(decision_payload)
-
-        st.success(f"Decision {new_decision_id} saved successfully!")
-
-st.write("### Decision Log Records")
-
-if st.session_state.decision_logs_db:
-    st.dataframe(pd.DataFrame(st.session_state.decision_logs_db))
-else:
-    st.info("No decision logs recorded yet.")
-
-import streamlit as st
-import pandas as pd
-import datetime
-
-# Mock database
-if "retrospective_db" not in st.session_state:
-    st.session_state.retrospective_db = []
-
-st.title("💧 Aquaflow Tracker - Sprint Retrospective Notes")
-
-with st.form("add_retrospective_form", clear_on_submit=True):
-    st.subheader("Sprint Retrospective")
-
-    sprint_name = st.text_input("Sprint Name")
-    went_well = st.text_area("What Went Well?")
-    needs_improvement = st.text_area("Needs Improvement")
-    action_items = st.text_area("Action Items")
-
-    submitted = st.form_submit_button("Save Notes")
-
-    if submitted:
-        new_note_id = f"SR{len(st.session_state.retrospective_db)+1:03d}"
-
-        retrospective_payload = {
-            "note_id": new_note_id,
-            "sprint": sprint_name,
-            "went_well": went_well,
-            "needs_improvement": needs_improvement,
-            "action_items": action_items,
-            "date": str(datetime.date.today())
-        }
-
-        st.session_state.retrospective_db.append(retrospective_payload)
-
-        st.success(f"Sprint retrospective {new_note_id} saved successfully!")
-
-st.write("### Sprint Retrospective Records")
-
-if st.session_state.retrospective_db:
-    st.dataframe(pd.DataFrame(st.session_state.retrospective_db))
-else:
-    st.info("No sprint retrospective notes recorded yet.")
-    
-# Mock database connections
-if "orders_db" not in st.session_state:
-    st.session_state.orders_db = []
-
-st.title("💧 Aquaflow Tracker - Create Order")
-
-with st.form("add_order_form", clear_on_submit=True):
-    st.subheader("New Order Information")
-    
-    # Form Input Controls
-    customer_id = st.selectbox("Select Customer ID", ["C001 (Maria Santos)", "C002 (Juan Dela Cruz)"])
-    product_id = st.selectbox("Select Product", ["P001 - 5-Gal Purified (₱35)", "P002 - 5-Gal Distilled (₱45)", "P003 - New 5-Gal Jug (₱180)"])
-    quantity = st.number_input("Quantity", min_value=1, value=1, step=1)
-    
-    # Simple pricing calculator matrix
-    price_map = {"P001": 35.00, "P002": 45.00, "P003": 180.00}
-    selected_prod_code = product_id.split(" ")[0]
-    total_amount = price_map[selected_prod_code] * quantity
-    
-    st.info(f"Estimated Total: ₱{total_amount:.2f}")
-    
-    # Form submission action
-    submitted = st.form_submit_button("Log Order")
-    if submitted:
-        new_order_id = f"O{len(st.session_state.orders_db) + 1:03d}"
-        order_payload = {
-            "order_id": new_order_id,
-            "customer_id": customer_id.split(" ")[0],
-            "product_id": selected_prod_code,
-            "quantity": quantity,
-            "total": total_amount,
-            "order_date": str(datetime.date.today()),
-            "status": "Pending"
-        }
-        st.session_state.orders_db.append(order_payload)
-        st.success(f"Order {new_order_id} added successfully to the active queue!")
-
-# Display current workflow orders queue
-st.write("### Active Orders Log View")
-if st.session_state.orders_db:
-    st.dataframe(pd.DataFrame(st.session_state.orders_db))
-else:
-    st.info("No orders captured today yet.")
-
-
-    ## 🧪 Run Test Suite
-
-### Setup (once)
-```bash
-pip install pytest
-
-## 🧪 Run Test Suite
 ```bash
 python -m pytest tests/ -v
+```
 
+Run the Task 3 lab pipeline test runner:
+
+```bash
+python test_pipeline.py
+```
+
+All tests run completely offline against an in-memory isolated database instance.
+
+---
+
+## 🚀 Deployment
+
+The app is configured for deployment on platforms like Render, Heroku, or Fly.io using Gunicorn.
+
+- Start command (via `Procfile`):
+  ```bash
+  web: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --preload
+  ```
