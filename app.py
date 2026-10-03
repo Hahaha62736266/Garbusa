@@ -298,3 +298,66 @@ with tab4:
 # ==================================================
 st.divider()
 st.caption("💧 Aquaflow Tracker — Water Refilling Station Management System | Permanent Storage: Supabase")
+
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)  # Allow React ↔ Flask communication
+
+# Temporary in-memory storage — replace with DB later
+customers = [
+    {"id": "CUST-001", "name": "Maria Santos", "phone": "0917-123-4567", 
+     "address": "Poblacion Zone 3, Maramag", "borrowedSlim": 4, "borrowedRound": 2,
+     "totalOrders": 38, "balance": 0},
+    # ... add others
+]
+orders = []
+expenses = []
+
+# --- API Routes ---
+@app.route("/api/orders", methods=["GET"])
+def list_orders():
+    return jsonify(orders)
+
+@app.route("/api/orders", methods=["POST"])
+def create_order():
+    data = request.json
+    orders.insert(0, data)
+    return jsonify(data), 201
+
+@app.route("/api/orders/<order_id>/status", methods=["POST"])
+def update_status(order_id):
+    for o in orders:
+        if o["id"] == order_id:
+            o["status"] = request.json["status"]
+            return jsonify(o)
+    return jsonify({"error": "Not found"}), 404
+
+@app.route("/api/customers", methods=["GET"])
+def list_customers():
+    return jsonify(customers)
+
+@app.route("/api/expenses", methods=["GET"])
+def list_expenses():
+    return jsonify(expenses)
+
+@app.route("/api/expenses", methods=["POST"])
+def add_expense():
+    data = request.json
+    expenses.insert(0, data)
+    return jsonify(data), 201
+
+@app.route("/api/station", methods=["GET"])
+def station_status():
+    return jsonify({
+        "purified_tank_liters": 3800,
+        "tds": 12,
+        "ph": 7.4,
+        "turbidity": 0.2,
+        "raw_meter": 14520,
+        "purified_meter": 11840
+    })
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
