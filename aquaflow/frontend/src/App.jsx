@@ -2,12 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 
 // --- INITIAL MOCK DATA ---
-const INITIAL_CUSTOMERS = [
-  { id: 'CUST-001', name: 'Maria Santos', phone: '0917-123-4567', address: 'Poblacion Zone 3, Maramag', borrowedSlim: 4, borrowedRound: 2, totalOrders: 38, balance: 0 },
-  { id: 'CUST-002', name: 'Barangay Health Center', phone: '0928-888-9911', address: 'Main St, Maramag', borrowedSlim: 12, borrowedRound: 0, totalOrders: 112, balance: 350 },
-  { id: 'CUST-003', name: 'Juan Dela Cruz', phone: '0905-555-2233', address: 'Subdivision Phase 2, Maramag', borrowedSlim: 2, borrowedRound: 1, totalOrders: 14, balance: 0 },
-  { id: 'CUST-004', name: 'Garbusa Eatery', phone: '0919-777-3344', address: 'Public Market Site, Maramag', borrowedSlim: 8, borrowedRound: 5, totalOrders: 85, balance: 120 },
-];
+const [orders, setOrders] = useState(INITIAL_ORDERS);
 
 const INITIAL_ORDERS = [
   {
