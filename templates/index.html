@@ -171,6 +171,9 @@
                     <button onclick="showToast('Exporting Flow & Quality Reports (PDF)...', 'info')" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-300 hover:text-cyan-400 transition flex items-center gap-2 text-xs px-3">
                         <i class="fa-solid fa-file-export"></i> <span class="hidden sm:inline">Export</span>
                     </button>
+                    <a href="/login" class="p-2 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/30 text-cyan-300 rounded-xl transition flex items-center gap-2 text-xs px-3 font-semibold">
+                        <i class="fa-solid fa-user-gear"></i> <span id="nav-user-label">Login / Switch Role</span>
+                    </a>
                 </div>
             </div>
         </header>
@@ -982,6 +985,18 @@
         async function checkBackendHealth() {
             const statusDot = document.getElementById('system-status-dot');
             const statusText = document.getElementById('system-status-text');
+            const userLabel = document.getElementById('nav-user-label');
+
+            // Render current logged in user role in header
+            const savedUser = localStorage.getItem('aqua_user');
+            if (savedUser && userLabel) {
+                try {
+                    const u = JSON.parse(savedUser);
+                    const roleBadge = u.role === 'admin' ? '👑 Admin' : u.role === 'delivery' ? '🚚 Delivery' : '👤 Customer';
+                    userLabel.innerText = `${roleBadge}: ${u.name.split(' ')[0]}`;
+                } catch(e) {}
+            }
+
             try {
                 const res = await fetch('/api/health');
                 const data = await res.json();
