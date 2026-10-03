@@ -23,13 +23,32 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #030712; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #030712;
+            /* Premium subtle mesh/glow background */
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.06), transparent 30%), 
+                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.06), transparent 30%),
+                radial-gradient(circle at 50% 100%, rgba(15, 23, 42, 1), transparent 50%);
+        }
+        /* Fix Chrome Autofill white box issue */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+            caret-color: white;
+        }
         .glass-card {
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(56, 189, 248, 0.2);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
+        .animate-slow-pulse { animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4">
@@ -37,33 +56,33 @@
     <div class="w-full max-w-lg glass-card rounded-2xl p-8 space-y-6 relative overflow-hidden my-8">
         
         <!-- Glow Effect -->
-        <div class="absolute -right-10 -top-10 w-36 h-36 bg-cyan-500/20 rounded-full blur-2xl"></div>
-        <div class="absolute -left-10 -bottom-10 w-36 h-36 bg-blue-500/20 rounded-full blur-2xl"></div>
+        <div class="absolute -right-10 -top-10 w-36 h-36 bg-cyan-500/20 rounded-full blur-2xl animate-slow-pulse"></div>
+        <div class="absolute -left-10 -bottom-10 w-36 h-36 bg-blue-500/20 rounded-full blur-2xl animate-slow-pulse" style="animation-delay: 2s;"></div>
 
         <!-- Header Branding -->
         <div class="text-center space-y-2 relative z-10">
             <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30">
                 <i class="fa-solid fa-user-plus text-2xl"></i>
             </div>
-            <h1 class="text-2xl font-bold tracking-tight text-white">Create AquaFlow Account</h1>
+            <h1 class="text-xl font-semibold tracking-tight text-white mt-1">Create AquaFlow Account</h1>
             <p class="text-xs text-slate-400">Select role type to register a Customer or Collector account</p>
         </div>
 
-        <!-- Role Type Selector -->
+        <!-- Role Type Selector (Segmented Control) -->
         <div class="space-y-2 relative z-10">
-            <label class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">Select Account Role</label>
-            <div class="grid grid-cols-2 gap-2">
-                <button type="button" id="role-customer-btn" onclick="selectRole('customer')" class="p-2.5 rounded-xl border border-cyan-500 bg-cyan-600/20 text-cyan-300 font-bold transition text-left flex flex-col items-center justify-center gap-1">
-                    <i class="fa-solid fa-user text-sm"></i>
-                    <span class="text-[11px]">Customer</span>
+            <label class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block text-center">Select Account Role</label>
+            <div class="relative flex p-1 bg-slate-900/80 rounded-xl border border-slate-800">
+                <!-- Highlight Pill -->
+                <div id="role-highlight" class="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-cyan-600 rounded-lg transition-transform duration-300 ease-out z-0"></div>
+                
+                <button type="button" id="role-customer-btn" onclick="selectRole('customer')" class="relative flex-1 py-2 text-xs font-bold text-white transition z-10 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-user"></i> Customer
                 </button>
-
-                <button type="button" id="role-delivery-btn" onclick="selectRole('delivery')" class="p-2.5 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 font-medium hover:text-white transition text-left flex flex-col items-center justify-center gap-1">
-                    <i class="fa-solid fa-truck-ramp-box text-sm"></i>
-                    <span class="text-[11px]">Collector</span>
+                <button type="button" id="role-delivery-btn" onclick="selectRole('delivery')" class="relative flex-1 py-2 text-xs font-medium text-slate-400 hover:text-white transition z-10 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-truck-ramp-box"></i> Collector
                 </button>
             </div>
-            <p class="text-[10px] text-slate-500">Admin accounts are created by the system administrator.</p>
+            <p class="text-[10px] text-slate-500 text-center">Admin accounts are created by the system administrator.</p>
         </div>
 
         <!-- Registration Form -->
@@ -76,31 +95,39 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Full Name</label>
-                    <input type="text" id="full_name" required placeholder="e.g. Maria Santos" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition">
+                    <input type="text" id="full_name" required placeholder="e.g. Maria Santos" class="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Email Address</label>
-                    <input type="email" id="email" required placeholder="maria@example.com" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition">
+                    <input type="email" id="email" required placeholder="maria@example.com" class="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Contact Number</label>
-                    <input type="text" id="contact_number" placeholder="09171234567" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition">
+                    <input type="text" id="contact_number" placeholder="09171234567" class="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Address / Station</label>
-                    <input type="text" id="address" placeholder="Block 5 Lot 12, Subd." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition">
+                    <input type="text" id="address" placeholder="Block 5 Lot 12, Subd." class="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition">
                 </div>
             </div>
 
             <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Password <span class="text-slate-500">(min. 8 characters)</span></label>
-                <input type="password" id="password" required minlength="8" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition">
+                <label class="block text-xs font-medium text-slate-300 mb-1 flex justify-between items-center">
+                    <span>Password <span class="text-slate-500">(min. 8 characters)</span></span>
+                    <span id="pwd-strength" class="text-[10px] text-red-400 opacity-0 transition-opacity">Too short</span>
+                </label>
+                <div class="relative">
+                    <input type="password" id="password" required minlength="8" oninput="checkPassword()" placeholder="••••••••" class="w-full bg-slate-900/80 border border-slate-800 rounded-xl pl-4 pr-10 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition">
+                    <button type="button" onclick="togglePassword('password', 'eye-icon-reg')" class="absolute right-3 top-2.5 text-slate-500 hover:text-cyan-400 transition p-1">
+                        <i id="eye-icon-reg" class="fa-solid fa-eye text-xs"></i>
+                    </button>
+                </div>
             </div>
 
-            <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs py-3 rounded-xl font-bold transition shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2">
+            <button type="submit" id="submitBtn" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700/80 hover:border-cyan-500/50 text-white text-xs py-3 rounded-xl font-semibold transition-all shadow-lg shadow-black/20 flex items-center justify-center gap-2 active:scale-[0.98]">
                 <span>Create Account</span>
                 <i class="fa-solid fa-user-check text-xs"></i>
             </button>
@@ -114,14 +141,54 @@
     <script>
         function selectRole(role) {
             document.getElementById('selectedRole').value = role;
-            ['customer', 'delivery'].forEach(r => {
-                const btn = document.getElementById(`role-${r}-btn`);
-                if (r === role) {
-                    btn.className = "p-2.5 rounded-xl border border-cyan-500 bg-cyan-600/20 text-cyan-300 font-bold transition text-left flex flex-col items-center justify-center gap-1";
+            const highlight = document.getElementById('role-highlight');
+            const custBtn = document.getElementById('role-customer-btn');
+            const delBtn = document.getElementById('role-delivery-btn');
+
+            if (role === 'customer') {
+                highlight.style.transform = 'translateX(0)';
+                custBtn.classList.replace('text-slate-400', 'text-white');
+                custBtn.classList.replace('font-medium', 'font-bold');
+                delBtn.classList.replace('text-white', 'text-slate-400');
+                delBtn.classList.replace('font-bold', 'font-medium');
+            } else {
+                highlight.style.transform = 'translateX(100%)';
+                delBtn.classList.replace('text-slate-400', 'text-white');
+                delBtn.classList.replace('font-medium', 'font-bold');
+                custBtn.classList.replace('text-white', 'text-slate-400');
+                custBtn.classList.replace('font-bold', 'font-medium');
+            }
+        }
+
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function checkPassword() {
+            const pwd = document.getElementById('password').value;
+            const indicator = document.getElementById('pwd-strength');
+            if (pwd.length > 0) {
+                indicator.classList.remove('opacity-0');
+                if (pwd.length >= 8) {
+                    indicator.textContent = 'Good';
+                    indicator.className = 'text-[10px] text-emerald-400 transition-opacity';
                 } else {
-                    btn.className = "p-2.5 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 font-medium hover:text-white transition text-left flex flex-col items-center justify-center gap-1";
+                    indicator.textContent = 'Too short';
+                    indicator.className = 'text-[10px] text-red-400 transition-opacity';
                 }
-            });
+            } else {
+                indicator.classList.add('opacity-0');
+            }
         }
 
         async function handleRegister(e) {
