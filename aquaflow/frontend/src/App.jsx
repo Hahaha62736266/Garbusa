@@ -321,16 +321,19 @@ export default function App() {
 
       {/* --- MODAL DIALOGS --- */}
 
-      {/* 1. NEW ORDER / POS MODAL */}
-      {showNewOrderModal && (
-        <NewOrderModal 
-          isDark={isDark}
-          cardBg={cardBg}
-          subText={subText}
-          customers={customers}
-          onClose={() => setShowNewOrderModal(false)}
-          onSubmitOrder={(newOrder) => {
-            setOrders([newOrder, ...orders]);
+     const handleSubmit = async (e) => {
+  e.preventDefault();
+  // ... build newOrder as before
+  
+  try {
+    const saved = await api.createOrder(newOrder);
+    setOrders([saved, ...orders]);
+  } catch {
+    setOrders([newOrder, ...orders]); // Fallback
+  }
+  
+  onClose();
+};
             // Deduct tank water (~19 Liters per 5-gallon container)
             const totalContainers = newOrder.items.reduce((s, i) => s + (i.name.includes('5-Gal') ? i.qty : 0), 0);
             setPurifiedTankLiters(prev => Math.max(0, prev - totalContainers * 19));
