@@ -1,3 +1,6 @@
+// ==========================================
+// AquaFlow API Client — Connects React → Flask
+// ==========================================
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000/api';
 
 // Helper: GET
@@ -22,22 +25,21 @@ export const api = {
   // Customers
   getCustomers: () => fetchData('/customers'),
   updateCustomer: (id, data) => postData(`/customers/${id}`, data),
-  
+  recordReturn: (custId, slimReturned, roundReturned) =>
+    postData(`/customers/${custId}/return`, { slim_returned: slimReturned, round_returned: roundReturned }),
+
   // Orders
   getOrders: () => fetchData('/orders'),
   createOrder: (order) => postData('/orders', order),
   updateOrderStatus: (id, status) => postData(`/orders/${id}/status`, { status }),
-  updatePaymentStatus: (id, status) => postData(`/orders/${id}/payment`, { status }),
-  
-  // Inventory & Station
+  updatePaymentStatus: (id, paymentStatus) => postData(`/orders/${id}/payment`, { payment_status: paymentStatus }),
+
+  // Station & Monitor
   getStationStatus: () => fetchData('/station'),
-  updateMeters: (raw, purified) => postData('/station/meters', { raw, purified }),
-  
+  updateMeters: (rawReading, purifiedReading) =>
+    postData('/station/meters', { raw_water_meter: rawReading, purified_water_meter: purifiedReading }),
+
   // Expenses
   getExpenses: () => fetchData('/expenses'),
-  addExpense: (exp) => postData('/expenses', exp),
-  
-  // Container Returns
-  recordReturn: (custId, slim, round) => 
-    postData(`/customers/${custId}/return`, { slim_returned: slim, round_returned: round })
+  addExpense: (expense) => postData('/expenses', expense),
 };
