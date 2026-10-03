@@ -77,14 +77,17 @@ CREATE TABLE IF NOT EXISTS public.users (
 -- => The Flask backend uses SUPABASE_SECRET_KEY, which bypasses RLS,
 --    and enforces login + role checks itself.
 -- ============================================================
+
+-- Safely drop old policies if they exist from previous runs
+DROP POLICY IF EXISTS "Allow public all on customers"   ON public.customers;
+DROP POLICY IF EXISTS "Allow public all on products"    ON public.products;
+DROP POLICY IF EXISTS "Allow public all on orders"      ON public.orders;
+DROP POLICY IF EXISTS "Allow public all on collections" ON public.collections;
+DROP POLICY IF EXISTS "Allow public all on users"       ON public.users;
+
 ALTER TABLE public.customers   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.collections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.users       ENABLE ROW LEVEL SECURITY;
 
--- Remove the old "anyone can do anything" policies if they were created before
-DROP POLICY IF EXISTS "Allow public all on customers"   ON public.customers;
-DROP POLICY IF EXISTS "Allow public all on products"    ON public.products;
-DROP POLICY IF EXISTS "Allow public all on orders"      ON public.orders;
-DROP POLICY IF EXISTS "Allow public all on collections" ON public.collections;
