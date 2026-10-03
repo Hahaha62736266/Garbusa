@@ -630,5 +630,146 @@ function NewOrderModal({ isDark, cardBg, subText, customers, onClose, onSubmit }
                   className="w-full px-2 py-1 rounded bg-slate-800 text-white" /></label>
               </div>
             </div>
+                  </div>
+          )}
+          <div className="flex gap-3 mt-4 pt-3 border-t">
+            <button onClick={onClose} className="flex-1 py-2.5 rounded-lg bg-slate-700 text-white font-bold">Cancel</button>
+            <button onClick={() => onSubmit({
+              ...form,
+              id: `ORD-${Date.now().toString().slice(-4)}`,
+              timestamp: new Date().toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true })
+            })} className="flex-1 py-2.5 rounded-lg bg-cyan-500 text-white font-bold">
+              Create Order
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function ReceiptModal({ isDark, cardBg, subText, order, onClose }) {
+    return (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className={`w-full max-w-md rounded-2xl p-6 border ${cardBg}`}>
+          <div className="text-center mb-4">
+            <h2 className="text-lg font-black">AQUAFLOW WATER REFILLING</h2>
+            <p className={`text-xs ${subText}`}>Poblacion, Maramag • 0917-XXX-XXXX</p>
+            <p className="font-mono text-sm mt-2">{order.id}</p>
+            <p className={`text-xs ${subText}`}>{new Date().toLocaleString('en-PH')}</p>
+          </div>
+          <div className="border-y border-dashed py-3 my-3 text-xs space-y-1">
+            <p><b>Customer:</b> {order.customerName}</p>
+            <p><b>Items:</b></p>
+            {order.items.map((item, i) => (
+              <p key={i} className="flex justify-between">
+                <span>{item.qty}× {item.name}</span>
+                <span>₱{item.price * item.qty}</span>
+              </p>
+            ))}
+            <p className="flex justify-between font-bold text-base pt-2">
+              <span>TOTAL</span>
+              <span>₱{order.totalAmount}</span>
+            </p>
+            <p><b>Payment:</b> {order.paymentMethod} — {order.paymentStatus}</p>
+          </div>
+          <p className="text-center text-xs text-slate-400">Thank you! Drink Clean 💧</p>
+          <button onClick={onClose} className="w-full mt-4 py-2.5 rounded-lg bg-cyan-500 text-white font-bold">Close</button>
+        </div>
+      </div>
+    );
+  }
+
+  function ContainerReturnModal({ isDark, cardBg, subText, customer, onClose, onConfirm }) {
+    const [slim, setSlim] = useState(0);
+    const [round, setRound] = useState(0);
+    return (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className={`w-full max-w-sm rounded-2xl p-6 border ${cardBg}`}>
+          <h2 className="text-lg font-bold mb-4">Record Container Return</h2>
+          <p className="text-sm mb-4">{customer.name}</p>
+          <div className="space-y-3 text-xs">
+            <div>
+              <label>Slim Containers Returning</label>
+              <input type="number" value={slim} min="0" onChange={(e) => setSlim(parseInt(e.target.value)||0)}
+                className="w-full px-3 py-2 rounded-lg bg-slate-800 text-white" />
+            </div>
+            <div>
+              <label>Round Containers Returning</label>
+              <input type="number" value={round} min="0" onChange={(e) => setRound(parseInt(e.target.value)||0)}
+                className="w-full px-3 py-2 rounded-lg bg-slate-800 text-white" />
+            </div>
+            <p className={subText}>Current borrowed: {customer.borrowedSlim} Slim • {customer.borrowedRound} Round</p>
+          </div>
+          <div className="flex gap-3 mt-4">
+            <button onClick={onClose} className="flex-1 py-2.5 rounded-lg bg-slate-700 text-white font-bold">Cancel</button>
+            <button onClick={() => onConfirm(slim, round)} className="flex-1 py-2.5 rounded-lg bg-cyan-500 text-white font-bold">Confirm Return</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function ExpenseModal({ isDark, cardBg, subText, onClose, onSubmit }) {
+    const [form, setForm] = useState({ category: '', amount: '', note: '', date: new Date().toISOString().split('T')[0] });
+    return (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className={`w-full max-w-sm rounded-2xl p-6 border ${cardBg}`}>
+          <h2 className="text-lg font-bold mb-4">Add Expense</h2>
+          <div className="space-y-3 text-xs">
+            <select value={form.category} onChange={(e) => setForm({...form, category: e.target.value})}
+              className="w-full px-3 py-2 rounded-lg bg-slate-800 text-white">
+              <option value="">Select Category</option>
+              <option value="Electricity">Electricity</option>
+              <option value="Water">Water</option>
+              <option value="Gasoline">Gasoline</option>
+              <option value="Filter Replacement">Filter Replacement</option>
+              <option value="Staff Payroll">Staff Payroll</option>
+              <option value="Supplies">Supplies</option>
+              <option value="Other">Other</option>
+            </select>
+            <input type="number" placeholder="Amount" value={form.amount} onChange={(e) => setForm({...form, amount: parseFloat(e.target.value)||0})}
+              className="w-full px-3 py-2 rounded-lg bg-slate-800 text-white" />
+            <input placeholder="Note / Description" value={form.note} onChange={(e) => setForm({...form, note: e.target.value})}
+              className="w-full px-3 py-2 rounded-lg bg-slate-800 text-white" />
+            <input type="date" value={form.date} onChange={(e) => setForm({...form, date: e.target.value})}
+              className="w-full px-3 py-2 rounded-lg bg-slate-800 text-white" />
+          </div>
+          <div className="flex gap-3 mt-4">
+            <button onClick={onClose} className="flex-1 py-2.5 rounded-lg bg-slate-700 text-white font-bold">Cancel</button>
+            <button onClick={() => onSubmit(form)} className="flex-1 py-2.5 rounded-lg bg-cyan-500 text-white font-bold">Save</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function MeterReadingModal({ isDark, cardBg, subText, rawWaterMeter, purifiedWaterMeter, onClose, onSubmit }) {
+    const [raw, setRaw] = useState(rawWaterMeter);
+    const [purified, setPurified] = useState(purifiedWaterMeter);
+    return (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className={`w-full max-w-sm rounded-2xl p-6 border ${cardBg}`}>
+          <h2 className="text-lg font-bold mb-4">Update Meter Readings</h2>
+          <div className="space-y-4 text-xs">
+            <div>
+              <label>Raw Water Meter (m³)</label>
+              <input type="number" value={raw} onChange={(e) => setRaw(parseFloat(e.target.value)||0)}
+                className="w-full px-3 py-2 rounded-lg bg-slate-800 text-white font-mono" />
+            </div>
+            <div>
+              <label>Purified Water Meter (m³)</label>
+              <input type="number" value={purified} onChange={(e) => setPurified(parseFloat(e.target.value)||0)}
+                className="w-full px-3 py-2 rounded-lg bg-slate-800 text-white font-mono" />
+            </div>
+            <p className={subText}>Daily consumption will be calculated automatically</p>
+          </div>
+          <div className="flex gap-3 mt-4">
+            <button onClick={onClose} className="flex-1 py-2.5 rounded-lg bg-slate-700 text-white font-bold">Cancel</button>
+            <button onClick={() => onSubmit(raw, purified)} className="flex-1 py-2.5 rounded-lg bg-cyan-500 text-white font-bold">Update</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   );
 }
