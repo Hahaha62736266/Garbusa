@@ -1,3 +1,37 @@
+# 💧 Aquaflow Tracker — Garbusa Project
+
+Farm & Order Management System built with **React + Supabase** for Garbusa farmers and production tracking.
+
+---
+
+## ✨ Features
+- ✅ **Customer Management** — Create, edit, list, delete customers
+- ✅ **Order Tracking** — Full order lifecycle with customer/product dropdowns
+- ✅ **Loading States** — Skeleton placeholders, disabled controls, "Saving…" spinners
+- ✅ **Error Handling** — Inline field validation, "Not Found" screens, network retry
+- ✅ **Delete Confirmation** — Prevents accidental removal
+- ✅ **Success Toasts** — Fading notifications for every action
+- ✅ **Auto-Refresh** — Lists update instantly after changes
+- ✅ **Responsive UI** — Works on desktop and mobile
+
+---
+
+## 🛠 Tech Stack
+| Layer | Technology |
+|---|---|
+| Frontend | React 18 + Vite |
+| Database | Supabase PostgreSQL |
+| Styling | Tailwind CSS |
+| State | React Hooks |
+
+---
+
+## 🚀 Quick Setup
+
+### 1. Install Dependencies
+```bash
+npm install
+
 # Garbusa
 # Aquaflow Tracker - Water Refilling Station Management System
 A lightweight, CRUD-shaped web application designed to digitalize daily sales, deliveries, and container balances for local water refilling stations.
