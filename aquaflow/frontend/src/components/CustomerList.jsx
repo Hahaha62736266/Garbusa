@@ -4,6 +4,17 @@ import { useToast } from './Toast';
 
 const toast = useToast();
 
+import { LoadingSkeleton, ErrorMessage, EmptyState } from './FeedbackStates';
+
+// Replace your loading block with:
+if (isLoading) return <LoadingSkeleton count={3} />;
+
+// Replace your error block with:
+if (error) return <ErrorMessage message={error.message} onRetry={error.canRetry ? loadOrders : null} />;
+
+// Replace your empty block with:
+if (orders.length === 0) return <EmptyState message="No orders yet. Create your first order above." />;
+
 // after delete succeeds:
 toast.show('Customer deleted', 'success');
 
