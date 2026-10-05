@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient'; // adjust path if needed
+import { useToast } from './Toast';
+
+const toast = useToast();
+
+// after submit success:
+toast.show(order ? 'Order updated!' : 'Order created!', 'success');
 
 export default function OrderForm({ order, onSaved }) {
   const [isLoading, setIsLoading] = useState(false);
