@@ -14,6 +14,20 @@ Defines loading → success → error states for all async actions
 | Action | Loading State | Success State | Error State |
 |---|---|---|---|
 | Create Customer | Button disabled, "Saving…" + spinner | New row appears, toast "Customer added" | 422 → inline field errors<br/>Network → "Check connection" + retry |
+
+# Feedback Matrix — Aquaflow Tracker
+Defines loading → success → error states for all async actions
+
+| Action | Loading State | Success State | Error State |
+|---|---|---|---|
+| **Create Customer** | Button disabled, "Saving…" + spinner | New row appears, toast "Customer added" | Duplicate ID → inline message<br/>Network → "Check connection" + retry |
+| **Load Customers** | Skeleton placeholders | List renders all customers | Network → "Failed to load" + Retry |
+| **Edit Customer** | Form disabled, "Updating…" | Row updates, toast "Updated" | Not found → "Customer may be deleted"<br/>Network → Retry |
+| **Delete Customer** | Button disabled, "Deleting…" | Row removed, toast "Deleted" | Already gone → "Not found"<br/>Server/Network → "Couldn't delete" + Retry |
+| **Create Order** | Button disabled, "Saving…" | New row appears, toast "Order created" | 422/validation → inline per-field errors<br/>Network → Retry |
+| **Load Orders** | Skeleton placeholders | List renders with customer/product names | Network → "Failed to load orders" + Retry |
+| **Edit Order** | Form disabled, "Updating…" | Row updates, toast "Order updated" | Not found → "Order not found"<br/>Network → Retry |
+| **Delete Order** | Delete btn disabled, "Deleting…" | Row removed, toast "Order deleted" | Already gone → "Order already removed"<br/>Server/Network → "Couldn't delete" + Retry |
 | Read/Load Customers | Skeleton placeholder | List renders all customers | 404 → "No customers found"<br/>Network → "Failed to load" + retry |
 | Edit Customer | Form disabled, "Updating…" | Row updates, toast "Customer updated" | 422 → inline errors<br/>404 → "Customer not found"<br/>Network → retry |
 | Delete Customer | Delete btn disabled, "Deleting…" | Row removed, toast "Customer deleted" | 404 → "Customer already deleted"<br/>500 → "Couldn't delete"<br/>Network → retry |
