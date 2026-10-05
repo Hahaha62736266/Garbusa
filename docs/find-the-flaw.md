@@ -1,4 +1,4 @@
-# Find the Flaw — Task 3 Report
+# Find the Flaw
 
 ## Snippet 1: Missing Input Validation
 | Item | Details |
