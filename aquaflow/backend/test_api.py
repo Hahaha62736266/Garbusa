@@ -1,35 +1,49 @@
-import requests
+import pytest
+from app import app as flask_app
 
-BASE = "http://127.0.0.1:5000/api"
+@pytest.fixture
+def app():
+    flask_app.config.update({"TESTING": True})
+    yield flask_app
 
-def test_endpoint(name, method, url, data=None):
-    print(f"\n🔍 Testing {name}...")
-    try:
-        if method == "GET":
-            res = requests.get(url, timeout=5)
-        elif method == "POST":
-            res = requests.post(url, json=data, timeout=5)
-        
-        if res.status_code in (200, 201):
-            print(f"✅ PASS — Status: {res.status_code}")
-            print(f"   Data: {res.json()}")
-        else:
-            print(f"❌ FAIL — Status: {res.status_code}")
-    except Exception as e:
-        print(f"❌ ERROR — {e}")
+@pytest.fixture
+def client(app):
+    return app.test_client()
 
-# Run all tests
-print("=" * 50)
-print("💧 AQUAFLOW API ENDPOINT TEST")
-print("=" * 50)
+@pytest.fixture
+def runner(app):
+    return app.test_cli_runner()
 
-test_endpoint("Dashboard Stats", "GET", f"{BASE}/dashboard/stats")
-test_endpoint("Get Orders", "GET", f"{BASE}/orders")
-test_endpoint("Create Order", "POST", f"{BASE}/orders",
-              {"customer": "Test Customer", "liters": 15})
-test_endpoint("Get Inventory", "GET", f"{BASE}/inventory")
-test_endpoint("Get Users", "GET", f"{BASE}/users")
+# --- Actual tests ---
 
-print("\n" + "=" * 50)
-print("🏁 All tests completed")
-print("=" * 50)
+def test_endpoint_customers_get(client):
+    """GET /api/customers returns 200 and list"""
+    resp = client.get("/api/customers")
+    assert resp.status_code == 200
+    assert isinstance(resp.get_json(), list)
+
+def test_endpoint_orders_empty_payload(client):
+    """POST /api/orders with empty body returns 400"""
+    resp = client.post("/api/orders", json={})
+    assert resp.status_code == 400
+    data = resp.get_json()
+    assert "error" in data
+
+def test_endpoint_orders_missing_fields(client):
+    """POST /api/orders missing required fields returns 400"""
+    resp = client.post("/api/orders", json={"note": "test"})
+    assert resp.status_code == 400
+    assert "error" in resp.get_json()
+
+def test_endpoint_orders_valid_payload(client):
+    """POST /api/orders with valid data returns 201"""
+    payload = {
+        "customer_id": "CUST-001",
+        "product_id": "P002",
+        "quantity": 2
+    }
+    resp = client.post("/api/orders", json=payload)
+    assert resp.status_code == 201
+    data = resp.get_json()
+    assert "id" in data
+    assert data["status"] == "Pending"
