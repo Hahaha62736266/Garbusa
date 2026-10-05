@@ -36,22 +36,14 @@ export default function CustomerForm({ customer, onSaved }) {
 
       if (result.error) throw result.error;
 
-      onSaved?.();
-      if (!customer) setForm({ customer_id: '', full_name: '', contact_number: '', address: '' });
-    } catch (err) {
-      if (err.code === '23505') {
-        setErrors({ customer_id: 'This Customer ID already exists' });
-      } else if (err.code === '23502') {
-        // Required field missing
-        const field = err.message.match(/column "([^"]+)"/)?.[1];
-        if (field) setErrors({ [field]: `${field} is required` });
-      } else {
-        setErrors({ general: 'Something went wrong. Check your connection and try again.' });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      import { useToast } from './Toast'; // add at top
+
+// inside component:
+const toast = useToast();
+
+// then in handleSubmit, after success:
+toast.show(customer ? 'Customer updated!' : 'Customer added!', 'success');
+onSaved?.();
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded-lg bg-white shadow-sm">
