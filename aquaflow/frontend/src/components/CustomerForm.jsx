@@ -1,7 +1,11 @@
 import { useState } from 'react';
-import { supabase } from '../supabaseClient'; // adjust path if needed
+import { supabase } from '../supabaseClient';
+import { useToast } from './Toast';
+import { messages, interpretError } from '../utils/messages';
+import { LoadingButton } from './FeedbackStates';
 
 export default function CustomerForm({ customer, onSaved }) {
+  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [form, setForm] = useState({
@@ -24,26 +28,35 @@ export default function CustomerForm({ customer, onSaved }) {
     try {
       let result;
       if (customer) {
-        // UPDATE
         result = await supabase
           .from('customers')
           .update(form)
           .eq('customer_id', customer.customer_id);
       } else {
-        // CREATE
         result = await supabase.from('customers').insert(form);
       }
 
       if (result.error) throw result.error;
 
-      import { useToast } from './Toast'; // add at top
-
-// inside component:
-const toast = useToast();
-
-// then in handleSubmit, after success:
-toast.show(customer ? 'Customer updated!' : 'Customer added!', 'success');
-onSaved?.();
+      toast.show(customer ? messages.success.customerUpdated : messages.success.customerCreated);
+      onSaved?.();
+      if (!customer) setForm({ customer_id: '', full_name: '', contact_number: '', address: '' });
+    } catch (err) {
+      const friendly = interpretError(err, {
+        customer_id: 'Customer ID',
+        full_name: 'Full Name',
+        contact_number: 'Contact Number',
+        address: 'Address'
+      });
+      if (friendly?.type === 'field') {
+        setErrors({ [friendly.field]: friendly.text });
+      } else if (friendly?.type === 'global') {
+        setErrors({ general: friendly.text });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded-lg bg-white shadow-sm">
@@ -59,6 +72,7 @@ onSaved?.();
           onChange={handleChange}
           disabled={isLoading || !!customer}
           className="w-full border rounded p-2 mt-1 disabled:opacity-50"
+          placeholder="e.g. CUST-001"
         />
         {errors.customer_id && <p className="text-red-500 text-sm mt-1">{errors.customer_id}</p>}
       </div>
@@ -100,13 +114,11 @@ onSaved?.();
         {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
       </div>
 
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="bg-blue-600 text-white px-4 py-2 rounded font-medium disabled:opacity-50"
-      >
-        {isLoading ? '⏳ Saving…' : (customer ? 'Update Customer' : 'Add Customer')}
-      </button>
+      <LoadingButton
+        isLoading={isLoading}
+        label={customer ? 'Update Customer' : 'Add Customer'}
+        className="bg-blue-600 text-white"
+      />
     </form>
   );
 }
