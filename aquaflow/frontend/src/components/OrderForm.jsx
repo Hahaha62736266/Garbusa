@@ -1,32 +1,11 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient'; // adjust path if needed
+import { supabase } from '../supabaseClient';
 import { useToast } from './Toast';
 import { messages, interpretError } from '../utils/messages';
-
-// In handleSubmit catch block:
-catch (err) {
-  const friendly = interpretError(err, {
-    order_id: 'Order ID',
-    customer_id: 'Customer',
-    product_id: 'Product',
-    quantity: 'Quantity',
-    total_amount: 'Total Amount',
-    order_date: 'Order Date'
-  });
-
-  if (friendly?.type === 'field') {
-    setErrors({ [friendly.field]: friendly.text });
-  } else if (friendly?.type === 'global') {
-    setErrors({ general: friendly.text });
-  }
-}
-
-const toast = useToast();
-
-// after submit success:
-toast.show(order ? 'Order updated!' : 'Order created!', 'success');
+import { LoadingButton } from './FeedbackStates';
 
 export default function OrderForm({ order, onSaved }) {
+  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [customers, setCustomers] = useState([]);
@@ -37,10 +16,9 @@ export default function OrderForm({ order, onSaved }) {
     product_id: order?.product_id || '',
     quantity: order?.quantity || '',
     total_amount: order?.total_amount || '',
-    order_date: order?.order_date || new Date().toISOString().split('T')[0] // YYYY-MM-DD
+    order_date: order?.order_date || new Date().toISOString().split('T')[0]
   });
 
-  // Load dropdown options
   useEffect(() => {
     const fetchRefs = async () => {
       const [cRes, pRes] = await Promise.all([
@@ -66,18 +44,17 @@ export default function OrderForm({ order, onSaved }) {
     try {
       let result;
       if (order) {
-        // UPDATE
         result = await supabase
           .from('orders')
           .update(form)
           .eq('order_id', order.order_id);
       } else {
-        // CREATE
         result = await supabase.from('orders').insert(form);
       }
 
       if (result.error) throw result.error;
 
+      toast.show(order ? messages.success.orderUpdated : messages.success.orderCreated);
       onSaved?.();
       if (!order) {
         setForm({
@@ -87,16 +64,18 @@ export default function OrderForm({ order, onSaved }) {
         });
       }
     } catch (err) {
-      console.error(err);
-      if (err.code === '23505') {
-        setErrors({ order_id: 'This Order ID already exists' });
-      } else if (err.code === '23502') {
-        const field = err.message.match(/column "([^"]+)"/)?.[1];
-        if (field) setErrors({ [field]: `${field.replace('_', ' ')} is required` });
-      } else if (err.code === 'PGRST116') {
-        setErrors({ general: 'Order not found — it may have been deleted' });
-      } else {
-        setErrors({ general: 'Something went wrong. Check your connection and try again.' });
+      const friendly = interpretError(err, {
+        order_id: 'Order ID',
+        customer_id: 'Customer',
+        product_id: 'Product',
+        quantity: 'Quantity',
+        total_amount: 'Total Amount',
+        order_date: 'Order Date'
+      });
+      if (friendly?.type === 'field') {
+        setErrors({ [friendly.field]: friendly.text });
+      } else if (friendly?.type === 'global') {
+        setErrors({ general: friendly.text });
       }
     } finally {
       setIsLoading(false);
@@ -203,13 +182,11 @@ export default function OrderForm({ order, onSaved }) {
         {errors.order_date && <p className="text-red-500 text-sm mt-1">{errors.order_date}</p>}
       </div>
 
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="bg-green-600 text-white px-4 py-2 rounded font-medium disabled:opacity-50"
-      >
-        {isLoading ? '⏳ Saving…' : (order ? 'Update Order' : 'Create Order')}
-      </button>
+      <LoadingButton
+        isLoading={isLoading}
+        label={order ? 'Update Order' : 'Create Order'}
+        className="bg-green-600 text-white"
+      />
     </form>
   );
 }
