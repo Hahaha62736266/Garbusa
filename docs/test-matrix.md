@@ -1,3 +1,4 @@
+
 # Test Matrix — AquaFlow / Garbusa Water Management
 **Lab**: Week 10 — Manual QA & Bug Hunting
 **Date**: 2026-10-05 | **Team**: 5 Members | **Phase**: Feature Freeze — Log Only, Do Not Fix
@@ -24,6 +25,7 @@
 - **P1** = High — major broken, workaround exists
 - **P2** = Low — cosmetic / minor / rare
 
+#1 — P0-001 Login accepts blank password
 ---
 
 ## Full Test Matrix with Pre‑Written Cases
