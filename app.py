@@ -5,6 +5,24 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
+# ========== HELPER: PAYLOAD VALIDATION ==========
+def validate_json_payload(required_fields=None):
+    """
+    Validate incoming JSON payload.
+    - Returns (data, None) if valid
+    - Returns (None, error_response) if invalid → caller returns immediately
+    """
+    data = request.json
+    if not data:
+        return None, {"error": "Empty payload — JSON body required"}, 400
+    
+    if required_fields:
+        missing = [field for field in required_fields if field not in data or str(data[field]).strip() == ""]
+        if missing:
+            return None, {"error": f"Missing or empty required fields: {', '.join(missing)}"}, 400
+    
+    return data, None
+
 # ========== IN-MEMORY DATA STORE ==========
 customers = [
     {"id": "CUST-001", "name": "Maria Santos", "phone": "0917-123-4567",
@@ -52,11 +70,11 @@ def dashboard():
     <form method='POST'>
       <div>
         <label>Location:</label>
-        <input type='text' name='location'>
+        <input type='text' name='location' required>
       </div>
       <div>
-        <label>Water Level:</label>
-        <input type='number' step='0.01' name='water_level'>
+        <label>Water Level (m):</label>
+        <input type='number' step='0.01' name='water_level' required>
       </div>
       <button type='submit'>Submit</button>
     </form>
@@ -64,9 +82,13 @@ def dashboard():
 
 @app.route('/dashboard', methods=['POST'])
 def dashboard_submit():
-    loc = request.form.get('location')
-    level = request.form.get('water_level')
-    return f"<h3>✅ Saved!</h3><p>Location: {loc}<br>Level: {level}m</p>"
+    loc = request.form.get('location', '').strip()
+    level = request.form.get('water_level', '').strip()
+    
+    if not loc or not level:
+        return "<h3 style='color:red;'>❌ Error: Both fields are required!</h3><a href='/dashboard'>Go back</a>"
+    
+    return f"<h3>✅ Saved!</h3><p>Location: {loc}<br>Level: {level}m</p><a href='/dashboard'>Submit another</a>"
 
 # ========== API ROUTES ==========
 @app.route("/api/customers", methods=["GET"])
@@ -75,13 +97,15 @@ def list_customers():
 
 @app.route("/api/customers/<customer_id>/return", methods=["POST"])
 def record_return(customer_id):
-    data = request.json or {}
+    data, err = validate_json_payload()
+    if err: return jsonify(err[0]), err[1]
+    
     for c in customers:
         if c["id"] == customer_id:
             c["borrowedSlim"] = max(0, c["borrowedSlim"] - data.get("slim_returned", 0))
             c["borrowedRound"] = max(0, c["borrowedRound"] - data.get("round_returned", 0))
             return jsonify({"message": "Recorded", "customer": c})
-    return jsonify({"error": "Not found"}), 404
+    return jsonify({"error": "Customer not found"}), 404
 
 @app.route("/api/orders", methods=["GET"])
 def list_orders():
@@ -89,29 +113,43 @@ def list_orders():
 
 @app.route("/api/orders", methods=["POST"])
 def create_order():
-    order = request.json
-    if not order:
-        return jsonify({"error": "Empty payload — order data required"}), 400
+    data, err = validate_json_payload(["customer_id", "product_id", "quantity"])
+    if err: return jsonify(err[0]), err[1]
+    
+    order = {
+        "id": f"O{len(orders)+1:03d}",
+        "customer_id": data["customer_id"],
+        "product_id": data["product_id"],
+        "quantity": data["quantity"],
+        "total_amount": data.get("total_amount"),
+        "order_date": datetime.now().strftime("%Y-%m-%d"),
+        "status": data.get("status", "Pending"),
+        "paymentStatus": data.get("payment_status", "Unpaid")
+    }
     orders.insert(0, order)
     return jsonify(order), 201
 
 @app.route("/api/orders/<order_id>/status", methods=["POST"])
 def update_status(order_id):
-    data = request.json or {}
+    data, err = validate_json_payload(["status"])
+    if err: return jsonify(err[0]), err[1]
+    
     for o in orders:
         if o["id"] == order_id:
-            o["status"] = data.get("status", o.get("status"))
+            o["status"] = data["status"]
             return jsonify(o)
-    return jsonify({"error": "Not found"}), 404
+    return jsonify({"error": "Order not found"}), 404
 
 @app.route("/api/orders/<order_id>/payment", methods=["POST"])
 def update_payment(order_id):
-    data = request.json or {}
+    data, err = validate_json_payload(["payment_status"])
+    if err: return jsonify(err[0]), err[1]
+    
     for o in orders:
         if o["id"] == order_id:
-            o["paymentStatus"] = data.get("payment_status", o.get("paymentStatus"))
+            o["paymentStatus"] = data["payment_status"]
             return jsonify(o)
-    return jsonify({"error": "Not found"}), 404
+    return jsonify({"error": "Order not found"}), 404
 
 @app.route("/api/expenses", methods=["GET"])
 def list_expenses():
@@ -119,10 +157,16 @@ def list_expenses():
 
 @app.route("/api/expenses", methods=["POST"])
 def add_expense():
-    exp = request.json
-    if not exp:
-        return jsonify({"error": "Empty payload — expense data required"}), 400
-    exp["id"] = len(expenses) + 1
+    data, err = validate_json_payload(["category", "amount"])
+    if err: return jsonify(err[0]), err[1]
+    
+    exp = {
+        "id": len(expenses) + 1,
+        "category": data["category"],
+        "amount": float(data["amount"]),
+        "note": data.get("note", ""),
+        "date": data.get("date", datetime.now().strftime("%Y-%m-%d"))
+    }
     expenses.insert(0, exp)
     return jsonify(exp), 201
 
@@ -132,9 +176,17 @@ def get_station():
 
 @app.route("/api/station/meters", methods=["POST"])
 def update_meters():
-    data = request.json or {}
-    station["raw_water_meter"] = data.get("raw_water_meter", station["raw_water_meter"])
-    station["purified_water_meter"] = data.get("purified_water_meter", station["purified_water_meter"])
+    data, err = validate_json_payload()
+    if err: return jsonify(err[0]), err[1]
+    
+    if "raw_water_meter" not in data and "purified_water_meter" not in data:
+        return jsonify({"error": "Provide at least one meter reading"}), 400
+    
+    if "raw_water_meter" in data:
+        station["raw_water_meter"] = data["raw_water_meter"]
+    if "purified_water_meter" in data:
+        station["purified_water_meter"] = data["purified_water_meter"]
+    
     return jsonify(station)
 
 if __name__ == "__main__":
