@@ -1,6 +1,11 @@
 // PASTE THIS ENTIRE BLOCK — your list component
 import { useState, useEffect } from 'react';
+import { useToast } from './Toast';
 
+const toast = useToast();
+
+// after delete succeeds:
+toast.show('Order deleted', 'success');
 export default function OrderList() {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
