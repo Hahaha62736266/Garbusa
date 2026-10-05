@@ -25,8 +25,6 @@
 - **P1** = High — major broken, workaround exists
 - **P2** = Low — cosmetic / minor / rare
 
-#1 — P0-001 Login accepts blank password
-#2 — P1-001 Accepts negative reading values
 ---
 
 ## Full Test Matrix with Pre‑Written Cases
@@ -34,13 +32,14 @@
 | # | Feature / Module | ✅ H — Happy Path | ⚠️ B — Boundary | ❌ I — Invalid | ⬜ E — Empty / Null | 🔐 P — Permissions | Status | Bug Ref |
 |---|---|---|---|---|---|---|---|---|
 
-| 1 | **Login** | Enter valid email + correct password → dashboard loads, session active | Email = max length (254 chars); password = exactly min/max length; mixed case email → login succeeds | Wrong password; non-existent email; email without `@`; password only whitespace → error message | Email blank; password blank; both fields empty → **REQUIRED — BUT ACCEPTS BLANK PASSWORD** | Login as deactivated/disabled account; viewer tries admin login → access denied | ❌ | #1 — P0-001 Login accepts blank password → grants access |
+| 1 | **Login** | Enter valid email + correct password → dashboard loads, session active | Email = max length (254 chars); password = exactly min/max length; mixed case email → login succeeds | Wrong password; non-existent email; email without `@`; password only whitespace → error message | Email blank; password blank; both fields empty → **REQUIRED — BUT ACCEPTS BLANK PASSWORD** | Login as deactivated/disabled account; viewer tries admin login → access denied | ❌ | #1 — P0-001 Login accepts blank password
 
-| 2 | **Registration** | Unique email + strong pass + valid name → account created, confirmation sent | All fields at exact max length; phone = min/max digits; password exactly min length → success | Duplicate email; password too short; invalid phone chars; email with spaces → clear error **| BUT duplicate username allowed** | Name blank; email blank; phone blank; all fields empty → required field prompts | Attempt to register directly as admin role; duplicate username → role blocked / rejected | ❌ | #4 — P1-002 Duplicate username accepted |
+| 2 | **Registration** | Unique email + strong pass + valid name → account created, confirmation sent | All fields at exact max length; phone = min/max digits; password exactly min length → success | Duplicate email; password too short; invalid phone chars; email with spaces → clear error **| BUT duplicate username allowed** | Name blank; email blank; phone blank; all fields empty → required field prompts | Attempt to register directly as admin role; duplicate username → role blocked / rejected | ❌ | #4 — P1-002 Duplicate username accepted
+
 
 | 3 | **Dashboard Load** | Logged in as valid user → all metrics/charts render within 3s | 500+ records; rapid refresh; date range = 12 months → loads without freezing | Tampered session token; corrupted local storage; invalid dashboard URL → graceful error / redirect login | New account with 0 data → "No records yet" friendly message, no spinner hang | Direct URL to another user’s dashboard; guest tries admin panel → 403 Forbidden / redirect | ⏳ | |
 
-| 4 | **Water Reading Submit** | Numeric value + valid date → saves, appears in list immediately | Reading = min allowed; reading = max allowed; same timestamp entry; leap day (Feb 29) → accepted / handled | Negative value; text/emoji in value; future date; duplicate same reading → **REJECTED — ACTUALLY ACCEPTS -15** | Value blank; date blank; both empty → required prompts, no save | Viewer tries submit; user edits another’s reading → submit button hidden / error on save | ❌ | #2 — P1-001 Accepts negative value → saves to DB |
+| 4 | **Water Reading Submit** | Numeric value + valid date → saves, appears in list immediately | Reading = min allowed; reading = max allowed; same timestamp entry; leap day (Feb 29) → accepted / handled | Negative value; text/emoji in value; future date; duplicate same reading → **REJECTED — ACTUALLY ACCEPTS -15** | Value blank; date blank; both empty → required prompts, no save | Viewer tries submit; user edits another’s reading → submit button hidden / error on save | ❌ | #2 — P1-001 Accepts negative reading values |
 
 | 5 | **Farmer Profile** | Complete valid form → profile listed, searchable | Name/address at max length; special chars `&-'.,` in fields; longest valid region name → saves correctly | Duplicate ID; invalid contact format; impossible region code → rejected | Name blank; contact blank; location blank → required prompts shown | Regular user creates profile; viewer edits profile → action denied / button hidden | ⏳ | |
 
