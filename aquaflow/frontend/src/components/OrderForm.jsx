@@ -1,6 +1,25 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient'; // adjust path if needed
 import { useToast } from './Toast';
+import { messages, interpretError } from '../utils/messages';
+
+// In handleSubmit catch block:
+catch (err) {
+  const friendly = interpretError(err, {
+    order_id: 'Order ID',
+    customer_id: 'Customer',
+    product_id: 'Product',
+    quantity: 'Quantity',
+    total_amount: 'Total Amount',
+    order_date: 'Order Date'
+  });
+
+  if (friendly?.type === 'field') {
+    setErrors({ [friendly.field]: friendly.text });
+  } else if (friendly?.type === 'global') {
+    setErrors({ general: friendly.text });
+  }
+}
 
 const toast = useToast();
 
