@@ -1,4 +1,3 @@
-// Centralized messages — no raw codes shown to users
 export const messages = {
   loading: {
     saving: '⏳ Saving…',
@@ -29,11 +28,9 @@ export const messages = {
   }
 };
 
-// Map Supabase/HTTP error codes → user-friendly messages
 export const interpretError = (err, fieldLabels = {}) => {
   if (!err) return null;
 
-  // Validation / missing fields
   if (err.code === '23502' || err.status === 422) {
     const match = err.message?.match(/column "([^"]+)"/);
     const rawField = match?.[1] || 'value';
@@ -41,7 +38,6 @@ export const interpretError = (err, fieldLabels = {}) => {
     return { type: 'field', field: rawField, text: messages.field.required(fieldName) };
   }
 
-  // Duplicate key
   if (err.code === '23505') {
     const match = err.message?.match(/\(([^)]+)\)/);
     const rawField = match?.[1] || 'field';
@@ -49,21 +45,17 @@ export const interpretError = (err, fieldLabels = {}) => {
     return { type: 'field', field: rawField, text: messages.field.duplicate(fieldName) };
   }
 
-  // Not found
   if (err.code === 'PGRST116' || err.status === 404) {
     return { type: 'global', text: messages.global.notFound };
   }
 
-  // Network / fetch failed
   if (err.message === 'Failed to fetch' || err.code === 'NETWORK_ERROR') {
     return { type: 'global', text: messages.global.network, canRetry: true };
   }
 
-  // Server error
   if (err.status >= 500 || err.code === '500') {
     return { type: 'global', text: messages.global.server, canRetry: true };
   }
 
-  // Fallback
   return { type: 'global', text: messages.global.generic, canRetry: true };
 };
