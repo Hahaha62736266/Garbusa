@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { useToast } from './Toast';
+
+const toast = useToast();
+
+// after delete succeeds:
+toast.show('Customer deleted', 'success');
 
 export default function OrderList() {
   const [orders, setOrders] = useState([]);
