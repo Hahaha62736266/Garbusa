@@ -53,10 +53,19 @@ show_order = showOrder
 def createOrder(data):
     """Create a new order"""
     payload = _extract_payload(data)
+
+    # Validation - required fields
+    if not payload.get("customer_id"):
+        return {"status": 400, "error": "Bad Request", "message": "customer_id is required"}
     
+    if not payload.get("product_id"):
+        return {"status": 400, "error": "Bad Request", "message": "product_id is required"}
+
+    if not payload.get("quantity"):
+        return {"status": 400, "error": "Bad Request", "message": "quantity is required"}
+
     new_id = payload.get("order_id") or f"O{len(orders_db)+1:03d}"
     customer_id = payload.get("customer_id")
-    order = {
         "order_id": new_id,
         "customer_id": customer_id,
         "product_id": payload.get("product_id"),
