@@ -46,10 +46,9 @@ def showCustomer(customer_id):
     }
 
 show_customer = showCustomer
-
 def createCustomer(data):
     payload = _extract_payload(data)
-if not payload.get("full_name"):
+    if not payload.get("full_name"):
         return {"status": 400, "error": "Bad Request", "message": "full_name is required"}
     if not payload.get("contact_number"):
         return {"status": 400, "error": "Bad Request", "message": "contact_number is required"}
@@ -66,7 +65,6 @@ if not payload.get("full_name"):
         "owned_by_user_id": payload.get("owned_by_user_id") or new_id
     }
     customers_db[new_id] = customer
-
     return {
         "status": 201,
         "message": "Customer created",
