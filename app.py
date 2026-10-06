@@ -52,7 +52,7 @@ def dashboard():
     <form method='POST'>
       <div>
         <label>Location:</label>
-        <input type='text' name='location'>
+        <input type='text' name='location' required minlength='3'>
       </div>
       <div>
         <label>Water Level:</label>
@@ -64,10 +64,12 @@ def dashboard():
 
 @app.route('/dashboard', methods=['POST'])
 def dashboard_submit():
-    loc = request.form.get('location')
+   loc = request.form.get('location')
+    if not loc or loc.strip() == "":
+        return "<h3 style='color:red'>Error: Location is required!</h3><a href='/dashboard'>Go back</a>", 400
+    
     level = request.form.get('water_level')
-    return f"<h3>✅ Saved!</h3><p>Location: {loc}<br>Level: {level}m</p>"
-
+    return f"<h3>✅ Saved!</h3><p>Location: {loc}<br>Level: {level}</p>"
 # ========== API ROUTES ==========
 @app.route("/api/customers", methods=["GET"])
 def list_customers():
