@@ -56,14 +56,16 @@ def createOrder(data):
 
     # Validation - required fields
     if not payload.get("customer_id"):
-        return {"status": 400, "error": "Bad Request", "message": "customer_id is required"}
+        return {"error": "Bad Request", "message": "customer_id is required"}, 400
     
     if not payload.get("product_id"):
-        return {"status": 400, "error": "Bad Request", "message": "product_id is required"}
+        return {"error": "Bad Request", "message": "product_id is required"}, 400
 
     if not payload.get("quantity"):
-        return {"status": 400, "error": "Bad Request", "message": "quantity is required"}
-
+        return {"error": "Bad Request", "message": "quantity is required"}, 400
+# Additional validation: quantity must be positive
+    if payload.get("quantity", 0) <= 0:
+        return {"error": "Bad Request", "message": "quantity must be greater than 0"}, 400
     new_id = payload.get("order_id") or f"O{len(orders_db)+1:03d}"
     new_order = {
         "order_id": new_id,
@@ -74,11 +76,38 @@ def createOrder(data):
         "owned_by_user_id": payload.get("owned_by_user_id") or payload.get("customer_id") or "admin"
     }
     orders_db[new_id] = new_order
-    return {"status": 201, "data": new_order}
+    return {"status": 201, "data": new_order}, 201
 
 
-create_order = createOrder
+def createOrder(data):
+    """Create a new order"""
+    payload = _extract_payload(data)
 
+    # Validation - required fields
+    if not payload.get("customer_id"):
+        return {"error": "Bad Request", "message": "customer_id is required"}, 400
+
+    if not payload.get("product_id"):
+        return {"error": "Bad Request", "message": "product_id is required"}, 400
+
+    if not payload.get("quantity"):
+        return {"error": "Bad Request", "message": "quantity is required"}, 400
+
+    # Additional validation: quantity must be positive
+    if payload.get("quantity", 0) <= 0:
+        return {"error": "Bad Request", "message": "quantity must be greater than 0"}, 400
+
+    new_id = payload.get("order_id") or f"O{len(orders_db)+1:03d}"
+    new_order = {
+        "order_id": new_id,
+        "customer_id": payload.get("customer_id"),
+        "product_id": payload.get("product_id"),
+        "quantity": payload.get("quantity", 1),
+        "status": payload.get("status", "Pending"),
+        "owned_by_user_id": payload.get("owned_by_user_id") or payload.get("customer_id") or ""
+    }
+    orders_db[new_id] = new_order
+    return {"status": 201, "data": new_order}, 201
 def updateOrder(order_id, data=None):
     """Update an existing order"""
     if data is None and hasattr(order_id, 'params'):
