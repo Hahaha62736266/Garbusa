@@ -47,11 +47,11 @@ def createProduct(data):
 
     new_id = payload.get("product_id") or f"P{len(products_db)+1:03d}"
     product = {
-        "product_id": new_id,
-        "product_name": payload.get("product_name"),
-        "price_per_unit": float(payload.get("price_per_unit", 0.0)),
-        "description": payload.get("description", ""),
-        "stock_available": int(payload.get("stock_available", 0))
+    "product_id": new_id,
+    "product_name": payload.get("product_name"),
+    "price_per_unit": float(payload.get("price_per_unit", 0.0)),
+    "description": payload.get("description", ""),
+    "stock_available": int(payload.get("stock_available", 0))
     }
     products_db[new_id] = product
     return {
