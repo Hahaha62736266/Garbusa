@@ -73,7 +73,7 @@ def createOrder(data):
         "status": payload.get("status", "Pending"),
         "owned_by_user_id": payload.get("owned_by_user_id") or payload.get("customer_id") or "admin"
     }
-    orders_db.append(new_order)
+    orders_db[new_id] = new_order
     return {"status": 201, "data": new_order}
 
 
