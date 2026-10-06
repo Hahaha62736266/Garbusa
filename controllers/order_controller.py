@@ -65,28 +65,17 @@ def createOrder(data):
         return {"status": 400, "error": "Bad Request", "message": "quantity is required"}
 
     new_id = payload.get("order_id") or f"O{len(orders_db)+1:03d}"
-    customer_id = payload.get("customer_id")
+    new_order = {
         "order_id": new_id,
-        "customer_id": customer_id,
+        "customer_id": payload.get("customer_id"),
         "product_id": payload.get("product_id"),
         "quantity": payload.get("quantity", 1),
         "status": payload.get("status", "Pending"),
-        "owned_by_user_id": payload.get("owned_by_user_id") or customer_id or "admin"
+        "owned_by_user_id": payload.get("owned_by_user_id") or payload.get("customer_id") or "admin"
     }
-    orders_db[new_id] = order
-    
-    return {
-        "status": 201,
-        "message": "Order created",
-        "data": {
-            "id": len(orders_db),
-            "order_id": new_id,
-            "customer_id": order["customer_id"],
-            "product_id": order["product_id"],
-            "quantity": order["quantity"],
-            "status": order["status"]
-        }
-    }
+    orders_db.append(new_order)
+    return {"status": 201, "data": new_order}
+
 
 create_order = createOrder
 
