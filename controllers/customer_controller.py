@@ -49,7 +49,12 @@ show_customer = showCustomer
 
 def createCustomer(data):
     payload = _extract_payload(data)
-
+if not payload.get("full_name"):
+        return {"status": 400, "error": "Bad Request", "message": "full_name is required"}
+    if not payload.get("contact_number"):
+        return {"status": 400, "error": "Bad Request", "message": "contact_number is required"}
+    if not payload.get("address"):
+        return {"status": 400, "error": "Bad Request", "message": "address is required"}
     new_id = payload.get("customer_id") or f"C{len(customers_db)+1:03d}"
     customer = {
         "customer_id": new_id,
