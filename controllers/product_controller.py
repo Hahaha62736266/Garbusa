@@ -46,7 +46,7 @@ def createProduct(data):
     payload = _extract_payload(data)
 if not payload.get("name"):
         return {"status": 400, "error": "Bad Request", "message": "name is required"}
-    if payload.get("price") is None:
+if payload.get("price") is None:
         return {"status": 400, "error": "Bad Request", "message": "price is required"}
     new_id = payload.get("product_id") or f"P{len(products_db)+1:03d}"
     product = {
