@@ -1,5 +1,5 @@
 
-# 💧 Aquaflow - Water Refilling Station
+# 💧 Garbusa - Water Refilling Station
 
 Farm & Order Management System built with **React + Supabase** for Garbusa farmers and production tracking.
 
